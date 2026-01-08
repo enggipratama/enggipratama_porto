@@ -15,7 +15,7 @@ export function PortfolioCard1() {
         </CardItem>
         <CardItem translateZ="100" className="w-full mt-2">
           <img
-            src="/images/davibar.png"
+            src="/Images/davibar.png"
             height="1000"
             width="1000"
             className="h-40 w-full object-cover rounded-xl group-hover/card:shadow-xl"
@@ -58,7 +58,7 @@ export function PortfolioCard2() {
         </CardItem>
         <CardItem translateZ="100" className="w-full mt-2">
           <img
-            src="/images/old_portfolio.png"
+            src="/Images/old_portfolio.png"
             height="1000"
             width="1000"
             className="h-40 w-full object-cover rounded-xl group-hover/card:shadow-xl"
