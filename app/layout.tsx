@@ -41,7 +41,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Navbar />
-          <main className="relative z-10">{children}</main>
+          <main className="relative z-10 ">{children}</main>
         </ThemeProvider>
         <footer>
           <Footer />

@@ -3,6 +3,7 @@ import { TextFlip } from "@/components/textflip";
 import { ScrollIcon } from "@/components/scrollicon";
 import { SpotlightPreview } from "@/components/aboutcomponents";
 import { TimelinePortfolio } from "@/components/portfolio";
+import Image from "next/image";
 export default function Home() {
   return (
     <>
@@ -31,6 +32,31 @@ export default function Home() {
         <section id="portfolio" className="scroll-mt-0">
           <TimelinePortfolio />
         </section>
+        <div className="flex flex-col items-center justify-center mb-10 text-sm">
+          <div className="flex items-center gap-1">
+            <span className="text-gray-600 dark:text-gray-400">
+              Lets discuss with us -
+            </span>
+            <a
+              href="/giscus"
+              className="flex items-center gap-1 group text-blue-500 hover:text-sky-500 transition-colors"
+            >
+              <span className="font-bold underline-offset-2 group-hover:underline">
+                Giscus
+              </span>
+              <Image
+                src="/Images/giscus.png"
+                alt="Giscus"
+                width={24}
+                height={24}
+                className="w-5 h-5 group-hover:scale-110 transition-transform"
+              />
+            </a>
+          </div>
+          <span className="text-gray-500 italic dark:text-gray-400 text-xs mt-1">
+            Powered by Github
+          </span>
+        </div>
       </main>
     </>
   );

@@ -4,7 +4,7 @@ import { FloatingNav } from "./ui/floating-navbar";
 import {
   IconSmartHome,
   IconUserSquareRounded,
-  IconMessage,
+  IconMail,
   IconBook2,
 } from "@tabler/icons-react";
 
@@ -35,7 +35,7 @@ export function Navbar() {
       name: "Contact",
       link: "/contact",
       icon: (
-        <IconMessage className="h-4 w-4 text-neutral-500 dark:text-white" />
+        <IconMail className="h-4 w-4 text-neutral-500 dark:text-white" />
       ),
     },
   ];

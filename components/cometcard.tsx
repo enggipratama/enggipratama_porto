@@ -22,7 +22,7 @@ export function CometCardProfile() {
         <div className="mx-2 flex-1">
           <div className="relative mt-2 aspect-[3/4] w-full overflow-hidden rounded-[12px] bg-neutral-100 dark:bg-neutral-800">
             <Image
-              src="/Images/profile.jpeg"
+              src="/Images/profile.png"
               alt="Profile picture"
               fill
               priority
