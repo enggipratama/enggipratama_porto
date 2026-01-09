@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Github, Linkedin, Instagram, Mail, Heart } from "lucide-react";
-
+import pkg from "@/package.json";
 export function Footer() {
   const currentYear = new Date().getFullYear();
 
@@ -28,6 +28,7 @@ export function Footer() {
       label: "Email",
     },
   ];
+const buildInfo = `v${pkg.version} • ${new Date().toLocaleString("id-ID")}`;
 
   return (
     <footer className="relative w-full border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black">
@@ -73,6 +74,9 @@ export function Footer() {
             <Heart size={14} className="text-red-500 fill-red-500" />
           </motion.span>{" "}
           <span className="block sm:inline">by Enggi Pratama</span>
+          <br />
+          <span className="italic text-xs text-neutral-500">Build on v{pkg.version}</span>
+
         </p>
       </div>
     </footer>
