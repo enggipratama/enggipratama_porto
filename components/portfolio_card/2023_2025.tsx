@@ -1,43 +1,61 @@
 "use client";
 
-import React from "react";
 import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card";
+import Image from "next/image";
+
+const cardBodyClass =
+  "relative w-auto h-auto rounded-xl border border-black/[0.1] bg-gray-50 p-6 group/card " +
+  "dark:bg-black dark:border-white/[0.2] " +
+  "dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1]";
+
+const titleClass =
+  "mb-5 w-full text-center text-sm font-bold text-neutral-600 dark:text-white";
+
+const imageClass =
+  "h-40 w-full rounded-xl object-cover group-hover/card:shadow-xl";
+
+const actionClass =
+  "px-4 py-2 rounded-xl text-sm font-normal dark:text-white";
+
+const githubClass =
+  "px-4 py-2 rounded-xl bg-black text-xs font-bold text-white " +
+  "dark:bg-white dark:text-black";
 
 export function PortfolioCard1() {
   return (
     <CardContainer className="inter-var">
-      <CardBody className="bg-gray-50 relative group/card  dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-black/[0.1] w-auto sm:w-[30rem] h-auto rounded-xl p-6 border  ">
-        <CardItem
-          translateZ="50"
-          className="mb-5 text-sm text-center w-full font-bold text-neutral-600 dark:text-white"
-        >
+      <CardBody className={cardBodyClass}>
+        <CardItem translateZ="50" className={titleClass}>
           Davibar House - Warehouse Inventory Website
         </CardItem>
-        <CardItem translateZ="100" className="w-full mt-2">
-          <img
+
+        <CardItem translateZ="100" className="mt-2 w-full">
+          <Image
             src="/Images/davibar.png"
-            height="1000"
-            width="1000"
-            className="h-40 w-full object-cover rounded-xl group-hover/card:shadow-xl"
-            alt="thumbnail"
+            width={1000}
+            height={1000}
+            alt="Davibar House"
+            className={imageClass}
           />
         </CardItem>
-        <div className="flex justify-between items-center mt-10">
+
+        <div className="mt-10 flex items-center justify-between">
           <CardItem
             translateZ={20}
             as="a"
             href="https://davibar.enggipratama.my.id"
-            target="__blank"
-            className="px-4 py-2 rounded-xl text-sm font-normal dark:text-white"
+            target="_blank"
+            className={actionClass}
           >
             Demo →
           </CardItem>
+
           <CardItem
             translateZ={20}
             as="a"
             href="https://github.com/enggipratama/DAVIBARTEST"
-            target="__blank"
-            className="px-4 py-2 rounded-xl bg-black dark:bg-white dark:text-black text-white text-xs font-bold"
+            target="_blank"
+            className={githubClass}
           >
             Github
           </CardItem>
@@ -46,41 +64,42 @@ export function PortfolioCard1() {
     </CardContainer>
   );
 }
+
 export function PortfolioCard2() {
   return (
     <CardContainer className="inter-var">
-      <CardBody className="bg-gray-50 relative group/card  dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-black/[0.1] w-auto sm:w-[30rem] h-auto rounded-xl p-6 border  ">
-        <CardItem
-          translateZ="50"
-          className="mb-5 text-sm text-center w-full font-bold text-neutral-600 dark:text-white"
-        >
+      <CardBody className={cardBodyClass}>
+        <CardItem translateZ="50" className={titleClass}>
           Web Portfolio - OLD
         </CardItem>
-        <CardItem translateZ="100" className="w-full mt-2">
-          <img
+
+        <CardItem translateZ="100" className="mt-2 w-full">
+          <Image
             src="/Images/old_portfolio.png"
-            height="1000"
-            width="1000"
-            className="h-40 w-full object-cover rounded-xl group-hover/card:shadow-xl"
-            alt="thumbnail"
+            width={1000}
+            height={1000}
+            alt="Old Portfolio"
+            className={imageClass}
           />
         </CardItem>
-        <div className="flex justify-between items-center mt-10">
+
+        <div className="mt-10 flex items-center justify-between">
           <CardItem
             translateZ={20}
             as="a"
             href="https://megp.enggipratama.my.id"
-            target="__blank"
-            className="px-4 py-2 rounded-xl text-sm font-normal dark:text-white"
+            target="_blank"
+            className={actionClass}
           >
             Demo →
           </CardItem>
+
           <CardItem
             translateZ={20}
             as="a"
             href="https://github.com/enggipratama/porto"
-            target="__blank"
-            className="px-4 py-2 rounded-xl bg-black dark:bg-white dark:text-black text-white text-xs font-bold"
+            target="_blank"
+            className={githubClass}
           >
             Github
           </CardItem>
@@ -89,41 +108,38 @@ export function PortfolioCard2() {
     </CardContainer>
   );
 }
+
 export function PortfolioCard3() {
   return (
     <CardContainer className="inter-var">
-      <CardBody className="bg-gray-50 relative group/card  dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-black/[0.1] w-auto sm:w-[30rem] h-auto rounded-xl p-6 border  ">
-        <CardItem
-          translateZ="50"
-          className="mb-5 text-sm text-center w-full font-bold text-neutral-600 dark:text-white"
-        >
+      <CardBody className={cardBodyClass}>
+        <CardItem translateZ="50" className={titleClass}>
           Stay Tune
         </CardItem>
-        <CardItem translateZ="100" className="w-full mt-2">
-          <img
-            src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2560&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            height="1000"
-            width="1000"
-            className="h-40 w-full object-cover rounded-xl group-hover/card:shadow-xl"
-            alt="thumbnail"
+
+        <CardItem translateZ="100" className="mt-2 w-full">
+          <Image
+            src="/Images/old_portfolio.png"
+            width={1000}
+            height={1000}
+            alt="Coming soon"
+            className={imageClass}
           />
         </CardItem>
-        <div className="flex justify-between items-center mt-10">
+
+        <div className="mt-10 flex items-center justify-between">
           <CardItem
             translateZ={20}
             as="button"
-            href="-"
-            target="__blank"
-            className="px-4 py-2 rounded-xl text-sm font-normal dark:text-white"
+            className={actionClass}
           >
             Soon →
           </CardItem>
+
           <CardItem
             translateZ={20}
             as="button"
-            href="-"
-            target="__blank"
-            className="px-4 py-2 rounded-xl bg-black dark:bg-white dark:text-black text-white text-xs font-bold"
+            className={githubClass}
           >
             Soon
           </CardItem>

@@ -1,8 +1,10 @@
 import React from "react";
 import { Timeline } from "@/components/ui/timeline";
-import { PortfolioCard1 } from "./portfolio_card/2023_2025";
-import { PortfolioCard2 } from "./portfolio_card/2023_2025";
-import { PortfolioCard3 } from "./portfolio_card/2023_2025";
+import {
+  PortfolioCard1,
+  PortfolioCard2,
+  PortfolioCard3,
+} from "./portfolio_card/2023_2025";
 
 export function TimelinePortfolio() {
   const data = [
