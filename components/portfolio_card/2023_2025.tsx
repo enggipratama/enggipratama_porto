@@ -119,7 +119,7 @@ export function PortfolioCard3() {
 
         <CardItem translateZ="100" className="mt-2 w-full">
           <Image
-            src="/Images/old_portfolio.png"
+            src="/Images/staytuned.png"
             width={1000}
             height={1000}
             alt="Coming soon"
