@@ -84,7 +84,7 @@ export default function ContactForm() {
         addNotification(result.error || "Gagal mengirim pesan", "error");
         setTimeout(() => setButtonStatus("idle"), 3000);
       }
-    } catch (error) {
+    } catch {
       setButtonStatus("error");
       addNotification("Terjadi kesalahan jaringan", "error");
       setTimeout(() => setButtonStatus("idle"), 3000);
@@ -93,7 +93,7 @@ export default function ContactForm() {
 
   return (
     <section className="max-w-2xl mx-auto font-mono px-4 py-16 relative">
-      <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2 w-full max-w-xs md:max-w-sm">
+      <div className="fixed top-5 left-1/2 -translate-x-1/2 z-100 flex flex-col gap-2 w-full max-w-xs md:max-w-sm">
         <AnimatePresence>
           {notifications.map((notif) => (
             <motion.div
@@ -210,7 +210,7 @@ export default function ContactForm() {
               {...register("message")}
               placeholder="Write your message here..."
               className={cn(
-                "flex w-full border-none bg-gray-50 dark:bg-zinc-800 text-black dark:text-white shadow-input rounded-md px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-[2px] transition duration-400",
+                "flex w-full border-none bg-gray-50 dark:bg-zinc-800 text-black dark:text-white shadow-input rounded-md px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 transition duration-400",
                 errors.message
                   ? "border-red-500 focus-visible:ring-red-500"
                   : "focus-visible:ring-neutral-400 dark:focus-visible:ring-neutral-600"
