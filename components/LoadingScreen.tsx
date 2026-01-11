@@ -29,7 +29,7 @@ export default function LoadingScreen() {
   return (
     <div
       className={`
-        fixed inset-0 z-99999
+        fixed inset-0 z-[9999]
         flex items-center justify-center
         bg-white dark:bg-black
         transform transition-transform duration-700 ease-in-out

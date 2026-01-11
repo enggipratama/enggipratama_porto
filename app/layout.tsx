@@ -40,12 +40,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="flex flex-col min-h-screen">
-            <Navbar />
-            <main className="relative z-10 flex-grow">{children}</main>
-            <Footer />
-          </div>
+          <Navbar />
+          <main className="relative z-10 ">{children}</main>
         </ThemeProvider>
+        <footer>
+          <Footer />
+        </footer>
       </body>
     </html>
   );

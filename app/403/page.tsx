@@ -7,7 +7,7 @@ export const metadata = {
 export default function Forbidden() {
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 px-6">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 bg-amber-500/10 blur-[120px] rounded-full" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-amber-500/10 blur-[120px] rounded-full" />
 
       <div className="relative z-10 text-center">
         <span className="text-sm font-bold tracking-widest text-amber-600 uppercase">

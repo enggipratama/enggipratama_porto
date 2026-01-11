@@ -114,7 +114,7 @@ export function PortfolioCard3() {
     <CardContainer className="inter-var">
       <CardBody className={cardBodyClass}>
         <CardItem translateZ="50" className={titleClass}>
-          Stay Tuned
+          Stay Tune
         </CardItem>
 
         <CardItem translateZ="100" className="mt-2 w-full">

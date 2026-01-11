@@ -5,7 +5,7 @@ import {
   AnimatePresence,
   useScroll,
   useMotionValueEvent,
-} from "motion/react"; // Pastikan package ini sesuai dengan instalasi Anda
+} from "motion/react";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/components/darkmode_button";
 
@@ -21,9 +21,11 @@ export const FloatingNav = ({
   className?: string;
 }) => {
   const { scrollYProgress } = useScroll();
+
   const [visible, setVisible] = useState(false);
 
   useMotionValueEvent(scrollYProgress, "change", (current) => {
+    // Check if current is not undefined and is a number
     if (typeof current === "number") {
       const direction = current! - scrollYProgress.getPrevious()!;
 
@@ -54,28 +56,20 @@ export const FloatingNav = ({
           duration: 0.5,
         }}
         className={cn(
-          "flex max-w-fit fixed top-10 inset-x-0 mx-auto border border-transparent dark:border-white/20 rounded-full dark:bg-black bg-white shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] z-[5000] pr-2 pl-8 py-2 items-center justify-center space-x-4",
+          "flex max-w-fit fixed top-10 inset-x-0 mx-auto border border-transparent dark:border-white/20 rounded-full dark:bg-black bg-white shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] z-5000 pr-2 pl-8 py-2  items-center justify-center space-x-4",
           className
         )}
       >
-        {navItems.map((navItem, idx: number) => (
+        {navItems.map((navItem: any, idx: number) => (
           <a
             key={`link=${idx}`}
             href={navItem.link}
-            // 1. Tambahkan class 'group' di sini
             className={cn(
-              "group relative dark:text-neutral-50 items-center flex space-x-1 text-neutral-600 dark:hover:text-sky-300 hover:text-sky-500 transition-colors duration-200"
+              "relative dark:text-neutral-50 items-center flex space-x-1 text-neutral-600 dark:hover:text-neutral-300 hover:text-neutral-500"
             )}
           >
-            {/* 2. Gunakan group-hover:scale-110 agar ikon ikut membesar */}
-            <span className="block transition-transform duration-200 group-hover:scale-110 ">
-              {navItem.icon}
-            </span>
-
-            {/* 3. Gunakan group-hover:scale-110 pada teks juga */}
-            <span className="hidden sm:block text-xs font-mono transition-transform duration-200 group-hover:scale-110">
-              {navItem.name}
-            </span>
+            <span className="block sm">{navItem.icon}</span>
+            <span className="hidden sm:block text-sm">{navItem.name}</span>
           </a>
         ))}
         <ModeToggle />

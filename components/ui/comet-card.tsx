@@ -5,6 +5,7 @@ import {
   useMotionValue,
   useSpring,
   useTransform,
+  useMotionTemplate,
 } from "motion/react";
 import { cn } from "@/lib/utils";
 
@@ -96,7 +97,7 @@ export const CometCard = ({
       >
         {children}
         <motion.div
-          className="pointer-events-none absolute inset-0 z-50 h-full w-full rounded-3xl mix-blend-overlay"
+          className="pointer-events-none absolute inset-0 z-50 h-full w-full rounded-[16px] mix-blend-overlay"
           style={{
             opacity: 0.6,
           }}

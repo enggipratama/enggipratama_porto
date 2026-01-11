@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { motion, useAnimate, HTMLMotionProps } from "framer-motion";
 
 interface ButtonProps extends HTMLMotionProps<"button"> {

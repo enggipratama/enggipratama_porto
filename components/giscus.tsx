@@ -15,7 +15,7 @@ export default function GiscusWrapper() {
     return () => cancelAnimationFrame(frame);
   }, []);
 
-  if (!mounted) return <div className="mt-10 min-h-50" />;
+  if (!mounted) return <div className="mt-10 min-h-[200px]" />;
 
   return (
     <section className="w-full mt-10 max-w-3xl mx-auto font-mono text-center">
@@ -32,7 +32,7 @@ export default function GiscusWrapper() {
           </button>
         </div>
       ) : (
-        <div className="animate-in fade-in duration-500 min-h-100">
+        <div className="animate-in fade-in duration-500 min-h-[600px]">
           <Giscus
             id="comments"
             repo="enggipratama/enggipratama"
