@@ -5,6 +5,7 @@ import { TextFlip } from "@/components/textflip";
 import { ScrollIcon } from "@/components/scrollicon";
 import { SpotlightPreview } from "@/components/aboutcomponents";
 import { TimelinePortfolio } from "@/components/portfolio";
+import GitHubData from "@/components/githubdata";
 
 export default function Home() {
   return (
@@ -14,7 +15,7 @@ export default function Home() {
           <h2 className="relative z-20 px-4 py-4 text-center font-mono font-bold tracking-tight">
             <TextFlip />
 
-            <span className="mt-3 block bg-gradient-to-b from-neutral-900 to-neutral-700 bg-clip-text text-lg tracking-[0.2em] text-transparent uppercase dark:from-neutral-600 dark:to-white">
+            <span className="mt-3 block bg-linear-to-b from-neutral-900 to-neutral-700 bg-clip-text text-lg tracking-[0.2em] text-transparent uppercase dark:from-neutral-600 dark:to-white">
               Enggi Pratama.
             </span>
           </h2>
@@ -36,8 +37,11 @@ export default function Home() {
       <section id="portfolio" className="scroll-mt-0">
         <TimelinePortfolio />
       </section>
-      
-      <footer className="mb-10 flex flex-col items-center justify-center text-sm">
+      <div className="font-mono">
+        <GitHubData />
+      </div>
+
+      <footer className="mb-10 font-mono flex flex-col items-center justify-center text-sm">
         <div className="flex items-center gap-1">
           <span className="text-gray-600 dark:text-gray-400">
             Lets discuss with us -
@@ -45,7 +49,7 @@ export default function Home() {
 
           <a
             href="/giscus"
-            className="group flex items-center gap-1 text-blue-500 transition-colors hover:text-sky-500"
+            className="group flex items-center gap-1 hover:text-blue-500 transition-colors text-sky-500"
           >
             <span className="font-bold underline-offset-2 group-hover:underline">
               Giscus

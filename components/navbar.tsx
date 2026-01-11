@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 import { FloatingNav } from "./ui/floating-navbar";
 import {
   IconSmartHome,
@@ -12,31 +11,23 @@ export function Navbar() {
   const navItems = [
     {
       name: "Home",
-      link: "/",
-      icon: (
-        <IconSmartHome className="h-4 w-4 text-neutral-500 dark:text-white" />
-      ),
+      link: "/#",
+      icon: <IconSmartHome className="h-5 w-5" />,
     },
     {
       name: "About",
       link: "/#about",
-      icon: (
-        <IconUserSquareRounded className="h-4 w-4 text-neutral-500 dark:text-white" />
-      ),
+      icon: <IconUserSquareRounded className="h-5 w-5" />,
     },
     {
       name: "Portfolio",
       link: "/#portfolio",
-      icon: (
-        <IconBook2 className="h-4 w-4 text-neutral-500 dark:text-white" />
-      ),
+      icon: <IconBook2 className="h-5 w-5" />,
     },
     {
       name: "Contact",
       link: "/contact",
-      icon: (
-        <IconMail className="h-4 w-4 text-neutral-500 dark:text-white" />
-      ),
+      icon: <IconMail className="h-5 w-5" />,
     },
   ];
   return (
