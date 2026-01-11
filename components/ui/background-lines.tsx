@@ -15,12 +15,7 @@ export const BackgroundLines = ({
   };
 }) => {
   return (
-    <div
-      className={cn(
-        "h-screen w-full bg-light dark:bg-dark",
-        className
-      )}
-    >
+    <div className={cn("h-screen w-full bg-light dark:bg-dark", className)}>
       <SVG svgOptions={svgOptions} />
       {children}
     </div>
@@ -90,6 +85,11 @@ const SVG = ({
     "#6A286F",
     "#604483",
   ];
+  function randomFloat() {
+    const array = new Uint32Array(1);
+    crypto.getRandomValues(array);
+    return array[0] / (0xffffffff + 1);
+  }
   return (
     <motion.svg
       viewBox="0 0 1440 900"
@@ -114,8 +114,8 @@ const SVG = ({
             ease: "linear",
             repeat: Infinity,
             repeatType: "loop",
-            delay: Math.floor(Math.random() * 10),
-            repeatDelay: Math.floor(Math.random() * 10 + 2),
+            delay: randomFloat() * 10,
+            repeatDelay: randomFloat() * 10 + 2,
           }}
           key={`path-first-${idx}`}
         />
@@ -136,8 +136,8 @@ const SVG = ({
             ease: "linear",
             repeat: Infinity,
             repeatType: "loop",
-            delay: Math.floor(Math.random() * 10),
-            repeatDelay: Math.floor(Math.random() * 10 + 2),
+            delay: randomFloat() * 10,
+            repeatDelay: randomFloat() * 10 + 2,
           }}
           key={`path-second-${idx}`}
         />
