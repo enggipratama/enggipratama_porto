@@ -114,6 +114,50 @@ export function PortfolioCard3() {
     <CardContainer className="inter-var">
       <CardBody className={cardBodyClass}>
         <CardItem translateZ="50" className={titleClass}>
+          Mystery Love - Birthday Greetings Website
+        </CardItem>
+
+        <CardItem translateZ="100" className="mt-2 w-full">
+          <Image
+            src="/Images/mystery-love.png"
+            width={1000}
+            height={1000}
+            alt="Mystery Love"
+            className={imageClass}
+          />
+        </CardItem>
+
+        <div className="mt-10 flex items-center justify-between">
+          <CardItem
+            translateZ={20}
+            as="a"
+            href="https://bub.enggipratama.my.id"
+            target="_blank"
+            className={actionClass}
+          >
+            Demo →
+          </CardItem>
+
+          <CardItem
+            translateZ={20}
+            as="a"
+            href="https://github.com/enggipratama/mystery-love"
+            target="_blank"
+            className={githubClass}
+          >
+            Github
+          </CardItem>
+        </div>
+      </CardBody>
+    </CardContainer>
+  );
+}
+
+export function PortfolioCard() {
+  return (
+    <CardContainer className="inter-var">
+      <CardBody className={cardBodyClass}>
+        <CardItem translateZ="50" className={titleClass}>
           Stay Tuned
         </CardItem>
 

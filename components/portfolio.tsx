@@ -1,6 +1,6 @@
-
 import { Timeline } from "@/components/ui/timeline";
 import {
+  PortfolioCard,
   PortfolioCard1,
   PortfolioCard2,
   PortfolioCard3,
@@ -25,10 +25,18 @@ export function TimelinePortfolio() {
       ),
     },
     {
-      title: "Coming soon",
+      title: "2026 - NOW",
       content: (
         <div>
           <PortfolioCard3 />
+        </div>
+      ),
+    },
+    {
+      title: "Coming soon",
+      content: (
+        <div>
+          <PortfolioCard />
         </div>
       ),
     },
