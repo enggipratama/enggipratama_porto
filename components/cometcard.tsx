@@ -26,7 +26,7 @@ export function CometCardProfile() {
               alt="Profile picture"
               fill
               priority
-              quality={90}
+              quality={75}
               placeholder="blur"
               blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8/+F9PQAI8AKp79997wAAAABJRU5ErkJggg=="
               sizes="(max-width: 640px) 100vw, 240px"
@@ -35,7 +35,6 @@ export function CometCardProfile() {
           </div>
         </div>
 
-        {/* Bagian Teks yang Adaptif */}
         <div className="mt-4 flex flex-shrink-0 items-center justify-between p-2 font-mono transition-colors">
           <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-800 dark:text-white">
             Web Developer
