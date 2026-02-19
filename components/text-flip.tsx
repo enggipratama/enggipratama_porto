@@ -1,6 +1,6 @@
 "use client";
 import { LayoutTextFlip } from "@/components/ui/layout-text-flip";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 
 export function TextFlip() {
   return (

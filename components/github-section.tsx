@@ -1,6 +1,6 @@
 import { getGitHubData } from "@/lib/github";
 import { Star, GitFork, Code2, Github, Activity } from "lucide-react";
-import GitHubHeatmap from "@/components/GitHubCalendar";
+import GithubHeatmap from "@/components/github-heatmap";
 interface GitHubRepo {
   id: string;
   name: string;
@@ -27,7 +27,7 @@ interface GitHubDataResponse {
     nodes: GitHubRepo[];
   };
 }
-export default async function GitHubSection() {
+export default async function GithubSection() {
   const data: GitHubDataResponse = await getGitHubData();
   const repos = data.pinnedItems.nodes;
   const totalContributions =
@@ -49,7 +49,7 @@ export default async function GitHubSection() {
         </div>
       </div>
       <div className="flex flex-wrap justify-center gap-6 w-full pt-6">
-        <GitHubHeatmap username={username} />
+        <GithubHeatmap username={username} />
         {repos.map((repo: GitHubRepo) => (
           <div
             key={repo.id}
@@ -77,7 +77,7 @@ export default async function GitHubSection() {
                 {repo.stargazerCount || repo.stargazers_count || 0}
               </span>
               <span className="flex items-center gap-1">
-                <GitFork size={14} className="text-blue-500" />{" "}
+                <GitFork size={14} className="text-sky-500" />{" "}
                 {repo.forkCount || repo.forks_count || 0}
               </span>
               <span className="ml-auto flex items-center gap-1.5 bg-slate-200 dark:bg-slate-900 px-2 py-1 rounded-md">

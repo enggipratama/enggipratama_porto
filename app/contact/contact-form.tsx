@@ -7,8 +7,8 @@ import { z } from "zod";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { StatefulButton } from "@/components/buttonsend";
-import { BreadcrumbWithCustomSeparator } from "@/components/breadcrumb_contact";
+import { StatefulButton } from "@/components/send-button";
+import { BreadcrumbWithCustomSeparator } from "@/components/breadcrumb-contact";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { nanoid } from "nanoid";
@@ -93,7 +93,7 @@ export default function ContactForm() {
 
   return (
     <section className="max-w-2xl mx-auto font-mono px-4 py-16 relative">
-      <div className="fixed top-5 left-1/2 -translate-x-1/2 z-100 flex flex-col gap-2 w-full max-w-xs md:max-w-sm">
+      <div className="fixed top-5 left-1/2 -translate-x-1/2 z-40 flex flex-col gap-2 w-full max-w-xs md:max-w-sm">
         <AnimatePresence>
           {notifications.map((notif) => (
             <motion.div
@@ -108,7 +108,7 @@ export default function ContactForm() {
                 notif.type === "error" &&
                   "bg-red-500 border-red-600 text-white",
                 notif.type === "info" &&
-                  "bg-blue-500 border-blue-600 text-white"
+                  "bg-sky-500 border-sky-600 text-white"
               )}
             >
               {notif.message}
@@ -236,7 +236,7 @@ export default function ContactForm() {
           </span>
           <a
             href="/giscus"
-            className="flex items-center gap-1 group text-blue-500 hover:text-sky-500 transition-colors"
+            className="flex items-center gap-1 group text-sky-500 hover:text-sky-400 transition-colors"
           >
             <span className="font-bold underline-offset-2 group-hover:underline">
               Giscus

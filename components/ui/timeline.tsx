@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { AnimatedTooltipPreview } from "../tooltips";
+import { AnimatedTooltipPreview } from "../tooltip";
 
 interface TimelineEntry {
   title: string;
@@ -94,7 +94,7 @@ export const Timeline = ({ data }: { data: TimelineEntry[] }) => {
               height: heightTransform,
               opacity: opacityTransform,
             }}
-            className="absolute inset-x-0 top-0 w-[2px] rounded-full bg-gradient-to-t from-blue-500 via-purple-500 to-transparent shadow-[0_0_10px_#3b82f6]"
+            className="absolute inset-x-0 top-0 w-[2px] rounded-full bg-gradient-to-t from-sky-500 via-indigo-500 to-transparent shadow-[0_0_10px_#0ea5e9]"
           />
         </div>
       </div>

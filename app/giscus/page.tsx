@@ -1,4 +1,4 @@
-import GiscusForm from "./GiscusForm";
+import GiscusForm from "./giscus-form";
 
 export const metadata = {
   title: "Giscus",

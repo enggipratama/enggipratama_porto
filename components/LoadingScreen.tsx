@@ -12,11 +12,11 @@ export default function LoadingScreen() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setAnimateOut(true);
-    }, 4500);
+    }, 2000);
 
     const cleanup = setTimeout(() => {
       setLoading(false);
-    }, 5000);
+    }, 2500);
 
     return () => {
       clearTimeout(timer);
@@ -29,7 +29,7 @@ export default function LoadingScreen() {
   return (
     <div
       className={`
-        fixed inset-0 z-99999
+        fixed inset-0 z-50
         flex items-center justify-center
         bg-white dark:bg-black
         transform transition-transform duration-700 ease-in-out

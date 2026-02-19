@@ -8,7 +8,7 @@ export function CometCardProfile() {
       <button
         type="button"
         className={cn(
-          "my-10 flex w-60 cursor-pointer flex-col items-stretch rounded-[20px] border p-2 md:my-20 md:p-4 transition-all duration-500",
+          "my-10 flex w-full max-w-[240px] cursor-pointer flex-col items-stretch rounded-[20px] border p-2 md:my-20 md:p-4 transition-all duration-500",
           "bg-white border-neutral-200",
           "dark:bg-[#161616] dark:border-neutral-800"
         )}

@@ -1,7 +1,7 @@
-import Giscus from "@/components/giscus";
-import { BreadcrumbWithCustomSeparator } from "@/components/breadcrumb_giscus";
+import Giscus from "@/components/giscus-wrapper";
+import { BreadcrumbWithCustomSeparator } from "@/components/breadcrumb-giscus";
 
-export default function Page() {
+export default function GiscusForm() {
   return (
     <main className="max-w-4xl mx-auto p-4 font-mono">
       <div className="w-full bg-white dark:bg-black px-5 mb-5 text-center">

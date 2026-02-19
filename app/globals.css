@@ -123,13 +123,10 @@
     @apply bg-background text-foreground;
   }
 }
-/* Chrome, Edge, Safari */
 ::-webkit-scrollbar {
   width: 0;
   height: 0;
 }
-
-/* Firefox */
 * {
   scrollbar-width: none;
 }
@@ -150,4 +147,35 @@ html {
 .animate-blink {
   animation: blink 0s infinite;
   -webkit-animation: blink 0s infinite;
+}
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 20s linear infinite;
+}
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

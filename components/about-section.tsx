@@ -5,7 +5,7 @@ import { Github, Linkedin, Instagram, Mail } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Spotlight } from "./ui/spotlight";
-import { CometCardProfile } from "@/components/cometcard";
+import { CometCardProfile } from "@/components/comet-card";
 
 export function SpotlightPreview() {
   const socials = [
@@ -56,7 +56,7 @@ export function SpotlightPreview() {
 
           <p className="mt-4 text-justify text-sm leading-relaxed text-neutral-700 dark:text-neutral-400 md:text-left">
             My name is{" "}
-            <span className="font-bold italic text-blue-600 dark:text-blue-400">
+            <span className="font-bold italic text-sky-600 dark:text-sky-400">
               Muhammad Einggi Gusti P
             </span>
             . I graduated with a{" "}
@@ -78,7 +78,7 @@ export function SpotlightPreview() {
                 aria-label={label}
                 whileHover={{ y: -5, scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="rounded-xl border border-neutral-200 bg-white p-3 text-neutral-700 shadow-sm transition-colors hover:border-blue-500/50 hover:text-blue-600 dark:border-neutral-700 dark:bg-[#161616] dark:text-neutral-300 dark:hover:text-blue-400"
+                className="rounded-xl border border-neutral-200 bg-white p-3 text-neutral-700 shadow-sm transition-colors hover:border-sky-500/50 hover:text-sky-600 dark:border-neutral-700 dark:bg-[#161616] dark:text-neutral-300 dark:hover:text-sky-400"
               >
                 {icon}
               </motion.a>

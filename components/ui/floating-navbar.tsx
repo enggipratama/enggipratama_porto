@@ -5,9 +5,9 @@ import {
   AnimatePresence,
   useScroll,
   useMotionValueEvent,
-} from "motion/react"; // Pastikan package ini sesuai dengan instalasi Anda
+} from "framer-motion";
 import { cn } from "@/lib/utils";
-import { ModeToggle } from "@/components/darkmode_button";
+import { ModeToggle } from "@/components/dark-mode-button";
 
 export const FloatingNav = ({
   navItems,
@@ -62,17 +62,16 @@ export const FloatingNav = ({
           <a
             key={`link=${idx}`}
             href={navItem.link}
-            // 1. Tambahkan class 'group' di sini
             className={cn(
               "group relative dark:text-neutral-50 items-center flex space-x-1 text-neutral-600 dark:hover:text-sky-300 hover:text-sky-500 transition-colors duration-200"
             )}
           >
-            {/* 2. Gunakan group-hover:scale-110 agar ikon ikut membesar */}
+
             <span className="block transition-transform duration-200 group-hover:scale-110 ">
               {navItem.icon}
             </span>
 
-            {/* 3. Gunakan group-hover:scale-110 pada teks juga */}
+
             <span className="hidden sm:block text-xs font-mono transition-transform duration-200 group-hover:scale-110">
               {navItem.name}
             </span>

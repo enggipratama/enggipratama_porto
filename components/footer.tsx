@@ -110,13 +110,13 @@ export function Footer() {
 
   return (
     <footer className="relative w-full border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black overflow-hidden">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-px bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-50" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-px bg-gradient-to-r from-transparent via-sky-500 to-transparent opacity-50" />
 
       <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col gap-10">
         <div className="flex flex-col sm:flex-row items-center justify-between">
           <div className="flex flex-col items-center lg:items-start group">
             <h2 className="text-xl font-bold font-mono text-neutral-800 dark:text-neutral-200 tracking-tighter">
-              Enggi Pratama<span className="text-blue-500">.</span>
+              Enggi Pratama<span className="text-sky-500">.</span>
             </h2>
             <p className="text-xs text-neutral-500 mt-1 font-mono">
               Feel free to reach out. — Say hello anytime!
@@ -157,7 +157,7 @@ export function Footer() {
               <span className="text-neutral-300 dark:text-neutral-800">|</span>
 
               <div className="flex items-center gap-2">
-                <Eye size={12} className="text-blue-500" />
+                <Eye size={12} className="text-sky-500" />
                 <p className="text-[10px] font-mono tracking-widest flex items-center">
                   <AnimatedNumber
                     value={

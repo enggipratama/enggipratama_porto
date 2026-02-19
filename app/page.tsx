@@ -1,11 +1,11 @@
 import Image from "next/image";
 
 import { BackgroundLines } from "@/components/ui/background-lines";
-import { TextFlip } from "@/components/textflip";
-import { ScrollIcon } from "@/components/scrollicon";
-import { SpotlightPreview } from "@/components/aboutcomponents";
+import { TextFlip } from "@/components/text-flip";
+import { ScrollIcon } from "@/components/scroll-icon";
+import { SpotlightPreview } from "@/components/about-section";
 import { TimelinePortfolio } from "@/components/portfolio";
-import GitHubData from "@/components/githubdata";
+import GithubData from "@/components/github-section";
 
 export default function Home() {
   return (
@@ -38,7 +38,7 @@ export default function Home() {
         <TimelinePortfolio />
       </section>
       <div className="font-mono">
-        <GitHubData />
+        <GithubData />
       </div>
 
       <footer className="mb-10 font-mono flex flex-col items-center justify-center text-sm">
@@ -49,7 +49,7 @@ export default function Home() {
 
           <a
             href="/giscus"
-            className="group flex items-center gap-1 hover:text-blue-500 transition-colors text-sky-500"
+            className="group flex items-center gap-1 hover:text-sky-500 transition-colors text-sky-500"
           >
             <span className="font-bold underline-offset-2 group-hover:underline">
               Giscus

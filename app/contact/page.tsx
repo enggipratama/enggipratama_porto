@@ -1,4 +1,4 @@
-import ContactForm from "./ContactForm";
+import ContactForm from "./contact-form";
 
 export const metadata = {
   title: "Contact",
