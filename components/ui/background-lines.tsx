@@ -72,9 +72,11 @@ export const BackgroundLines = ({
   };
 }) => {
   return (
-    <div className={cn("h-screen w-full bg-light dark:bg-dark", className)}>
-      <SVG svgOptions={svgOptions} />
-      {children}
+    <div className={cn("relative min-h-screen w-full overflow-hidden bg-white dark:bg-black", className)}>
+      <div className="absolute inset-0 z-0">
+        <SVG svgOptions={svgOptions} />
+      </div>
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center">{children}</div>
     </div>
   );
 };
@@ -101,7 +103,8 @@ const SVG = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
-      className="absolute inset-0 w-full h-full"
+      className="pointer-events-none h-full w-full"
+      preserveAspectRatio="xMidYMid slice"
     >
       {PATHS_DATA.map((path, idx) => (
         <motion.path

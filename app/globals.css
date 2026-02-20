@@ -145,8 +145,8 @@ html {
   scroll-behavior: smooth;
 }
 .animate-blink {
-  animation: blink 0s infinite;
-  -webkit-animation: blink 0s infinite;
+  animation: blink 1s infinite;
+  -webkit-animation: blink 1s infinite;
 }
 @keyframes marquee {
   0% {
@@ -178,4 +178,13 @@ html {
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* 3D Transform utilities */
+.perspective-distant {
+  perspective: 1000px;
+}
+
+.transform-3d {
+  transform-style: preserve-3d;
 }

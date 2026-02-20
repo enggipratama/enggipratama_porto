@@ -15,13 +15,13 @@ export default function GiscusWrapper() {
     return () => cancelAnimationFrame(frame);
   }, []);
 
-  if (!mounted) return <div className="mt-10 min-h-50" />;
+  if (!mounted) return <div className="min-h-[100px]" />;
 
   return (
-    <section className="w-full mt-10 max-w-3xl mx-auto font-mono text-center">
+    <section className="w-full font-mono text-center">
       {!isLoaded ? (
-        <div className="py-20">
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+        <div className="py-10">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
             Click the button below to load messages and comments
           </p>
           <button
@@ -32,26 +32,37 @@ export default function GiscusWrapper() {
           </button>
         </div>
       ) : (
-        <div className="animate-in fade-in duration-500 min-h-100">
-          <Giscus
-            id="comments"
-            repo="enggipratama/enggipratama"
-            repoId="R_kgDOL-qXqQ"
-            category="General"
-            categoryId="DIC_kwDOL-qXqc4C0tG-"
-            mapping="specific"
-            term="Let's Connect"
-            reactionsEnabled="1"
-            emitMetadata="0"
-            inputPosition="top"
-            theme={resolvedTheme === "dark" ? "dark" : "light"}
-            lang="id"
-            loading="eager"
-          />
+        <div className="animate-in fade-in duration-500" style={{ minHeight: '300px' }}>
+          {/* Scale down Giscus UI */}
+          <div 
+            className="relative w-full overflow-hidden"
+            style={{ 
+              transform: 'scale(0.92)',
+              transformOrigin: 'top center',
+              marginLeft: '-4%',
+              width: '108%'
+            }}
+          >
+            <Giscus
+              id="comments"
+              repo="enggipratama/enggipratama"
+              repoId="R_kgDOL-qXqQ"
+              category="General"
+              categoryId="DIC_kwDOL-qXqc4C0tG-"
+              mapping="specific"
+              term="Let's Connect"
+              reactionsEnabled="1"
+              emitMetadata="0"
+              inputPosition="top"
+              theme={resolvedTheme === "dark" ? "dark" : "light"}
+              lang="id"
+              loading="eager"
+            />
+          </div>
 
           <button
             onClick={() => setIsLoaded(false)}
-            className="px-4 py-2 mt-5 bg-black dark:bg-white text-white dark:text-black rounded-md text-xs font-bold hover:scale-105 transition-transform shadow-xl"
+            className="px-4 py-2 mt-3 bg-black dark:bg-white text-white dark:text-black rounded-md text-xs font-bold hover:scale-105 transition-transform shadow-xl"
           >
             Close Giscus
           </button>

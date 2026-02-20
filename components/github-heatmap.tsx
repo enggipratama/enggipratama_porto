@@ -8,17 +8,29 @@ import "react-tooltip/dist/react-tooltip.css";
 
 export default function GithubHeatmap({ username }: { username: string }) {
   return (
-    <div className="flex flex-col items-center bg-gray-50 dark:bg-black p-6 rounded-xl border-2 w-full max-w-4xl mx-auto shadow-sm">
-      <h3 className="text-sm font-medium mb-4 text-sky-500 self-start flex items-center gap-2">
-        <Activity size={16} className="animate-pulse" /> Contribution Activity
-      </h3>
+    <div className="h-full rounded-xl border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-950 sm:p-5">
+      {/* Header */}
+      <div className="mb-4 flex items-center gap-2">
+        <Activity className="h-4 w-4 text-sky-500" />
+        <h3 className="font-mono text-sm font-semibold text-neutral-900 dark:text-white">
+          Contribution Activity
+        </h3>
+      </div>
 
-      <div className="w-full overflow-x-auto pb-4">
-        <div className="min-w-[750px] md:min-w-full">
+      {/* Heatmap */}
+      <div className="w-full overflow-x-auto pb-2">
+        <div className="min-w-[600px]">
           <GitHubCalendar
             username={username}
-            labels={{
-              totalCount: "{{count}} contributions in the last year",
+            blockSize={10}
+            blockMargin={3}
+            fontSize={12}
+            style={{
+              maxWidth: "100%",
+            }}
+            theme={{
+              light: ["#ebedf0", "#9be9a8", "#40c463", "#30a14e", "#216e39"],
+              dark: ["#2d333b", "#0e4429", "#006d32", "#26a641", "#39d353"],
             }}
             renderBlock={(block, activity) =>
               React.cloneElement(block, {
@@ -27,21 +39,40 @@ export default function GithubHeatmap({ username }: { username: string }) {
                 "data-tooltip-date": activity.date,
               } as React.SVGProps<SVGRectElement>)
             }
-            theme={{
-              light: ["#ebedf0", "#9be9a8", "#40c463", "#30a14e", "#216e39"],
-              dark: ["#4a4e53", "#0e4429", "#006d32", "#26a641", "#39d353"],
-            }}
-            fontSize={12}
-            blockSize={12}
-            blockMargin={4}
           />
         </div>
       </div>
 
+      {/* Hide all default legends from react-github-calendar */}
+      <style jsx global>{`
+        /* Hide the color legend (Less/More) */
+        .react-github-calendar__legend,
+        .react-github-calendar__legend-colors,
+        [data-testid="calendar-legend"] {
+          display: none !important;
+        }
+        /* Hide the total count */
+        .react-github-calendar__count,
+        [data-testid="calendar-count"] {
+          display: none !important;
+        }
+        /* Hide any footer/div after the calendar grid */
+        .react-github-calendar > div:last-child,
+        .react-github-calendar footer,
+        .react-github-calendar__footer {
+          display: none !important;
+        }
+        /* Target all possible legend selectors */
+        svg + div,
+        svg ~ div {
+          display: none !important;
+        }
+      `}</style>
+
       <Tooltip
         id="github-tooltip"
-        className="z-50 rounded-lg! text-xs! px-3! py-2!"
-        style={{ backgroundColor: "#020617", color: "#f8fafc" }}
+        className="z-50 rounded-lg text-xs"
+        style={{ backgroundColor: "#0f172a", color: "#f8fafc" }}
         render={({ activeAnchor }) => {
           const count = activeAnchor?.getAttribute("data-tooltip-count");
           const date = activeAnchor?.getAttribute("data-tooltip-date");
@@ -50,13 +81,13 @@ export default function GithubHeatmap({ username }: { username: string }) {
 
           return (
             <div className="flex items-center gap-2">
-              <Activity size={14} className="text-sky-400 animate-pulse" />
-              <span>
-                {count} |{" "}
-                {new Date(date).toLocaleDateString("id-ID", {
-                  day: "numeric",
+              <Activity className="h-3.5 w-3.5 text-sky-400" />
+              <span className="font-mono">
+                {count} contributions on{" "}
+                {new Date(date).toLocaleDateString("en-US", {
+                  weekday: "short",
                   month: "short",
-                  year: "numeric",
+                  day: "numeric",
                 })}
               </span>
             </div>

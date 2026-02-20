@@ -60,9 +60,9 @@ export function TypingText({
   ]);
 
   return (
-    <span className="text-black dark:text-white text-sm font-mono font-semibold tracking-widest">
+    <span className="text-neutral-900 dark:text-white text-sm font-mono font-bold tracking-widest drop-shadow-sm">
       {displayed}
-      <span className="ml-1 animate-blink">|</span>
+      <span className="ml-1 animate-blink text-sky-600 dark:text-sky-400">|</span>
     </span>
   );
 }

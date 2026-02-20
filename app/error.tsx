@@ -19,13 +19,13 @@ export default function Error({ error, reset }: ErrorProps) {
 
       <div className="relative z-10 text-center px-6">
         <span className="text-sm font-bold tracking-widest text-red-600 uppercase">
-          Error 500
+          System Error
         </span>
         <h1 className="mt-2 text-5xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-6xl">
-          Something went wrong
+          Oops! Something Broke
         </h1>
         <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-400 max-w-md mx-auto">
-          An unexpected error has occurred. Our team has been notified.
+          We encountered an unexpected issue. Please try again or contact support if the problem persists.
         </p>
 
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -33,13 +33,13 @@ export default function Error({ error, reset }: ErrorProps) {
             onClick={() => reset()}
             className="w-full sm:w-auto rounded-md bg-slate-900 dark:bg-white px-6 py-3 text-sm font-semibold text-white dark:text-black shadow-sm hover:bg-slate-700 dark:hover:bg-slate-200 transition-all"
           >
-            Try again
+            Try Again
           </button>
           <Link
             href="/"
             className="text-sm font-semibold text-slate-900 dark:text-white"
           >
-            Go back home <span aria-hidden="true">&rarr;</span>
+            Return Home <span aria-hidden="true">&rarr;</span>
           </Link>
         </div>
       </div>

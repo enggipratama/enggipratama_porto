@@ -1,11 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   motion,
   AnimatePresence,
   useScroll,
   useMotionValueEvent,
 } from "framer-motion";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/components/dark-mode-button";
 
@@ -22,6 +23,32 @@ export const FloatingNav = ({
 }) => {
   const { scrollYProgress } = useScroll();
   const [visible, setVisible] = useState(false);
+
+  // Smooth scroll handler for navigation
+  const handleNavClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, link: string) => {
+    // If link is "/" (Home)
+    if (link === "/") {
+      // Check if already on home page
+      if (window.location.pathname === "/") {
+        e.preventDefault();
+        // Scroll to top (home section)
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      // If on other page, let Next.js handle navigation
+      return;
+    }
+    
+    // Check if it's an anchor link (e.g., /#about or /#portfolio)
+    if (link.includes('#')) {
+      const hash = link.split('#')[1];
+      const element = document.getElementById(hash);
+      
+      if (element) {
+        e.preventDefault();
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  }, []);
 
   useMotionValueEvent(scrollYProgress, "change", (current) => {
     if (typeof current === "number") {
@@ -59,23 +86,21 @@ export const FloatingNav = ({
         )}
       >
         {navItems.map((navItem, idx: number) => (
-          <a
+          <Link
             key={`link=${idx}`}
             href={navItem.link}
+            onClick={(e) => handleNavClick(e, navItem.link)}
             className={cn(
               "group relative dark:text-neutral-50 items-center flex space-x-1 text-neutral-600 dark:hover:text-sky-300 hover:text-sky-500 transition-colors duration-200"
             )}
           >
-
-            <span className="block transition-transform duration-200 group-hover:scale-110 ">
+            <span className="block transition-transform duration-200 group-hover:scale-110">
               {navItem.icon}
             </span>
-
-
             <span className="hidden sm:block text-xs font-mono transition-transform duration-200 group-hover:scale-110">
               {navItem.name}
             </span>
-          </a>
+          </Link>
         ))}
         <ModeToggle />
       </motion.div>
