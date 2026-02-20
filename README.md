@@ -52,7 +52,7 @@
 
 | Light Mode | Dark Mode |
 |:----------:|:---------:|
-| ![Light Mode](/Images/screenshot-light.png) | ![Dark Mode](/Images/screenshot-dark.png) |
+| ![Light Mode](public/Images/screenshot-light.png) | ![Dark Mode](public/Images/screenshot-dark.png) |
 
 </div>
 
