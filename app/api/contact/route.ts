@@ -19,71 +19,26 @@ const contactSchema = z.object({
   website: z.string().optional(),
 });
 
-const EmailTemplate = ({
-  name,
-
-  email,
-
-  subject,
-
-  message,
-}: {
+interface EmailTemplateProps {
   name: string;
-
   email: string;
-
   subject: string;
-
   message: string;
-}) =>
+}
+
+const EmailTemplate = ({ name, email, subject, message }: EmailTemplateProps) =>
   React.createElement(
     "div",
-
     { style: { fontFamily: "sans-serif", lineHeight: "1.5", color: "#333" } },
-
-    React.createElement("h2", null, "New Message"),
-
-    React.createElement("hr", { style: { borderColor: "#eee" } }),
-
-    React.createElement(
-      "p",
-
-      null,
-
-      React.createElement("strong", null, "Name:"),
-
-      ` ${name}`
-    ),
-
-    React.createElement(
-      "p",
-
-      null,
-
-      React.createElement("strong", null, "Email:"),
-
-      ` ${email}`
-    ),
-
-    React.createElement(
-      "p",
-
-      null,
-
-      React.createElement("strong", null, "Subject:"),
-
-      ` ${subject}`
-    ),
-
-    React.createElement(
-      "p",
-
-      null,
-
-      React.createElement("strong", null, "Message:")
-    ),
-
-    React.createElement("p", { style: { whiteSpace: "pre-wrap" } }, message)
+    React.createElement("h2", { style: { color: "#0ea5e9", marginBottom: "16px" } }, "New Message from Portfolio"),
+    React.createElement("hr", { style: { borderColor: "#e5e7eb", marginBottom: "16px" } }),
+    React.createElement("p", { style: { margin: "8px 0" } }, React.createElement("strong", null, "Name: "), name),
+    React.createElement("p", { style: { margin: "8px 0" } }, React.createElement("strong", null, "Email: "), email),
+    React.createElement("p", { style: { margin: "8px 0" } }, React.createElement("strong", null, "Subject: "), subject),
+    React.createElement("p", { style: { margin: "8px 0" } }, React.createElement("strong", null, "Message:")),
+    React.createElement("p", { 
+      style: { whiteSpace: "pre-wrap", backgroundColor: "#f9fafb", padding: "12px", borderRadius: "6px", marginTop: "8px" } 
+    }, message)
   );
 
 export async function POST(req: Request) {
@@ -100,12 +55,7 @@ export async function POST(req: Request) {
       from: "Portfolio Email <onboarding@resend.dev>",
       to: [process.env.CONTACT_RECEIVER_EMAIL || "admin@example.com"],
       subject: `MEGP: ${subject}`,
-      react: React.createElement(EmailTemplate, {
-        name,
-        email,
-        subject,
-        message,
-      }),
+      react: React.createElement(EmailTemplate, { name, email, subject, message }),
     });
 
     if (error) return NextResponse.json({ error }, { status: 400 });

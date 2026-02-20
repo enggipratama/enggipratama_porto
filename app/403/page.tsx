@@ -7,10 +7,10 @@ export const metadata = {
 export default function Forbidden() {
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 px-6">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 bg-amber-500/10 blur-[120px] rounded-full" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 bg-sky-500/10 blur-[120px] rounded-full" />
 
       <div className="relative z-10 text-center">
-        <span className="text-sm font-bold tracking-widest text-amber-600 uppercase">
+        <span className="text-sm font-bold tracking-widest text-sky-600 uppercase">
           Error 403
         </span>
         <h1 className="mt-2 text-5xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-6xl">
@@ -27,10 +27,10 @@ export default function Forbidden() {
             Go back home
           </Link>
           <Link
-            href="/login"
-            className="text-sm font-semibold text-slate-900 dark:text-white underline decoration-amber-500 underline-offset-4"
+            href="/contact"
+            className="text-sm font-semibold text-slate-900 dark:text-white underline decoration-sky-500 underline-offset-4"
           >
-            Login to Account
+            Contact Support
           </Link>
         </div>
       </div>

@@ -1,8 +1,8 @@
-import ContactForm from "./ContactForm";
+import ContactForm from "./contact-form";
 
 export const metadata = {
   title: "Contact",
-  description: "Say hello anytime!",
+  description: "Have a project in mind? Let's discuss how we can work together.",
 };
 
 export default function Page() {

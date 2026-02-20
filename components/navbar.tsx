@@ -11,7 +11,7 @@ export function Navbar() {
   const navItems = [
     {
       name: "Home",
-      link: "/#",
+      link: "/",
       icon: <IconSmartHome className="h-5 w-5" />,
     },
     {
