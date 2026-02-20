@@ -9,7 +9,6 @@ import "react-tooltip/dist/react-tooltip.css";
 export default function GithubHeatmap({ username }: { username: string }) {
   return (
     <div className="h-full rounded-xl border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-950 sm:p-5">
-      {/* Header */}
       <div className="mb-4 flex items-center gap-2">
         <Activity className="h-4 w-4 text-sky-500" />
         <h3 className="font-mono text-sm font-semibold text-neutral-900 dark:text-white">
@@ -17,7 +16,6 @@ export default function GithubHeatmap({ username }: { username: string }) {
         </h3>
       </div>
 
-      {/* Heatmap */}
       <div className="w-full overflow-x-auto pb-2">
         <div className="min-w-[600px]">
           <GitHubCalendar
@@ -43,26 +41,21 @@ export default function GithubHeatmap({ username }: { username: string }) {
         </div>
       </div>
 
-      {/* Hide all default legends from react-github-calendar */}
       <style jsx global>{`
-        /* Hide the color legend (Less/More) */
         .react-github-calendar__legend,
         .react-github-calendar__legend-colors,
         [data-testid="calendar-legend"] {
           display: none !important;
         }
-        /* Hide the total count */
         .react-github-calendar__count,
         [data-testid="calendar-count"] {
           display: none !important;
         }
-        /* Hide any footer/div after the calendar grid */
         .react-github-calendar > div:last-child,
         .react-github-calendar footer,
         .react-github-calendar__footer {
           display: none !important;
         }
-        /* Target all possible legend selectors */
         svg + div,
         svg ~ div {
           display: none !important;

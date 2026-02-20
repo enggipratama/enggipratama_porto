@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 
-// Style badge standar (sama seperti tech stack portfolio)
 const badgeBaseStyle = "inline-flex shrink-0 items-center rounded-md px-2 py-1 text-[10px] font-medium sm:rounded-full sm:px-2.5 sm:text-xs";
 
 export function OpenToWorkBadge() {
@@ -41,7 +40,6 @@ export function CTAButtons() {
           transition={{ type: "spring", stiffness: 400, damping: 15 }}
           className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-lg bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-900 px-6 py-2.5 text-sm font-medium text-white shadow-lg transition-all dark:from-white dark:via-neutral-200 dark:to-white dark:text-neutral-900 dark:shadow-neutral-800/50"
         >
-          {/* Animated gradient overlay */}
           <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
           
           <span className="relative">Let&apos;s Talk</span>

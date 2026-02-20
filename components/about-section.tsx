@@ -28,7 +28,6 @@ const socials = [
   },
 ];
 
-// Warna badge style portfolio (bg-100/text-700 dark:bg-900/30/text-300)
 const skills = [
   { name: "Next.js", color: "bg-neutral-800 text-white dark:bg-white dark:text-neutral-900" },
   { name: "React", color: "bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300" },
@@ -40,7 +39,6 @@ const skills = [
   { name: "Framer", color: "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300" },
 ];
 
-// Style badge standar (sama seperti tech stack portfolio)
 const badgeBaseStyle = "inline-flex shrink-0 items-center rounded-md px-2 py-1 text-[10px] font-medium sm:rounded-full sm:px-2.5 sm:text-xs";
 
 export function SpotlightPreview() {
