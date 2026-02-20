@@ -24,21 +24,15 @@ export const FloatingNav = ({
   const { scrollYProgress } = useScroll();
   const [visible, setVisible] = useState(false);
 
-  // Smooth scroll handler for navigation
   const handleNavClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, link: string) => {
-    // If link is "/" (Home)
     if (link === "/") {
-      // Check if already on home page
       if (window.location.pathname === "/") {
         e.preventDefault();
-        // Scroll to top (home section)
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
-      // If on other page, let Next.js handle navigation
       return;
     }
     
-    // Check if it's an anchor link (e.g., /#about or /#portfolio)
     if (link.includes('#')) {
       const hash = link.split('#')[1];
       const element = document.getElementById(hash);

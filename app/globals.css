@@ -180,7 +180,6 @@ html {
   scrollbar-width: none;
 }
 
-/* 3D Transform utilities */
 .perspective-distant {
   perspective: 1000px;
 }

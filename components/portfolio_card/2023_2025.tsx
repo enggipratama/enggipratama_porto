@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { ExternalLink, Github } from "lucide-react";
 
-// Tech stack data
 const techStackData: Record<string, { color: string }> = {
   laravel: { color: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300" },
   php: { color: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300" },
@@ -18,7 +17,6 @@ const techStackData: Record<string, { color: string }> = {
   react: { color: "bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300" },
 };
 
-// Tech badge component - style standar
 function TechBadge({ name, tech }: { name: string; tech: string }) {
   const data = techStackData[tech] || { color: "bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300" };
   
@@ -29,7 +27,6 @@ function TechBadge({ name, tech }: { name: string; tech: string }) {
   );
 }
 
-// Year badge color schemes
 const yearColors: Record<string, string> = {
   "2023": "bg-gradient-to-r from-blue-500 to-blue-600 text-white border-blue-400 dark:from-blue-600 dark:to-blue-700 dark:border-blue-500",
   "2024": "bg-gradient-to-r from-purple-500 to-purple-600 text-white border-purple-400 dark:from-purple-600 dark:to-purple-700 dark:border-purple-500",
@@ -37,7 +34,6 @@ const yearColors: Record<string, string> = {
   "TBA": "bg-gradient-to-r from-neutral-400 to-neutral-500 text-white border-neutral-300 dark:from-neutral-600 dark:to-neutral-700 dark:border-neutral-500",
 };
 
-// Card wrapper
 function CardWrapper({ children, year }: { children: React.ReactNode; year: string }) {
   const colorClass = yearColors[year] || yearColors["TBA"];
   
@@ -49,7 +45,6 @@ function CardWrapper({ children, year }: { children: React.ReactNode; year: stri
       transition={{ duration: 0.5 }}
       className="group relative overflow-hidden rounded-xl border border-neutral-200 bg-white p-4 shadow-sm transition-all hover:border-sky-500/30 hover:shadow-md dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-sky-500/30 sm:rounded-2xl sm:p-5"
     >
-      {/* Year badge with color - style sama seperti tech stack */}
       <div className={`absolute right-3 top-3 z-10 inline-flex shrink-0 items-center rounded-md px-2 py-1 text-[10px] font-medium sm:rounded-full sm:px-2.5 sm:text-xs ${colorClass}`}>
         {year}
       </div>
@@ -58,7 +53,6 @@ function CardWrapper({ children, year }: { children: React.ReactNode; year: stri
   );
 }
 
-// Action buttons with icons
 function ActionButtons({ demoUrl, githubUrl }: { demoUrl?: string; githubUrl?: string }) {
   return (
     <div className="mt-4 flex flex-wrap items-center gap-2 sm:mt-5 sm:gap-3">
@@ -70,7 +64,6 @@ function ActionButtons({ demoUrl, githubUrl }: { demoUrl?: string; githubUrl?: s
             rel="noopener noreferrer"
             className="group relative inline-flex shrink-0 items-center gap-1.5 overflow-hidden rounded-lg bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-900 px-3 py-2 text-xs font-mono font-medium text-white shadow-md transition-all hover:shadow-lg hover:shadow-sky-500/25 dark:from-white dark:via-neutral-200 dark:to-white dark:text-neutral-900 dark:hover:shadow-sky-400/25 sm:gap-2 sm:px-4 sm:text-sm"
           >
-            {/* Shimmer effect */}
             <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
             
             <ExternalLink className="relative h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 sm:h-4 sm:w-4" />
@@ -95,7 +88,6 @@ function ActionButtons({ demoUrl, githubUrl }: { demoUrl?: string; githubUrl?: s
   );
 }
 
-// Davibar - 2023
 export function PortfolioCard1() {
   const techs = [
     { name: "Laravel", tech: "laravel" },
@@ -107,7 +99,6 @@ export function PortfolioCard1() {
   return (
     <CardWrapper year="2023">
       <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
-        {/* Image */}
         <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden rounded-lg lg:aspect-[4/3] lg:w-[45%]">
           <Image
             src="/Images/davibar.png"
@@ -119,7 +110,6 @@ export function PortfolioCard1() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
         </div>
 
-        {/* Content */}
         <div className="flex min-w-0 flex-1 flex-col justify-center">
           <h3 className="pr-16 font-mono text-lg font-bold leading-tight text-neutral-900 dark:text-white sm:text-xl lg:pr-0">
             Davibar Inventory System
@@ -134,7 +124,6 @@ export function PortfolioCard1() {
             automated reporting dashboards, and multi-user role management.
           </p>
 
-          {/* Tech Stack */}
           <div className="mt-4 flex flex-wrap gap-2">
             {techs.map((t) => (
               <TechBadge key={t.name} name={t.name} tech={t.tech} />
@@ -151,7 +140,6 @@ export function PortfolioCard1() {
   );
 }
 
-// Old Portfolio - 2024
 export function PortfolioCard2() {
   const techs = [
     { name: "Next.js", tech: "nextjs" },
@@ -162,7 +150,6 @@ export function PortfolioCard2() {
   return (
     <CardWrapper year="2024">
       <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
-        {/* Image */}
         <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden rounded-lg lg:aspect-[4/3] lg:w-[45%]">
           <Image
             src="/Images/old_portfolio.png"
@@ -174,7 +161,6 @@ export function PortfolioCard2() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
         </div>
 
-        {/* Content */}
         <div className="flex min-w-0 flex-1 flex-col justify-center">
           <h3 className="pr-16 font-mono text-lg font-bold leading-tight text-neutral-900 dark:text-white sm:text-xl lg:pr-0">
             Personal Portfolio V1
@@ -189,7 +175,6 @@ export function PortfolioCard2() {
             and a fully responsive layout optimized for all devices.
           </p>
 
-          {/* Tech Stack */}
           <div className="mt-4 flex flex-wrap gap-2">
             {techs.map((t) => (
               <TechBadge key={t.name} name={t.name} tech={t.tech} />
@@ -206,7 +191,6 @@ export function PortfolioCard2() {
   );
 }
 
-// Mystery Love - 2025
 export function PortfolioCard3() {
   const techs = [
     { name: "Next.js", tech: "nextjs" },
@@ -218,7 +202,6 @@ export function PortfolioCard3() {
   return (
     <CardWrapper year="2025">
       <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
-        {/* Image */}
         <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden rounded-lg lg:aspect-[4/3] lg:w-[45%]">
           <Image
             src="/Images/mystery-love.png"
@@ -230,7 +213,6 @@ export function PortfolioCard3() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
         </div>
 
-        {/* Content */}
         <div className="flex min-w-0 flex-1 flex-col justify-center">
           <h3 className="pr-16 font-mono text-lg font-bold leading-tight text-neutral-900 dark:text-white sm:text-xl lg:pr-0">
             Mystery Love
@@ -245,7 +227,6 @@ export function PortfolioCard3() {
             emotionally resonant digital moments.
           </p>
 
-          {/* Tech Stack */}
           <div className="mt-4 flex flex-wrap gap-2">
             {techs.map((t) => (
               <TechBadge key={t.name} name={t.name} tech={t.tech} />
@@ -262,12 +243,10 @@ export function PortfolioCard3() {
   );
 }
 
-// Coming Soon
 export function PortfolioCard() {
   return (
     <CardWrapper year="TBA">
       <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
-        {/* Image */}
         <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden rounded-lg lg:aspect-[4/3] lg:w-[45%]">
           <Image
             src="/Images/staytuned.png"
@@ -284,7 +263,6 @@ export function PortfolioCard() {
           </div>
         </div>
 
-        {/* Content */}
         <div className="flex min-w-0 flex-1 flex-col justify-center">
           <h3 className="pr-16 font-mono text-lg font-bold leading-tight text-neutral-900 dark:text-white sm:text-xl lg:pr-0">
             Next Big Thing
@@ -299,7 +277,6 @@ export function PortfolioCard() {
             full-stack implementation and innovative UI/UX design.
           </p>
 
-          {/* Placeholder Tech Stack */}
           <div className="mt-4 flex flex-wrap gap-2">
             <span className="inline-flex shrink-0 items-center rounded-md px-2 py-1 text-[10px] font-medium sm:rounded-full sm:px-2.5 sm:text-xs border border-dashed border-neutral-300 bg-transparent text-neutral-400 dark:border-neutral-700 dark:text-neutral-500">
               TBD

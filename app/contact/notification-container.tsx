@@ -64,20 +64,15 @@ export function NotificationContainer({
     <div 
       className={cn(
         "fixed z-[9999] flex flex-col gap-3 pointer-events-none",
-        // Mobile: positioned below navbar, using fixed with high z-index
         "top-24 left-4 right-4",
-        // Desktop: bottom-right
         "md:left-auto md:right-6 md:bottom-6 md:top-auto md:w-80 lg:w-96"
       )}
       style={{
-        // Create new stacking context and force hardware acceleration
         transform: 'translateZ(0)',
         WebkitTransform: 'translateZ(0)',
-        // Prevent any parent influence
         contain: 'layout style paint',
       }}
     >
-      {/* Stack Counter */}
       <AnimatePresence>
         {notifications.length > 3 && (
           <motion.button
@@ -93,7 +88,6 @@ export function NotificationContainer({
         )}
       </AnimatePresence>
 
-      {/* Notifications */}
       <AnimatePresence mode="popLayout">
         {notifications.slice(0, 3).map((notif) => {
           const config = notificationConfig[notif.type];
@@ -126,14 +120,12 @@ export function NotificationContainer({
                 WebkitTransform: 'translateZ(0)',
               }}
             >
-              {/* Swipe Hint */}
               {isMobile && (
                 <div className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-300 dark:text-neutral-600">
                   <ChevronRight size={16} />
                 </div>
               )}
 
-              {/* Content */}
               <div className="flex items-start gap-3 p-4 pr-8 md:pr-4">
                 <div className={cn("shrink-0 mt-0.5", config.iconColor)}>
                   <IconComponent size={20} strokeWidth={2.5} />
@@ -179,7 +171,6 @@ export function NotificationContainer({
                 </button>
               </div>
               
-              {/* Progress Bar */}
               <motion.div
                 initial={{ scaleX: 1 }}
                 animate={{ scaleX: 0 }}
