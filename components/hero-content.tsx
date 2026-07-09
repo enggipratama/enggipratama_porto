@@ -34,8 +34,7 @@ export function HeroContent() {
     <motion.div
       variants={containerVariants}
       initial="hidden"
-      whileInView="visible"
-      viewport={{ once: false, amount: 0.2 }}
+      animate="visible"
       className="flex flex-col items-center justify-center text-center px-4"
     >
       <motion.div variants={itemVariants} className="w-full flex justify-center">

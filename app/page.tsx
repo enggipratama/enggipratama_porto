@@ -7,7 +7,7 @@ import GithubData from "@/components/github-section";
 
 export default function Home() {
   return (
-    <main className="no-scrollbar min-h-screen overflow-y-auto scroll-smooth font-sans">
+    <main className="scroll-smooth font-sans">
       <section id="home" className="relative min-h-screen">
         <SpaceBackground className="flex min-h-screen w-full flex-col items-center justify-center px-4">
           <HeroContent />
