@@ -11,21 +11,25 @@ const socials = [
     label: "Github",
     href: "https://github.com/enggipratama",
     icon: <Github size={18} />,
+    color: "hover:text-neutral-900 dark:hover:text-white",
   },
   {
     label: "LinkedIn",
     href: "https://linkedin.com/in/enggipratama",
     icon: <Linkedin size={18} />,
+    color: "hover:text-blue-600 dark:hover:text-blue-400",
   },
   {
     label: "Instagram",
     href: "https://instagram.com/enggiipratama",
     icon: <Instagram size={18} />,
+    color: "hover:text-pink-600 dark:hover:text-pink-400",
   },
   {
     label: "Email",
     href: "mailto:work.enggipratama@gmail.com",
     icon: <Mail size={18} />,
+    color: "hover:text-sky-500 dark:hover:text-sky-400",
   },
 ];
 
@@ -42,7 +46,7 @@ const skills = [
 
 export function SpotlightPreview() {
   return (
-    <section className="relative flex min-h-[60vh] w-full flex-col items-center justify-center overflow-hidden bg-white p-4 font-mono antialiased dark:bg-neutral-950 md:min-h-[25rem] md:p-10">
+    <section className="relative flex min-h-[60vh] w-full flex-col items-center justify-center overflow-hidden bg-white p-4 font-mono antialiased dark:bg-black md:min-h-[25rem] md:p-10">
       {/* Background Grid */}
       <div
         className={cn(
@@ -59,10 +63,10 @@ export function SpotlightPreview() {
         
         {/* Text Content */}
         <motion.div
-          initial={{ opacity: 0, x: -30 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          initial={{ opacity: 0, y: 35 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: false, amount: 0.2 }}
+          transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 1.0 }}
           className="flex max-w-2xl flex-col items-center md:items-start"
         >
           {/* Badge - Style sama seperti tech stack */}
@@ -105,31 +109,64 @@ export function SpotlightPreview() {
             always eager to tackle challenging problems and learn cutting-edge technologies.
           </p>
 
-          {/* Tech Stack - Style sama persis seperti portfolio */}
-          <div className="mt-5 flex flex-wrap gap-2">
+          {/* Tech Stack - Staggered reveal animation */}
+          <motion.div 
+            variants={{
+              hidden: {},
+              visible: {
+                transition: {
+                  staggerChildren: 0.05,
+                }
+              }
+            }}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: false }}
+            className="mt-5 flex flex-wrap gap-2 justify-center md:justify-start"
+          >
             {skills.map((skill) => (
-              <Badge key={skill.name} variant={skill.variant}>
-                {skill.name}
-              </Badge>
+              <motion.div
+                key={skill.name}
+                variants={{
+                  hidden: { opacity: 0, scale: 0.85, y: 10 },
+                  visible: { 
+                    opacity: 1, 
+                    scale: 1, 
+                    y: 0,
+                    transition: {
+                      type: "tween",
+                      ease: [0.16, 1, 0.3, 1],
+                      duration: 0.5
+                    }
+                  }
+                }}
+              >
+                <Badge variant={skill.variant}>
+                  {skill.name}
+                </Badge>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           {/* Social Icons + Resume */}
           <div className="mt-6 flex items-center gap-3">
-            {socials.map(({ href, icon, label }) => (
-              <motion.a
-                key={label}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={label}
-                whileHover={{ y: -5, scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                className="rounded-xl bg-neutral-200 p-3 text-neutral-700 transition-colors hover:bg-sky-500 hover:text-white dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-sky-500 dark:hover:text-white"
-              >
-                {icon}
-              </motion.a>
-            ))}
+             {socials.map(({ href, icon, label, color }) => (
+               <motion.a
+                 key={label}
+                 href={href}
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 aria-label={label}
+                 whileHover={{ y: -5, scale: 1.1 }}
+                 whileTap={{ scale: 0.9 }}
+                 className={cn(
+                   "rounded-xl bg-neutral-200 p-3 text-neutral-700 transition-all dark:bg-neutral-800 dark:text-neutral-300 hover:bg-neutral-300/50 dark:hover:bg-neutral-700/50",
+                   color
+                 )}
+               >
+                 {icon}
+               </motion.a>
+             ))}
             
             {/* Download CV Button */}
             <motion.a
@@ -148,14 +185,14 @@ export function SpotlightPreview() {
 
         {/* Profile Card */}
         <motion.div
-          initial={{ opacity: 0, x: 30 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
+          initial={{ opacity: 0, y: 35 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: false, amount: 0.2 }}
+          transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 1.0, delay: 0.15 }}
           whileHover={{ y: -4 }}
           className="flex-shrink-0"
         >
-          <div className="my-10 w-full max-w-[280px] cursor-pointer rounded-[20px] bg-neutral-100/80 p-4 shadow-xl shadow-neutral-200/50 backdrop-blur-sm transition-all duration-500 hover:ring-2 hover:ring-sky-500/50 hover:shadow-2xl hover:shadow-sky-500/10 dark:bg-neutral-900/80 dark:shadow-neutral-900/50 dark:hover:ring-sky-500/50 dark:hover:shadow-sky-500/10 md:my-20 md:p-5">
+          <div className="my-10 w-full max-w-[280px] cursor-pointer rounded-[20px] border border-neutral-300/50 bg-neutral-50/80 p-4 shadow-xl shadow-neutral-200/40 backdrop-blur-md transition-all duration-500 hover:ring-2 hover:ring-sky-500/50 hover:shadow-2xl hover:shadow-sky-500/10 dark:border-white/[0.08] dark:bg-neutral-800/80 dark:shadow-2xl dark:shadow-black/50 dark:hover:ring-sky-500/50 dark:hover:shadow-sky-500/10 md:my-20 md:p-5">
             <div className="mx-1 flex-1">
               <div className="relative mt-1 aspect-[3/4] w-full overflow-hidden rounded-[12px] bg-neutral-200 dark:bg-neutral-800">
                 <Image

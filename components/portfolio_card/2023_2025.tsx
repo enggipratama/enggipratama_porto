@@ -31,11 +31,11 @@ function TechBadge({ name, tech }: { name: string; tech: string }) {
 function CardWrapper({ children, year }: { children: React.ReactNode; year: string }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
-      className="group relative overflow-hidden rounded-xl border border-neutral-200 bg-white p-4 shadow-md shadow-neutral-200/50 transition-all hover:border-sky-500/30 hover:shadow-lg hover:shadow-sky-500/10 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-sky-500/30 dark:shadow-neutral-900/50 dark:hover:shadow-sky-500/10 sm:rounded-2xl sm:p-5"
+      initial={{ opacity: 0, y: 35, scale: 0.98 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: false, amount: 0.2 }}
+      transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 1.0 }}
+      className="group relative overflow-hidden rounded-xl border border-neutral-300/50 bg-neutral-50/80 p-4 shadow-lg shadow-neutral-200/40 backdrop-blur-md transition-all hover:border-sky-500/30 hover:shadow-lg hover:shadow-sky-500/10 dark:border-white/[0.08] dark:bg-white/[0.04] dark:hover:border-sky-500/30 dark:shadow-2xl dark:shadow-black/50 dark:hover:shadow-sky-500/10 sm:rounded-2xl sm:p-5"
     >
       <div className="absolute right-3 top-3 z-10">
         <Badge variant={

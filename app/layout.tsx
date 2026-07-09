@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/navbar";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Footer } from "@/components/footer";
-import LoadingScreen from "@/components/LoadingScreen";
+import { LayoutClient } from "@/components/layout-client";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,6 +32,7 @@ export const viewport = {
     { media: "(prefers-color-scheme: dark)", color: "black" },
   ],
 };
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -50,12 +49,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <LoadingScreen />
-          <div className="relative z-10 flex min-h-screen flex-col">
-            <Navbar />
-            <div className="flex-grow">{children}</div>
-            <Footer />
-          </div>
+          <LayoutClient>{children}</LayoutClient>
         </ThemeProvider>
       </body>
     </html>

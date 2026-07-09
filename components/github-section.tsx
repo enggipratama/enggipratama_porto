@@ -56,15 +56,41 @@ const langColors: Record<string, string> = {
 
 const username = "enggipratama";
 
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.08,
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30, scale: 0.98 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      type: "tween" as const,
+      ease: [0.16, 1, 0.3, 1] as const, // iOS custom ease-out
+      duration: 1.0
+    }
+  }
+};
+
 function StatCard({ value, label, icon: Icon, iconColor }: { value: string | number; label: string; icon: React.ElementType; iconColor: string }) {
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-1 rounded-xl border border-neutral-200 bg-white p-2 text-center shadow-md shadow-neutral-200/50 dark:border-neutral-800 dark:bg-neutral-950 dark:shadow-neutral-900/50 sm:p-4">
+    <motion.div 
+      variants={itemVariants}
+      className="flex h-full flex-col items-center justify-center gap-1 rounded-xl border border-neutral-300/50 bg-neutral-50/80 p-2 text-center shadow-md shadow-neutral-200/40 backdrop-blur-md dark:border-white/[0.08] dark:bg-white/[0.04] dark:shadow-2xl dark:shadow-black/50 sm:p-4"
+    >
       <div className={`flex h-7 w-7 items-center justify-center rounded-lg sm:h-9 sm:w-9 ${iconColor}`}>
         <Icon className="h-3.5 w-3.5 text-white sm:h-4 sm:w-4" />
       </div>
       <p className="mt-0.5 font-mono text-base font-bold text-neutral-900 dark:text-white sm:mt-1 sm:text-lg">{value}</p>
       <p className="font-mono text-[10px] leading-tight text-neutral-500 dark:text-neutral-300 sm:text-xs">{label}</p>
-    </div>
+    </motion.div>
   );
 }
 
@@ -80,11 +106,9 @@ function RepoCard({ repo }: { repo: GitHubRepo }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
+      variants={itemVariants}
       whileHover={{ y: -4 }}
-      className="group flex flex-col rounded-xl border border-neutral-200 bg-white p-4 shadow-md shadow-neutral-200/50 transition-all hover:border-sky-500/30 hover:shadow-lg hover:shadow-sky-500/10 dark:border-neutral-800 dark:bg-neutral-950 dark:shadow-neutral-900/50 dark:hover:border-sky-500/30 dark:hover:shadow-sky-500/10 sm:p-5"
+      className="group flex flex-col rounded-xl border border-neutral-300/50 bg-neutral-50/80 p-4 shadow-md shadow-neutral-200/40 backdrop-blur-md transition-all hover:border-sky-500/30 hover:shadow-lg hover:shadow-sky-500/10 dark:border-white/[0.08] dark:bg-white/[0.04] dark:shadow-2xl dark:shadow-black/50 dark:hover:border-sky-500/30 dark:hover:shadow-sky-500/10 sm:p-5"
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
@@ -148,7 +172,7 @@ export default function GithubSection() {
 
   if (loading) {
     return (
-      <section className="relative w-full overflow-hidden bg-white py-16 dark:bg-neutral-950 sm:py-20" id="github">
+      <section className="relative w-full overflow-hidden bg-white py-16 dark:bg-black sm:py-20" id="github">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           {/* Header Skeleton */}
           <div className="mb-8 text-center sm:mb-10">
@@ -192,7 +216,7 @@ export default function GithubSection() {
 
   if (error || !data) {
     return (
-      <section className="relative w-full overflow-hidden bg-white py-16 dark:bg-neutral-950 sm:py-20" id="github">
+      <section className="relative w-full overflow-hidden bg-white py-16 dark:bg-black sm:py-20" id="github">
         <div className="mx-auto max-w-6xl px-4 py-20 text-center">
           <Github className="mx-auto h-12 w-12 text-neutral-400" />
           <h3 className="mt-4 font-mono text-lg font-semibold text-neutral-900 dark:text-white">
@@ -219,7 +243,7 @@ export default function GithubSection() {
   const totalForks = repos.reduce((acc, repo) => acc + (repo.forkCount || repo.forks_count || 0), 0);
 
   return (
-    <section className="relative w-full overflow-hidden bg-white py-12 dark:bg-neutral-950 sm:py-16 lg:py-20" id="github">
+    <section className="relative w-full overflow-hidden bg-white py-12 dark:bg-black sm:py-16 lg:py-20" id="github">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8 text-center sm:mb-10">
@@ -240,13 +264,19 @@ export default function GithubSection() {
             <GithubHeatmap username={username} />
           </div>
 
-          {/* Stats - 2x2 Grid */}
-          <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-2 lg:grid-rows-2 lg:gap-4">
+          {/* Stats - 2x2 Grid with staggered reveal */}
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: false, amount: 0.2 }}
+            className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-2 lg:grid-rows-2 lg:gap-4"
+          >
             <StatCard value={totalRepos} label="Repositories" icon={Code2} iconColor="bg-blue-500" />
             <StatCard value={totalContributions.toLocaleString()} label="Contributions" icon={Activity} iconColor="bg-emerald-500" />
             <StatCard value={totalStars} label="Stars Earned" icon={Star} iconColor="bg-yellow-500" />
             <StatCard value={totalForks} label="Forks" icon={GitFork} iconColor="bg-sky-500" />
-          </div>
+          </motion.div>
         </div>
 
         {/* Pinned Repositories */}
@@ -266,11 +296,17 @@ export default function GithubSection() {
             </a>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-4">
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: false, amount: 0.2 }}
+            className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-4"
+          >
             {repos.map((repo) => (
               <RepoCard key={repo.id} repo={repo} />
             ))}
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

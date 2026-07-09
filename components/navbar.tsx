@@ -5,6 +5,7 @@ import {
   IconUserSquareRounded,
   IconMail,
   IconBook2,
+  IconMessages,
 } from "@tabler/icons-react";
 
 export function Navbar() {
@@ -23,6 +24,11 @@ export function Navbar() {
       name: "Portfolio",
       link: "/#portfolio",
       icon: <IconBook2 className="h-5 w-5" />,
+    },
+    {
+      name: "Discussions",
+      link: "/giscus",
+      icon: <IconMessages className="h-5 w-5" />,
     },
     {
       name: "Contact",

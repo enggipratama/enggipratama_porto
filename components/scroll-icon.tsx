@@ -2,8 +2,11 @@
 
 import { motion, useScroll } from "framer-motion";
 import { useEffect, useState } from "react";
-import Lottie from "lottie-react";
-import scrollAnimation from "@/public/Loading/scroll.json";
+import dynamic from "next/dynamic";
+
+const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const scrollAnimation = require("@/public/Loading/scroll.json") as object;
 
 export function ScrollIcon() {
   const { scrollY } = useScroll();

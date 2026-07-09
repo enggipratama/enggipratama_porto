@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { MessageSquare, Lightbulb, HelpCircle, Bug, Mail, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import Giscus from "@/components/giscus-wrapper";
-import { BreadcrumbWithCustomSeparator } from "@/components/breadcrumb-giscus";
 
 const features = [
   {
@@ -33,15 +32,7 @@ const features = [
 export default function GiscusForm() {
   return (
     <section className="relative min-h-screen w-full overflow-hidden bg-white dark:bg-black font-mono">
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:py-12">
-        {/* Breadcrumb */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-6"
-        >
-          <BreadcrumbWithCustomSeparator />
-        </motion.div>
+      <div className="mx-auto max-w-4xl px-4 pt-20 pb-8 sm:pt-24 sm:pb-12">
 
         {/* Hero Section */}
         <motion.div
