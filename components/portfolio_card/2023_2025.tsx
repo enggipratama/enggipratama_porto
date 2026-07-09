@@ -394,3 +394,120 @@ export function PortfolioCard() {
     </CardWrapper>
   );
 }
+
+interface ProjectType {
+  id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  year: string;
+  image_url: string;
+  demo_url: string;
+  github_url: string;
+  tech_stack: { name: string; key: string }[];
+  is_coming_soon: boolean;
+}
+
+export function PortfolioCardComponent({ project }: { project: ProjectType }) {
+  if (project.is_coming_soon) {
+    return (
+      <CardWrapper year={project.year}>
+        <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
+          <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-lg sm:aspect-[16/10] lg:aspect-[4/3] lg:w-[45%]">
+            <Image
+              src={project.image_url || "/Images/staytuned.png"}
+              alt={project.title}
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              sizes="(max-width: 1024px) 100vw, 45vw"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+            <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="inline-flex shrink-0 items-center rounded-md px-3 py-1.5 text-[10px] font-bold sm:rounded-full sm:px-4 sm:text-xs bg-amber-100 text-amber-700 border border-amber-300 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-600 shadow-lg">
+                🚧 In Development
+              </span>
+            </div>
+          </div>
+
+          <div className="flex min-w-0 flex-1 flex-col justify-center">
+            <h3 className="pr-16 font-mono text-lg font-bold leading-tight text-neutral-900 dark:text-white sm:text-xl lg:pr-0">
+              {project.title}
+            </h3>
+            <p className="mt-1 font-mono text-xs text-neutral-500 dark:text-neutral-400 sm:text-sm">
+              {project.subtitle}
+            </p>
+
+            <p className="mt-3 font-mono text-xs leading-relaxed text-neutral-600 dark:text-neutral-400 sm:text-sm">
+              {project.description}
+            </p>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              {project.tech_stack.map((t) => (
+                <TechBadge key={t.key} name={t.name} tech={t.key} />
+              ))}
+              {project.tech_stack.length === 0 && (
+                <>
+                  <span className="inline-flex shrink-0 items-center rounded-md px-2 py-1 text-[10px] font-medium sm:rounded-full sm:px-2.5 sm:text-xs border border-dashed border-neutral-300 bg-transparent text-neutral-400 dark:border-neutral-700 dark:text-neutral-500">
+                    TBD
+                  </span>
+                  <span className="inline-flex shrink-0 items-center rounded-md px-2 py-1 text-[10px] font-medium sm:rounded-full sm:px-2.5 sm:text-xs border border-dashed border-neutral-300 bg-transparent text-neutral-400 dark:border-neutral-700 dark:text-neutral-500">
+                    Coming Soon
+                  </span>
+                </>
+              )}
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center gap-2 sm:mt-5 sm:gap-3">
+              <span className="inline-flex shrink-0 items-center rounded-md px-2 py-1 text-[10px] font-medium sm:rounded-full sm:px-2.5 sm:text-xs bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
+                Stay Tuned
+              </span>
+            </div>
+          </div>
+        </div>
+      </CardWrapper>
+    );
+  }
+
+  return (
+    <CardWrapper year={project.year}>
+      <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
+        <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-lg sm:aspect-[16/10] lg:aspect-[4/3] lg:w-[45%]">
+          <Image
+            src={project.image_url || "/Images/staytuned.png"}
+            alt={project.title}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes="(max-width: 1024px) 100vw, 45vw"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
+          <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+        </div>
+
+        <div className="flex min-w-0 flex-1 flex-col justify-center">
+          <h3 className="pr-16 font-mono text-lg font-bold leading-tight text-neutral-900 dark:text-white sm:text-xl lg:pr-0">
+            {project.title}
+          </h3>
+          <p className="mt-1 font-mono text-xs text-neutral-500 dark:text-neutral-400 sm:text-sm">
+            {project.subtitle}
+          </p>
+
+          <p className="mt-3 font-mono text-xs leading-relaxed text-neutral-600 dark:text-neutral-400 sm:text-sm">
+            {project.description}
+          </p>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            {project.tech_stack.map((t) => (
+              <TechBadge key={t.key} name={t.name} tech={t.key} />
+            ))}
+          </div>
+
+          <ActionButtons
+            demoUrl={project.demo_url || undefined}
+            githubUrl={project.github_url || undefined}
+          />
+        </div>
+      </div>
+    </CardWrapper>
+  );
+}

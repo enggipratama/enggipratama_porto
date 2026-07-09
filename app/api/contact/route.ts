@@ -3,6 +3,8 @@ import { Resend } from "resend";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { rateLimit } from "@/lib/rate-limit";
+
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const contactSchema = z.object({
@@ -43,6 +45,15 @@ const EmailTemplate = ({ name, email, subject, message }: EmailTemplateProps) =>
 
 export async function POST(req: Request) {
   try {
+    const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "127.0.0.1";
+    const limitResult = rateLimit(ip, 3, 2 * 60 * 1000); // 3 emails per 2 minutes max
+    if (!limitResult.success) {
+      return NextResponse.json(
+        { success: false, error: "Too many messages sent. Please wait a moment before trying again." },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
     const parsedData = contactSchema.parse(body);
     const { name, email, subject, message, website } = parsedData;

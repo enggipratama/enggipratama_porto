@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import LoadingScreen from "@/components/LoadingScreen";
-import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
+import { PortfolioShell } from "@/components/portfolio-shell";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,13 +14,23 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "Home - MEGP",
-    template: "%s - MEGP",
-  },
-  description: "Portfolio Enggi Pratama",
-};
+import { getAllSettings } from "@/lib/data";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getAllSettings();
+  const title = settings.seo_title || "Enggi Pratama | Full-Stack Developer";
+  const description = settings.seo_description || "Personal portfolio website of Enggi Pratama, built with Next.js, React, and Supabase.";
+  const keywords = settings.seo_keywords || "Enggi Pratama, portfolio, web developer, full-stack, react, nextjs";
+
+  return {
+    title: {
+      default: title,
+      template: `%s - ${settings.about_nickname || "MEGP"}`,
+    },
+    description: description,
+    keywords: keywords,
+  };
+}
 
 export const viewport = {
   width: "device-width",
@@ -59,12 +67,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <LoadingScreen />
-          <div className="relative z-10 flex min-h-screen flex-col">
-            <Navbar />
-            <div className="flex-grow">{children}</div>
-            <Footer />
-          </div>
+          <PortfolioShell>{children}</PortfolioShell>
         </ThemeProvider>
       </body>
     </html>

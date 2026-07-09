@@ -2,34 +2,78 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Github, Linkedin, Instagram, Mail, Heart, Eye } from "lucide-react";
+import * as Lucide from "lucide-react";
 import Link from "next/link";
 import pkg from "@/package.json";
 import { supabase } from "@/lib/supabase";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-
 const COMPACT_NUMBER_FORMATTER = new Intl.NumberFormat("en-US", {
   notation: "compact",
   compactDisplay: "short",
   maximumFractionDigits: 1,
 });
 
-const SOCIAL_LINKS = [
-  { Icon: Github, href: "https://github.com/enggipratama", label: "GitHub", color: "hover:text-neutral-900 dark:hover:text-white" },
-  {
-    Icon: Linkedin,
-    href: "https://linkedin.com/in/enggipratama",
-    label: "LinkedIn",
-    color: "hover:text-blue-600 dark:hover:text-blue-400",
-  },
-  {
-    Icon: Instagram,
-    href: "https://instagram.com/enggiipratama",
-    label: "Instagram",
-    color: "hover:text-pink-600 dark:hover:text-pink-400",
-  },
-  { Icon: Mail, href: "mailto:work.enggipratama@gmail.com", label: "Email", color: "hover:text-sky-500 dark:hover:text-sky-400" },
+function FooterSocialLink({ link }: { link: any }) {
+  const [isHovered, setIsHovered] = useState(false);
+  
+  const baseColor = "text-neutral-500";
+  
+  let activeColorClass = "";
+  let activeStyle: React.CSSProperties = {};
+  
+  if (isHovered) {
+    if (link.platform === "github") {
+      activeColorClass = "text-neutral-900 dark:text-white";
+    } else if (link.platform === "linkedin") {
+      activeColorClass = "text-blue-600 dark:text-blue-400";
+    } else if (link.platform === "instagram") {
+      activeColorClass = "text-pink-600 dark:text-pink-400";
+    } else if (link.platform === "email") {
+      activeColorClass = "text-sky-500 dark:text-sky-400";
+    } else if (link.color) {
+      activeStyle = { color: link.color };
+    } else {
+      activeColorClass = "text-sky-500 dark:text-sky-400";
+    }
+  }
+  
+  let Icon = Lucide.Globe;
+  if (link.platform === "github") Icon = Lucide.Github;
+  else if (link.platform === "linkedin") Icon = Lucide.Linkedin;
+  else if (link.platform === "instagram") Icon = Lucide.Instagram;
+  else if (link.platform === "email") Icon = Lucide.Mail;
+  else if (link.icon) {
+    const IconComp = (Lucide as any)[link.icon];
+    if (IconComp) Icon = IconComp;
+  }
+  
+  const finalHref = link.platform === "email" && link.href && !link.href.startsWith("mailto:")
+    ? `mailto:${link.href}`
+    : link.href;
+    
+  return (
+    <motion.a
+      href={finalHref}
+      aria-label={link.label}
+      target="_blank"
+      rel="noopener noreferrer"
+      whileHover={{ y: -3, scale: 1.1 }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={cn("transition-colors", isHovered ? activeColorClass : baseColor)}
+      style={activeStyle}
+    >
+      <Icon size={20} />
+    </motion.a>
+  );
+}
+
+const DEFAULT_SOCIAL_LINKS = [
+  { label: "Github", href: "https://github.com/enggipratama", platform: "github" },
+  { label: "LinkedIn", href: "https://linkedin.com/in/enggipratama", platform: "linkedin" },
+  { label: "Instagram", href: "https://instagram.com/enggiipratama", platform: "instagram" },
+  { label: "Email", href: "mailto:work.enggipratama@gmail.com", platform: "email" },
 ];
 
 const NUMBER_VARIANTS = {
@@ -63,6 +107,8 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
   const [onlineUsers, setOnlineUsers] = useState(0);
   const [totalViews, setTotalViews] = useState<number | null>(null);
+  const [tagline, setTagline] = useState("Feel free to reach out. — Say hello anytime!");
+  const [socialLinks, setSocialLinks] = useState(DEFAULT_SOCIAL_LINKS);
 
   useEffect(() => {
     const initStats = async () => {
@@ -75,7 +121,29 @@ export function Footer() {
       if (data) setTotalViews(data.value);
     };
 
+    const fetchFooterSettings = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("site_settings")
+          .select("key, value")
+          .in("key", ["footer_tagline", "social_links"]);
+        
+        if (!error && data) {
+          const taglineRow = data.find((r) => r.key === "footer_tagline");
+          if (taglineRow && taglineRow.value) setTagline(taglineRow.value);
+
+          const socialsRow = data.find((r) => r.key === "social_links");
+          if (socialsRow && Array.isArray(socialsRow.value)) {
+            setSocialLinks(socialsRow.value);
+          }
+        }
+      } catch {
+        // Fallback to defaults
+      }
+    };
+
     initStats();
+    fetchFooterSettings();
 
     const sessionId = Math.random().toString(36).substring(2, 15);
     const presenceChannel = supabase.channel("online-users", {
@@ -124,24 +192,14 @@ export function Footer() {
               Enggi Pratama<span className="text-sky-500">.</span>
             </Link>
             <p className="text-xs text-neutral-500 mt-1 font-mono">
-              Feel free to reach out. — Say hello anytime!
+              {tagline}
             </p>
           </div>
 
           <div className="flex flex-col items-center sm:items-end mt-2 sm:mt-0 gap-2">
-            <div className="flex items-center gap-4">
-              {SOCIAL_LINKS.map(({ Icon, href, label, color }) => (
-                <motion.a
-                  key={label}
-                  href={href}
-                  aria-label={label}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  whileHover={{ y: -3, scale: 1.1 }}
-                  className={cn("text-neutral-500 transition-colors", color)}
-                >
-                  <Icon size={20} />
-                </motion.a>
+            <div className="flex flex-wrap items-center gap-4">
+              {socialLinks.map((link) => (
+                <FooterSocialLink key={link.label} link={link} />
               ))}
             </div>
 
@@ -162,7 +220,7 @@ export function Footer() {
               <span className="text-neutral-300 dark:text-neutral-800">|</span>
 
               <div className="flex items-center gap-2">
-                <Eye size={12} className="text-sky-500" />
+                <Lucide.Eye size={12} className="text-sky-500" />
                 <p className="text-[10px] font-mono tracking-widest flex items-center">
                   <AnimatedNumber
                     value={
@@ -185,7 +243,7 @@ export function Footer() {
               animate={{ scale: [1, 1.2, 1] }}
               transition={{ repeat: Infinity, duration: 2 }}
             >
-              <Heart size={14} className="text-red-500 fill-red-500" />
+              <Lucide.Heart size={14} className="text-red-500 fill-red-500" />
             </motion.span>
             by <span className="italic">Enggi Pratama</span>
           </p>

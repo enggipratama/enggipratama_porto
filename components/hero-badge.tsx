@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 
-export function OpenToWorkBadge() {
+export function OpenToWorkBadge({ text }: { text?: string }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: -20 }}
@@ -17,7 +17,7 @@ export function OpenToWorkBadge() {
           <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
         </span>
       }>
-        Available for Opportunities
+        {text || "Available for Opportunities"}
       </Badge>
     </motion.div>
   );
