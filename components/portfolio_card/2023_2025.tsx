@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -52,22 +53,85 @@ function CardWrapper({ children, year }: { children: React.ReactNode; year: stri
 }
 
 function ActionButtons({ demoUrl, githubUrl }: { demoUrl?: string; githubUrl?: string }) {
+  const [status, setStatus] = useState<"checking" | "up" | "down" | "maintenance">("checking");
+
+  useEffect(() => {
+    if (!demoUrl) return;
+
+    const urlToCheck = demoUrl;
+    let active = true;
+    async function checkHealth() {
+      try {
+        const res = await fetch(`/api/health?url=${encodeURIComponent(urlToCheck)}`);
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        if (active) setStatus(data.status);
+      } catch {
+        if (active) setStatus("down");
+      }
+    }
+
+    checkHealth();
+    return () => {
+      active = false;
+    };
+  }, [demoUrl]);
+
   return (
-    <div className="mt-4 flex flex-wrap items-center gap-2 sm:mt-5 sm:gap-3">
+    <div className="mt-4 flex flex-wrap items-center gap-2.5 sm:mt-5 sm:gap-3">
       {demoUrl && (
-        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-          <Link
-            href={demoUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group relative inline-flex shrink-0 items-center gap-1.5 overflow-hidden rounded-lg bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-900 px-3 py-2 text-xs font-mono font-medium text-white shadow-md transition-all hover:shadow-lg hover:shadow-sky-500/25 dark:from-white dark:via-neutral-200 dark:to-white dark:text-neutral-900 dark:hover:shadow-sky-400/25 sm:gap-2 sm:px-4 sm:text-sm"
-          >
-            <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-            
-            <ExternalLink className="relative h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 sm:h-4 sm:w-4" />
-            <span className="relative">Live Demo</span>
-          </Link>
-        </motion.div>
+        <div className="flex items-center gap-2">
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <Link
+              href={demoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative inline-flex shrink-0 items-center gap-1.5 overflow-hidden rounded-lg bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-900 px-3 py-2 text-xs font-mono font-medium text-white shadow-md transition-all hover:shadow-lg hover:shadow-sky-500/25 dark:from-white dark:via-neutral-200 dark:to-white dark:text-neutral-900 dark:hover:shadow-sky-400/25 sm:gap-2 sm:px-4 sm:text-sm"
+            >
+              <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+              
+              <ExternalLink className="relative h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 sm:h-4 sm:w-4" />
+              <span className="relative">Live Demo</span>
+            </Link>
+          </motion.div>
+
+          {/* Status Indicator Badge */}
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300/40 bg-neutral-100/50 px-2 py-1 text-[10px] font-medium text-neutral-600 dark:border-white/[0.08] dark:bg-white/[0.02] dark:text-neutral-400 select-none">
+            {status === "checking" && (
+              <>
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-neutral-400" />
+                <span className="font-mono text-[9px] uppercase tracking-wider">Checking</span>
+              </>
+            )}
+            {status === "up" && (
+              <>
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                </span>
+                <span className="font-mono text-[9px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Live</span>
+              </>
+            )}
+            {status === "down" && (
+              <>
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-red-500"></span>
+                </span>
+                <span className="font-mono text-[9px] uppercase tracking-wider text-red-600 dark:text-red-400">Offline</span>
+              </>
+            )}
+            {status === "maintenance" && (
+              <>
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                </span>
+                <span className="font-mono text-[9px] uppercase tracking-wider text-amber-600 dark:text-amber-400">Maintenance</span>
+              </>
+            )}
+          </div>
+        </div>
       )}
       {githubUrl && (
         <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
@@ -85,6 +149,7 @@ function ActionButtons({ demoUrl, githubUrl }: { demoUrl?: string; githubUrl?: s
     </div>
   );
 }
+
 
 export function PortfolioCard1() {
   const techs = [
