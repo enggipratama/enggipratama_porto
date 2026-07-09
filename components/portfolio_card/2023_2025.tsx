@@ -4,49 +4,47 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { ExternalLink, Github } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
-const techStackData: Record<string, { color: string }> = {
-  laravel: { color: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300" },
-  php: { color: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300" },
-  mysql: { color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" },
-  bootstrap: { color: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300" },
-  nextjs: { color: "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900" },
-  tailwind: { color: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300" },
-  typescript: { color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" },
-  framer: { color: "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300" },
-  react: { color: "bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300" },
+const techStackData: Record<string, "default" | "success" | "sky" | "purple" | "emerald" | "neutral" | "yellow" | "red" | "blue" | "cyan" | "indigo" | "pink"> = {
+  laravel: "red",
+  php: "indigo",
+  mysql: "blue",
+  bootstrap: "purple",
+  nextjs: "neutral",
+  tailwind: "cyan",
+  typescript: "blue",
+  framer: "pink",
+  react: "sky",
 };
 
 function TechBadge({ name, tech }: { name: string; tech: string }) {
-  const data = techStackData[tech] || { color: "bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300" };
+  const variant = techStackData[tech] || "default";
   
   return (
-    <span className={`inline-flex shrink-0 items-center rounded-md px-2 py-1 text-[10px] font-medium sm:rounded-full sm:px-2.5 sm:text-xs ${data.color}`}>
+    <Badge variant={variant}>
       {name}
-    </span>
+    </Badge>
   );
 }
 
-const yearColors: Record<string, string> = {
-  "2023": "bg-gradient-to-r from-blue-500 to-blue-600 text-white border-blue-400 dark:from-blue-600 dark:to-blue-700 dark:border-blue-500",
-  "2024": "bg-gradient-to-r from-purple-500 to-purple-600 text-white border-purple-400 dark:from-purple-600 dark:to-purple-700 dark:border-purple-500",
-  "2025": "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-emerald-400 dark:from-emerald-600 dark:to-emerald-700 dark:border-emerald-500",
-  "TBA": "bg-gradient-to-r from-neutral-400 to-neutral-500 text-white border-neutral-300 dark:from-neutral-600 dark:to-neutral-700 dark:border-neutral-500",
-};
-
 function CardWrapper({ children, year }: { children: React.ReactNode; year: string }) {
-  const colorClass = yearColors[year] || yearColors["TBA"];
-  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
-      className="group relative overflow-hidden rounded-xl border border-neutral-200 bg-white p-4 shadow-sm transition-all hover:border-sky-500/30 hover:shadow-md dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-sky-500/30 sm:rounded-2xl sm:p-5"
+      className="group relative overflow-hidden rounded-xl border border-neutral-200 bg-white p-4 shadow-md shadow-neutral-200/50 transition-all hover:border-sky-500/30 hover:shadow-lg hover:shadow-sky-500/10 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-sky-500/30 dark:shadow-neutral-900/50 dark:hover:shadow-sky-500/10 sm:rounded-2xl sm:p-5"
     >
-      <div className={`absolute right-3 top-3 z-10 inline-flex shrink-0 items-center rounded-md px-2 py-1 text-[10px] font-medium sm:rounded-full sm:px-2.5 sm:text-xs ${colorClass}`}>
-        {year}
+      <div className="absolute right-3 top-3 z-10">
+        <Badge variant={
+          year === "2023" ? "blue" :
+          year === "2024" ? "purple" :
+          year === "2025" ? "success" : "neutral"
+        } size="sm">
+          {year}
+        </Badge>
       </div>
       {children}
     </motion.div>
@@ -99,7 +97,7 @@ export function PortfolioCard1() {
   return (
     <CardWrapper year="2023">
       <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
-        <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden rounded-lg lg:aspect-[4/3] lg:w-[45%]">
+        <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-lg sm:aspect-[16/10] lg:aspect-[4/3] lg:w-[45%]">
           <Image
             src="/Images/davibar.png"
             alt="Davibar House"
@@ -108,6 +106,7 @@ export function PortfolioCard1() {
             sizes="(max-width: 1024px) 100vw, 45vw"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
+          <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col justify-center">
@@ -150,7 +149,7 @@ export function PortfolioCard2() {
   return (
     <CardWrapper year="2024">
       <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
-        <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden rounded-lg lg:aspect-[4/3] lg:w-[45%]">
+        <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-lg sm:aspect-[16/10] lg:aspect-[4/3] lg:w-[45%]">
           <Image
             src="/Images/old_portfolio.png"
             alt="Portfolio V1"
@@ -159,6 +158,7 @@ export function PortfolioCard2() {
             sizes="(max-width: 1024px) 100vw, 45vw"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
+          <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col justify-center">
@@ -202,7 +202,7 @@ export function PortfolioCard3() {
   return (
     <CardWrapper year="2025">
       <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
-        <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden rounded-lg lg:aspect-[4/3] lg:w-[45%]">
+        <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-lg sm:aspect-[16/10] lg:aspect-[4/3] lg:w-[45%]">
           <Image
             src="/Images/mystery-love.png"
             alt="Mystery Love"
@@ -211,6 +211,7 @@ export function PortfolioCard3() {
             sizes="(max-width: 1024px) 100vw, 45vw"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
+          <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col justify-center">
@@ -247,7 +248,7 @@ export function PortfolioCard() {
   return (
     <CardWrapper year="TBA">
       <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
-        <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden rounded-lg lg:aspect-[4/3] lg:w-[45%]">
+        <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-lg sm:aspect-[16/10] lg:aspect-[4/3] lg:w-[45%]">
           <Image
             src="/Images/staytuned.png"
             alt="Coming Soon"
@@ -256,6 +257,7 @@ export function PortfolioCard() {
             sizes="(max-width: 1024px) 100vw, 45vw"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+          <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="inline-flex shrink-0 items-center rounded-md px-3 py-1.5 text-[10px] font-bold sm:rounded-full sm:px-4 sm:text-xs bg-amber-100 text-amber-700 border border-amber-300 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-600 shadow-lg">
               🚧 In Development
