@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import { LayoutClient } from "@/components/layout-client";
+import LoadingScreen from "@/components/LoadingScreen";
+import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,7 +59,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <LayoutClient>{children}</LayoutClient>
+          <LoadingScreen />
+          <div className="relative z-10 flex min-h-screen flex-col">
+            <Navbar />
+            <div className="flex-grow">{children}</div>
+            <Footer />
+          </div>
         </ThemeProvider>
       </body>
     </html>

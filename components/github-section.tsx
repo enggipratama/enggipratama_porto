@@ -3,7 +3,11 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Github, Star, GitFork, Code2, Activity, ExternalLink, FolderGit2 } from "lucide-react";
-import GithubHeatmap from "@/components/github-heatmap";
+import dynamic from "next/dynamic";
+const GithubHeatmap = dynamic(() => import("@/components/github-heatmap"), {
+  ssr: false,
+  loading: () => <SkeletonHeatmap />,
+});
 import { SkeletonCard, SkeletonStatCard, SkeletonHeatmap } from "@/components/skeleton-card";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Badge } from "@/components/ui/badge";
