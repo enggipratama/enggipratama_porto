@@ -42,7 +42,7 @@ export function TimelinePortfolio() {
   ];
 
   return (
-    <section className="relative w-full overflow-hidden bg-white py-12 sm:py-16 lg:py-20 dark:bg-neutral-950">
+    <section className="relative w-full overflow-hidden bg-white py-12 sm:py-16 lg:py-20 dark:bg-black">
       {/* Header */}
       <div className="px-4 text-center sm:mb-12 lg:mb-16">
         <SectionHeader
@@ -56,7 +56,7 @@ export function TimelinePortfolio() {
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: "-50px" }}
+        viewport={{ once: false, amount: 0.2 }}
         className="relative w-full px-4 sm:px-6 lg:px-8"
       >
         <Timeline data={data} />

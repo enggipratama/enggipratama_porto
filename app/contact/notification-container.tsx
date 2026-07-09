@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { CheckCircle, XCircle, Info, X, ChevronRight } from "lucide-react";
@@ -22,21 +22,21 @@ type Notification = {
 const notificationConfig = {
   success: {
     icon: CheckCircle,
-    border: "border-l-emerald-500",
-    iconColor: "text-emerald-500",
-    progress: "bg-emerald-500",
+    border: "border-l-emerald-500 dark:border-l-emerald-400",
+    iconColor: "text-emerald-500 dark:text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.3)]",
+    progress: "bg-emerald-500 dark:bg-emerald-400",
   },
   error: {
     icon: XCircle,
-    border: "border-l-red-500",
-    iconColor: "text-red-500",
-    progress: "bg-red-500",
+    border: "border-l-red-500 dark:border-l-red-400",
+    iconColor: "text-red-500 dark:text-red-400 drop-shadow-[0_0_8px_rgba(239,68,68,0.3)]",
+    progress: "bg-red-500 dark:bg-red-400",
   },
   info: {
     icon: Info,
-    border: "border-l-sky-500",
-    iconColor: "text-sky-500",
-    progress: "bg-sky-500",
+    border: "border-l-sky-500 dark:border-l-sky-400",
+    iconColor: "text-sky-500 dark:text-sky-400 drop-shadow-[0_0_8px_rgba(14,165,233,0.3)]",
+    progress: "bg-sky-500 dark:bg-sky-400",
   },
 };
 
@@ -52,44 +52,97 @@ export function NotificationContainer({
   onClearAll 
 }: NotificationContainerProps) {
   const [isMobile, setIsMobile] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
     window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
+    
+    const viewport = typeof window !== "undefined" ? window.visualViewport : null;
+    
+    const updatePosition = () => {
+      if (viewport && window.innerWidth < 768 && containerRef.current) {
+        const offset = viewport.offsetTop;
+        const pageScroll = window.scrollY !== undefined ? window.scrollY : window.pageYOffset;
+        
+        // Detect if keyboard is open (visual viewport height is smaller than innerHeight)
+        const isKeyboardOpen = (window.innerHeight - viewport.height) > 100;
+        const hasScrolled = pageScroll > 10 || offset > 10;
+        
+        if (hasScrolled || isKeyboardOpen) {
+          // Bottom state: Position just above the keyboard / at the bottom of the visual viewport
+          const containerHeight = containerRef.current.offsetHeight || 0;
+          const targetTop = offset + viewport.height - containerHeight - 16;
+          // Calculate translate relative to CSS top-24 (which is 96px)
+          const translateY = targetTop - 96;
+          
+          containerRef.current.style.transform = `translateY(${translateY}px) translateZ(0)`;
+          containerRef.current.style.webkitTransform = `translateY(${translateY}px) translateZ(0)`;
+        } else {
+          // Top state: Position at the top (top-24)
+          containerRef.current.style.transform = `translateY(${offset}px) translateZ(0)`;
+          containerRef.current.style.webkitTransform = `translateY(${offset}px) translateZ(0)`;
+        }
+      } else if (containerRef.current) {
+        containerRef.current.style.transform = "";
+        containerRef.current.style.webkitTransform = "";
+      }
+    };
+    
+    if (viewport) {
+      viewport.addEventListener("resize", updatePosition);
+      viewport.addEventListener("scroll", updatePosition);
+      updatePosition();
+    }
+    
+    // Listen to standard scroll event to trigger transition as soon as user starts scrolling
+    window.addEventListener("scroll", updatePosition);
+    
+    return () => {
+      window.removeEventListener("resize", checkMobile);
+      window.removeEventListener("scroll", updatePosition);
+      if (viewport) {
+        viewport.removeEventListener("resize", updatePosition);
+        viewport.removeEventListener("scroll", updatePosition);
+      }
+    };
+  }, [notifications]);
 
   return (
     <div 
+      ref={containerRef}
       className={cn(
         "fixed z-[9999] flex flex-col gap-3 pointer-events-none",
         "top-24 left-4 right-4",
-        "md:left-auto md:right-6 md:bottom-6 md:top-auto md:w-80 lg:w-96"
+        "md:top-auto md:bottom-6 md:left-auto md:right-6 md:w-80 lg:w-96"
       )}
       style={{
-        transform: 'translateZ(0)',
-        WebkitTransform: 'translateZ(0)',
         contain: 'layout style paint',
       }}
     >
       <AnimatePresence>
-        {notifications.length > 3 && (
+        {notifications.length > 2 && (
           <motion.button
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            transition={{
+              type: "tween",
+              ease: [0.16, 1, 0.3, 1],
+              duration: 0.4
+            }}
             onClick={onClearAll}
             className="pointer-events-auto self-end flex items-center gap-2 px-3 py-1.5 rounded-full bg-neutral-900/90 dark:bg-white/90 text-white dark:text-neutral-900 text-xs font-bold shadow-lg hover:scale-105 transition-transform"
           >
-            <span>+{notifications.length - 3} more</span>
+            <span>+{notifications.length - 2} more</span>
             <X size={12} />
           </motion.button>
         )}
       </AnimatePresence>
 
       <AnimatePresence mode="popLayout">
-        {notifications.slice(0, 3).map((notif) => {
+        {notifications.slice(0, 2).map((notif) => {
           const config = notificationConfig[notif.type];
           const IconComponent = config.icon;
           return (
@@ -104,15 +157,19 @@ export function NotificationContainer({
                   onRemove(notif.id);
                 }
               }}
-              initial={{ opacity: 0, x: 100, scale: 0.9 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: 100, scale: 0.9 }}
-              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              initial={{ opacity: 0, y: 15, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -15, scale: 0.95 }}
+              transition={{
+                type: "tween",
+                ease: [0.16, 1, 0.3, 1],
+                duration: 0.4
+              }}
               className={cn(
-                "pointer-events-auto relative overflow-hidden rounded-xl shadow-2xl cursor-grab active:cursor-grabbing",
-                "backdrop-blur-xl bg-white/95 dark:bg-neutral-900/95",
-                "border border-neutral-200/50 dark:border-neutral-700/50",
-                "border-l-4",
+                "pointer-events-auto relative overflow-hidden rounded-2xl shadow-xl shadow-neutral-200/20 dark:shadow-black/40 cursor-grab active:cursor-grabbing",
+                "backdrop-blur-md bg-white/80 dark:bg-white/[0.02]",
+                "border border-neutral-300/40 dark:border-white/[0.08]",
+                "border-l-[3px]",
                 config.border
               )}
               style={{

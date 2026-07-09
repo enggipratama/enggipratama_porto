@@ -7,6 +7,7 @@ import Link from "next/link";
 import pkg from "@/package.json";
 import { supabase } from "@/lib/supabase";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 const COMPACT_NUMBER_FORMATTER = new Intl.NumberFormat("en-US", {
   notation: "compact",
@@ -15,18 +16,20 @@ const COMPACT_NUMBER_FORMATTER = new Intl.NumberFormat("en-US", {
 });
 
 const SOCIAL_LINKS = [
-  { Icon: Github, href: "https://github.com/enggipratama", label: "GitHub" },
+  { Icon: Github, href: "https://github.com/enggipratama", label: "GitHub", color: "hover:text-neutral-900 dark:hover:text-white" },
   {
     Icon: Linkedin,
     href: "https://linkedin.com/in/enggipratama",
     label: "LinkedIn",
+    color: "hover:text-blue-600 dark:hover:text-blue-400",
   },
   {
     Icon: Instagram,
     href: "https://instagram.com/enggiipratama",
     label: "Instagram",
+    color: "hover:text-pink-600 dark:hover:text-pink-400",
   },
-  { Icon: Mail, href: "mailto:work.enggipratama@gmail.com", label: "Email" },
+  { Icon: Mail, href: "mailto:work.enggipratama@gmail.com", label: "Email", color: "hover:text-sky-500 dark:hover:text-sky-400" },
 ];
 
 const NUMBER_VARIANTS = {
@@ -111,7 +114,7 @@ export function Footer() {
   }, []);
 
   return (
-    <footer className="relative w-full border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 overflow-hidden">
+    <footer className="relative w-full border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-px bg-gradient-to-r from-transparent via-sky-500 to-transparent opacity-50" />
 
       <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col gap-10">
@@ -127,7 +130,7 @@ export function Footer() {
 
           <div className="flex flex-col items-center sm:items-end mt-2 sm:mt-0 gap-2">
             <div className="flex items-center gap-4">
-              {SOCIAL_LINKS.map(({ Icon, href, label }) => (
+              {SOCIAL_LINKS.map(({ Icon, href, label, color }) => (
                 <motion.a
                   key={label}
                   href={href}
@@ -135,7 +138,7 @@ export function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   whileHover={{ y: -3, scale: 1.1 }}
-                  className="text-neutral-500 hover:text-sky-500 transition-colors"
+                  className={cn("text-neutral-500 transition-colors", color)}
                 >
                   <Icon size={20} />
                 </motion.a>

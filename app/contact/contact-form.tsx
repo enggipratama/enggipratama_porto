@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { SectionHeader } from "@/components/ui/section-header";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -34,9 +33,9 @@ type ContactFormData = z.infer<typeof contactSchema>;
 
 const socials = [
   { icon: Github, href: "https://github.com/enggipratama", label: "GitHub", color: "hover:text-neutral-900 dark:hover:text-white" },
-  { icon: Linkedin, href: "https://linkedin.com/in/enggipratama", label: "LinkedIn", color: "hover:text-blue-600" },
-  { icon: Instagram, href: "https://instagram.com/enggiipratama", label: "Instagram", color: "hover:text-pink-600" },
-  { icon: Mail, href: "mailto:work.enggipratama@gmail.com", label: "Email", color: "hover:text-sky-500" },
+  { icon: Linkedin, href: "https://linkedin.com/in/enggipratama", label: "LinkedIn", color: "hover:text-blue-600 dark:hover:text-blue-400" },
+  { icon: Instagram, href: "https://instagram.com/enggiipratama", label: "Instagram", color: "hover:text-pink-600 dark:hover:text-pink-400" },
+  { icon: Mail, href: "mailto:work.enggipratama@gmail.com", label: "Email", color: "hover:text-sky-500 dark:hover:text-sky-400" },
 ];
 
 export default function ContactForm() {
@@ -52,6 +51,10 @@ export default function ContactForm() {
     action?: NotificationAction,
     undo?: () => void
   ) => {
+    // Prevent duplicate toast spamming
+    const isDuplicate = notifications.some((n) => n.message === message);
+    if (isDuplicate) return;
+
     const id = nanoid();
     const duration = type === "error" ? 6000 : 4000;
     setNotifications((prev) => [...prev, { id, message, type, duration, action, undo }]);
@@ -111,7 +114,11 @@ export default function ContactForm() {
   };
 
   return (
-    <section className="relative min-h-screen w-full overflow-hidden bg-white dark:bg-neutral-950 font-mono">
+    <section className="relative min-h-screen w-full overflow-hidden bg-slate-50/50 dark:bg-black font-mono">
+      {/* Background Decorative Glows for Light Mode */}
+      <div className="pointer-events-none absolute -top-40 -right-40 h-[600px] w-[600px] rounded-full bg-sky-200/10 blur-[120px] dark:hidden" />
+      <div className="pointer-events-none absolute -bottom-40 -left-40 h-[600px] w-[600px] rounded-full bg-purple-200/10 blur-[120px] dark:hidden" />
+
       {/* Notifications - Portal to body for true fixed positioning */}
       <NotificationPortal
         notifications={notifications}
@@ -119,7 +126,7 @@ export default function ContactForm() {
         onClearAll={clearAllNotifications}
       />
 
-      <div className="mx-auto max-w-6xl px-4 py-12 sm:py-16 lg:py-20">
+      <div className="mx-auto max-w-6xl px-4 pt-24 pb-12 sm:pt-28 sm:pb-16 lg:pt-32 lg:pb-20">
         {/* Header */}
         <div className="text-center mb-10">
           <SectionHeader
@@ -139,7 +146,7 @@ export default function ContactForm() {
             transition={{ delay: 0.2 }}
             className="flex flex-col justify-center"
           >
-            <div className="rounded-2xl bg-gradient-to-br from-sky-500/10 via-purple-500/10 to-pink-500/10 dark:from-sky-500/5 dark:via-purple-500/5 dark:to-pink-500/5 p-6 sm:p-8 border border-neutral-200 dark:border-neutral-800 shadow-lg shadow-neutral-200/30 dark:shadow-neutral-900/30">
+            <div className="rounded-2xl border border-neutral-300/50 bg-white/70 p-6 sm:p-8 shadow-lg shadow-neutral-200/30 backdrop-blur-md dark:border-white/[0.08] dark:bg-white/[0.04] dark:shadow-2xl dark:shadow-black/50">
               <h2 className="text-xl font-bold text-neutral-900 dark:text-white mb-6">
                 Contact Information
               </h2>
@@ -189,7 +196,7 @@ export default function ContactForm() {
               <div className="mt-8 pt-6 border-t border-neutral-200 dark:border-neutral-800">
                 <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-3">Or connect via</p>
                 <div className="flex gap-3">
-                  {socials.map(({ icon: Icon, href, label }) => (
+                  {socials.map(({ icon: Icon, href, label, color }) => (
                     <motion.a
                       key={label}
                       href={href}
@@ -197,7 +204,10 @@ export default function ContactForm() {
                       rel="noopener noreferrer"
                       whileHover={{ y: -3, scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
-                      className="rounded-xl bg-neutral-200 p-2.5 text-neutral-700 transition-colors hover:bg-sky-500 hover:text-white dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-sky-500 dark:hover:text-white"
+                      className={cn(
+                        "rounded-xl bg-neutral-200 p-2.5 text-neutral-700 transition-all dark:bg-neutral-800 dark:text-neutral-300 hover:bg-neutral-300/50 dark:hover:bg-neutral-700/50",
+                        color
+                      )}
                       aria-label={label}
                     >
                       <Icon size={18} />
@@ -224,7 +234,7 @@ export default function ContactForm() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <div className="rounded-2xl bg-white/90 dark:bg-neutral-900/90 p-6 sm:p-8 shadow-xl shadow-neutral-200/50 border border-neutral-200 dark:border-neutral-800 backdrop-blur-sm dark:shadow-neutral-900/50">
+            <div className="rounded-2xl border border-neutral-300/50 bg-white/80 p-6 sm:p-8 shadow-xl shadow-neutral-200/30 backdrop-blur-md dark:border-white/[0.08] dark:bg-white/[0.04] dark:shadow-2xl dark:shadow-black/50">
               <h2 className="text-lg font-bold text-neutral-900 dark:text-white mb-6">
                 Send a Message
               </h2>
@@ -246,13 +256,17 @@ export default function ContactForm() {
                   <Label htmlFor="name" className="text-xs font-medium text-neutral-700 dark:text-neutral-300">
                     Full Name <span className="text-red-500">*</span>
                   </Label>
-                  <Input
+                  <input
                     id="name"
+                    type="text"
                     placeholder="John Doe"
                     {...register("name")}
                     className={cn(
-                      "h-12 rounded-xl border-neutral-200 bg-neutral-50 text-base focus:border-sky-500 focus:ring-sky-500/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white md:text-sm",
-                      errors.name && "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                      "h-12 w-full rounded-xl border border-neutral-300/40 bg-neutral-100/50 px-4 text-base text-neutral-900 placeholder:text-neutral-400 transition-all outline-none md:text-sm",
+                      "hover:border-neutral-400/60 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10",
+                      "dark:border-white/[0.08] dark:bg-black/50 dark:text-white dark:placeholder:text-neutral-500",
+                      "dark:hover:border-white/20 dark:focus:border-sky-400 dark:focus:ring-sky-400/10",
+                      errors.name && "border-red-500 focus:border-red-500 focus:ring-red-500/20 dark:border-red-500 dark:focus:border-red-500 dark:focus:ring-red-500/20"
                     )}
                   />
                   {errors.name && (
@@ -265,14 +279,17 @@ export default function ContactForm() {
                   <Label htmlFor="email" className="text-xs font-medium text-neutral-700 dark:text-neutral-300">
                     Email Address <span className="text-red-500">*</span>
                   </Label>
-                  <Input
+                  <input
                     id="email"
                     type="email"
                     placeholder="john@example.com"
                     {...register("email")}
                     className={cn(
-                      "h-12 rounded-xl border-neutral-200 bg-neutral-50 text-base focus:border-sky-500 focus:ring-sky-500/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white md:text-sm",
-                      errors.email && "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                      "h-12 w-full rounded-xl border border-neutral-300/40 bg-neutral-100/50 px-4 text-base text-neutral-900 placeholder:text-neutral-400 transition-all outline-none md:text-sm",
+                      "hover:border-neutral-400/60 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10",
+                      "dark:border-white/[0.08] dark:bg-black/50 dark:text-white dark:placeholder:text-neutral-500",
+                      "dark:hover:border-white/20 dark:focus:border-sky-400 dark:focus:ring-sky-400/10",
+                      errors.email && "border-red-500 focus:border-red-500 focus:ring-red-500/20 dark:border-red-500 dark:focus:border-red-500 dark:focus:ring-red-500/20"
                     )}
                   />
                   {errors.email && (
@@ -285,13 +302,17 @@ export default function ContactForm() {
                   <Label htmlFor="subject" className="text-xs font-medium text-neutral-700 dark:text-neutral-300">
                     Subject <span className="text-red-500">*</span>
                   </Label>
-                  <Input
+                  <input
                     id="subject"
+                    type="text"
                     placeholder="Project collaboration"
                     {...register("subject")}
                     className={cn(
-                      "h-12 rounded-xl border-neutral-200 bg-neutral-50 text-base focus:border-sky-500 focus:ring-sky-500/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white md:text-sm",
-                      errors.subject && "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                      "h-12 w-full rounded-xl border border-neutral-300/40 bg-neutral-100/50 px-4 text-base text-neutral-900 placeholder:text-neutral-400 transition-all outline-none md:text-sm",
+                      "hover:border-neutral-400/60 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10",
+                      "dark:border-white/[0.08] dark:bg-black/50 dark:text-white dark:placeholder:text-neutral-500",
+                      "dark:hover:border-white/20 dark:focus:border-sky-400 dark:focus:ring-sky-400/10",
+                      errors.subject && "border-red-500 focus:border-red-500 focus:ring-red-500/20 dark:border-red-500 dark:focus:border-red-500 dark:focus:ring-red-500/20"
                     )}
                   />
                   {errors.subject && (
@@ -310,8 +331,11 @@ export default function ContactForm() {
                     placeholder="Tell me about your project..."
                     {...register("message")}
                     className={cn(
-                      "w-full rounded-xl border-neutral-200 bg-neutral-50 px-4 py-3 text-base text-neutral-900 placeholder:text-neutral-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500 resize-none md:text-sm",
-                      errors.message && "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                      "w-full rounded-xl border border-neutral-300/40 bg-neutral-100/50 px-4 py-3 text-base text-neutral-900 placeholder:text-neutral-400 transition-all outline-none resize-none md:text-sm",
+                      "hover:border-neutral-400/60 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10",
+                      "dark:border-white/[0.08] dark:bg-black/50 dark:text-white dark:placeholder:text-neutral-500",
+                      "dark:hover:border-white/20 dark:focus:border-sky-400 dark:focus:ring-sky-400/10",
+                      errors.message && "border-red-500 focus:border-red-500 focus:ring-red-500/20 dark:border-red-500 dark:focus:border-red-500 dark:focus:ring-red-500/20"
                     )}
                   />
                   {errors.message && (

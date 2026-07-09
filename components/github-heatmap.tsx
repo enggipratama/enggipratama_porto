@@ -8,7 +8,7 @@ import "react-tooltip/dist/react-tooltip.css";
 
 export default function GithubHeatmap({ username }: { username: string }) {
   return (
-    <div className="h-full rounded-xl border border-neutral-200 bg-white p-4 shadow-md shadow-neutral-200/50 dark:border-neutral-800 dark:bg-neutral-950 dark:shadow-neutral-900/50 sm:p-5">
+    <div className="h-full rounded-xl border border-neutral-300/50 bg-neutral-50/80 p-4 shadow-md shadow-neutral-200/40 backdrop-blur-md dark:border-white/[0.08] dark:bg-white/[0.04] dark:shadow-2xl dark:shadow-black/50 sm:p-5">
       <div className="mb-4 flex items-center gap-2">
         <Activity className="h-4 w-4 text-sky-500" />
         <h3 className="font-mono text-sm font-semibold text-neutral-900 dark:text-white">

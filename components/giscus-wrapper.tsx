@@ -1,7 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
-import Giscus from "@giscus/react";
+import dynamic from "next/dynamic";
 import { useTheme } from "next-themes";
+
+const Giscus = dynamic(() => import("@giscus/react"), { ssr: false });
 
 export default function GiscusWrapper() {
   const [isLoaded, setIsLoaded] = useState(false);

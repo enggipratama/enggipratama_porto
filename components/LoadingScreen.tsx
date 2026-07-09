@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Lottie from "lottie-react";
-import animationData from "@/public/Loading/astronaut.json";
+import dynamic from "next/dynamic";
 import { TypingText } from "./TypingText";
+
+const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const animationData = require("@/public/Loading/astronaut.json") as object;
 
 export default function LoadingScreen() {
   const [loading, setLoading] = useState(true);
