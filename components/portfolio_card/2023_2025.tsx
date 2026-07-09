@@ -49,39 +49,48 @@ function useProjectHealth(demoUrl?: string) {
 }
 
 function StatusBadge({ status }: { status: "checking" | "up" | "down" | "maintenance" }) {
+  const styles = {
+    checking: "border-neutral-300/40 bg-neutral-100/80 text-neutral-600 dark:border-neutral-800/80 dark:bg-neutral-900/50 dark:text-neutral-400",
+    up: "border-emerald-500/25 bg-emerald-500/10 text-emerald-600 dark:border-emerald-500/20 dark:bg-emerald-500/5 dark:text-emerald-400",
+    down: "border-red-500/25 bg-red-500/10 text-red-600 dark:border-red-500/20 dark:bg-red-500/5 dark:text-red-400",
+    maintenance: "border-amber-500/25 bg-amber-500/10 text-amber-600 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-400",
+  };
+
+  const currentStyle = styles[status];
+
   return (
-    <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md border border-neutral-300/40 bg-neutral-100/50 text-[9px] font-mono font-medium text-neutral-600 dark:border-white/[0.08] dark:bg-white/[0.02] dark:text-neutral-400 select-none">
+    <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[9px] font-mono font-medium select-none shadow-sm transition-all duration-300 ${currentStyle}`}>
       {status === "checking" && (
         <>
-          <span className="h-1 w-1 animate-pulse rounded-full bg-neutral-400" />
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-neutral-400" />
           <span className="uppercase tracking-wider">Checking</span>
         </>
       )}
       {status === "up" && (
         <>
-          <span className="relative flex h-1 w-1">
+          <span className="relative flex h-1.5 w-1.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex h-1 w-1 rounded-full bg-emerald-500"></span>
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
           </span>
-          <span className="uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Live</span>
+          <span className="uppercase tracking-wider">Live</span>
         </>
       )}
       {status === "down" && (
         <>
-          <span className="relative flex h-1 w-1">
+          <span className="relative flex h-1.5 w-1.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-            <span className="relative inline-flex h-1 w-1 rounded-full bg-red-500"></span>
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-red-500"></span>
           </span>
-          <span className="uppercase tracking-wider text-red-600 dark:text-red-400">Offline</span>
+          <span className="uppercase tracking-wider">Offline</span>
         </>
       )}
       {status === "maintenance" && (
         <>
-          <span className="relative flex h-1 w-1">
+          <span className="relative flex h-1.5 w-1.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-            <span className="relative inline-flex h-1 w-1 rounded-full bg-amber-500"></span>
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-amber-500"></span>
           </span>
-          <span className="uppercase tracking-wider text-amber-600 dark:text-amber-400">Maint</span>
+          <span className="uppercase tracking-wider">Maint</span>
         </>
       )}
     </div>
@@ -100,12 +109,10 @@ function TechBadge({ name, tech }: { name: string; tech: string }) {
 
 function CardWrapper({ 
   children, 
-  year, 
-  statusNode 
+  year 
 }: { 
   children: React.ReactNode; 
   year: string; 
-  statusNode?: React.ReactNode 
 }) {
   return (
     <motion.div
@@ -115,8 +122,7 @@ function CardWrapper({
       transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 1.0 }}
       className="group relative overflow-hidden rounded-xl border border-neutral-300/50 bg-neutral-50/80 p-4 shadow-lg shadow-neutral-200/40 backdrop-blur-md transition-all hover:border-sky-500/30 hover:shadow-lg hover:shadow-sky-500/10 dark:border-white/[0.08] dark:bg-white/[0.04] dark:hover:border-sky-500/30 dark:shadow-2xl dark:shadow-black/50 dark:hover:shadow-sky-500/10 sm:rounded-2xl sm:p-5"
     >
-      <div className="absolute right-3 top-3 z-10 flex items-center gap-1.5">
-        {statusNode}
+      <div className="absolute right-3 top-3 z-10">
         <Badge variant={
           year === "2023" ? "blue" :
           year === "2024" ? "purple" :
@@ -131,43 +137,52 @@ function CardWrapper({
 }
 
 function ActionButtons({ demoUrl, githubUrl }: { demoUrl?: string; githubUrl?: string }) {
+  const status = useProjectHealth(demoUrl);
+
   return (
-    <div className="mt-4 flex flex-wrap items-center gap-2 sm:mt-5 sm:gap-3">
+    <div className="mt-4 flex flex-wrap items-center justify-between gap-3 sm:mt-5">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+        {demoUrl && (
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <Link
+              href={demoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative inline-flex shrink-0 items-center gap-1.5 overflow-hidden rounded-lg bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-900 px-3 py-2 text-xs font-mono font-medium text-white shadow-md transition-all hover:shadow-lg hover:shadow-sky-500/25 dark:from-white dark:via-neutral-200 dark:to-white dark:text-neutral-900 dark:hover:shadow-sky-400/25 sm:gap-2 sm:px-4 sm:text-sm"
+            >
+              <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+              
+              <ExternalLink className="relative h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 sm:h-4 sm:w-4" />
+              <span className="relative">Live Demo</span>
+            </Link>
+          </motion.div>
+        )}
+        {githubUrl && (
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <Link
+              href={githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-xs font-mono font-medium text-neutral-700 shadow-sm transition-all hover:border-sky-500/50 hover:bg-white hover:text-sky-600 hover:shadow-md hover:shadow-sky-500/10 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:border-sky-400/50 dark:hover:bg-neutral-800 dark:hover:text-sky-400 sm:gap-2 sm:px-4 sm:text-sm"
+            >
+              <Github className="relative h-3.5 w-3.5 transition-transform duration-300 group-hover:rotate-12 sm:h-4 sm:w-4" />
+              <span className="relative">View Source</span>
+            </Link>
+          </motion.div>
+        )}
+      </div>
+
+      {/* Health status badge aligned to the bottom-right */}
       {demoUrl && (
-        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-          <Link
-            href={demoUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group relative inline-flex shrink-0 items-center gap-1.5 overflow-hidden rounded-lg bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-900 px-3 py-2 text-xs font-mono font-medium text-white shadow-md transition-all hover:shadow-lg hover:shadow-sky-500/25 dark:from-white dark:via-neutral-200 dark:to-white dark:text-neutral-900 dark:hover:shadow-sky-400/25 sm:gap-2 sm:px-4 sm:text-sm"
-          >
-            <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-            
-            <ExternalLink className="relative h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 sm:h-4 sm:w-4" />
-            <span className="relative">Live Demo</span>
-          </Link>
-        </motion.div>
-      )}
-      {githubUrl && (
-        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-          <Link
-            href={githubUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group relative inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-xs font-mono font-medium text-neutral-700 shadow-sm transition-all hover:border-sky-500/50 hover:bg-white hover:text-sky-600 hover:shadow-md hover:shadow-sky-500/10 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:border-sky-400/50 dark:hover:bg-neutral-800 dark:hover:text-sky-400 sm:gap-2 sm:px-4 sm:text-sm"
-          >
-            <Github className="relative h-3.5 w-3.5 transition-transform duration-300 group-hover:rotate-12 sm:h-4 sm:w-4" />
-            <span className="relative">View Source</span>
-          </Link>
-        </motion.div>
+        <div className="shrink-0 self-end">
+          <StatusBadge status={status} />
+        </div>
       )}
     </div>
   );
 }
 
 export function PortfolioCard1() {
-  const demoUrl = "https://davibar.enggipratama.my.id";
-  const healthStatus = useProjectHealth(demoUrl);
   const techs = [
     { name: "Laravel", tech: "laravel" },
     { name: "PHP", tech: "php" },
@@ -176,7 +191,7 @@ export function PortfolioCard1() {
   ];
 
   return (
-    <CardWrapper year="2023" statusNode={<StatusBadge status={healthStatus} />}>
+    <CardWrapper year="2023">
       <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
         <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-lg sm:aspect-[16/10] lg:aspect-[4/3] lg:w-[45%]">
           <Image
@@ -211,7 +226,7 @@ export function PortfolioCard1() {
           </div>
 
           <ActionButtons
-            demoUrl={demoUrl}
+            demoUrl="https://davibar.enggipratama.my.id"
             githubUrl="https://github.com/enggipratama/DAVIBARTEST"
           />
         </div>
@@ -221,8 +236,6 @@ export function PortfolioCard1() {
 }
 
 export function PortfolioCard2() {
-  const demoUrl = "https://megp.enggipratama.my.id";
-  const healthStatus = useProjectHealth(demoUrl);
   const techs = [
     { name: "Next.js", tech: "nextjs" },
     { name: "TypeScript", tech: "typescript" },
@@ -230,7 +243,7 @@ export function PortfolioCard2() {
   ];
 
   return (
-    <CardWrapper year="2024" statusNode={<StatusBadge status={healthStatus} />}>
+    <CardWrapper year="2024">
       <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
         <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-lg sm:aspect-[16/10] lg:aspect-[4/3] lg:w-[45%]">
           <Image
@@ -265,7 +278,7 @@ export function PortfolioCard2() {
           </div>
 
           <ActionButtons
-            demoUrl={demoUrl}
+            demoUrl="https://megp.enggipratama.my.id"
             githubUrl="https://github.com/enggipratama/porto"
           />
         </div>
@@ -275,8 +288,6 @@ export function PortfolioCard2() {
 }
 
 export function PortfolioCard3() {
-  const demoUrl = "https://bub.enggipratama.my.id";
-  const healthStatus = useProjectHealth(demoUrl);
   const techs = [
     { name: "Next.js", tech: "nextjs" },
     { name: "React", tech: "react" },
@@ -285,7 +296,7 @@ export function PortfolioCard3() {
   ];
 
   return (
-    <CardWrapper year="2025" statusNode={<StatusBadge status={healthStatus} />}>
+    <CardWrapper year="2025">
       <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
         <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-lg sm:aspect-[16/10] lg:aspect-[4/3] lg:w-[45%]">
           <Image
@@ -320,7 +331,7 @@ export function PortfolioCard3() {
           </div>
 
           <ActionButtons
-            demoUrl={demoUrl}
+            demoUrl="https://bub.enggipratama.my.id"
             githubUrl="https://github.com/enggipratama/mystery-love"
           />
         </div>
