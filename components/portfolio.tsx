@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Timeline } from "@/components/ui/timeline";
+import { SectionHeader } from "@/components/ui/section-header";
 import {
   PortfolioCard,
   PortfolioCard1,
@@ -41,23 +42,14 @@ export function TimelinePortfolio() {
   ];
 
   return (
-    <section className="relative w-full overflow-hidden bg-white py-12 sm:py-16 lg:py-20 dark:bg-black">
+    <section className="relative w-full overflow-hidden bg-white py-12 sm:py-16 lg:py-20 dark:bg-neutral-950">
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.5 }}
-        className="mb-8 px-4 text-center sm:mb-12 lg:mb-16"
-      >
-        <h2 className="font-mono text-2xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-3xl md:text-4xl lg:text-5xl">
-          Selected Works
-        </h2>
-        <p className="mx-auto mt-2 max-w-md font-mono text-sm text-neutral-600 sm:mt-3 sm:text-base dark:text-neutral-400">
-          A curated collection of projects that showcase my growth as a developer
-        </p>
-        <div className="mx-auto mt-3 h-1 w-16 rounded-full bg-gradient-to-r from-sky-500 to-purple-500 sm:mt-4 sm:w-20" />
-      </motion.div>
+      <div className="px-4 text-center sm:mb-12 lg:mb-16">
+        <SectionHeader
+          title="Selected Works"
+          subtitle="A curated collection of projects that showcase my growth as a developer"
+        />
+      </div>
 
       {/* Timeline */}
       <motion.div

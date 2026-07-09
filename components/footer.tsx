@@ -6,6 +6,7 @@ import { Github, Linkedin, Instagram, Mail, Heart, Eye } from "lucide-react";
 import Link from "next/link";
 import pkg from "@/package.json";
 import { supabase } from "@/lib/supabase";
+import { Badge } from "@/components/ui/badge";
 
 const COMPACT_NUMBER_FORMATTER = new Intl.NumberFormat("en-US", {
   notation: "compact",
@@ -110,7 +111,7 @@ export function Footer() {
   }, []);
 
   return (
-    <footer className="relative w-full border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black overflow-hidden">
+    <footer className="relative w-full border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-px bg-gradient-to-r from-transparent via-sky-500 to-transparent opacity-50" />
 
       <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col gap-10">
@@ -186,9 +187,7 @@ export function Footer() {
             by <span className="italic">Enggi Pratama</span>
           </p>
           <div className="flex items-center gap-3">
-            <span className="inline-flex shrink-0 items-center rounded-md px-2 py-1 text-[10px] font-medium sm:rounded-full sm:px-2.5 sm:text-xs bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
-              v{pkg.version}
-            </span>
+            <Badge variant="neutral">v{pkg.version}</Badge>
           </div>
         </div>
       </div>

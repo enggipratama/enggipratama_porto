@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { SectionHeader } from "@/components/ui/section-header";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { nanoid } from "nanoid";
@@ -110,7 +111,7 @@ export default function ContactForm() {
   };
 
   return (
-    <section className="relative min-h-screen w-full overflow-hidden bg-white dark:bg-black font-mono">
+    <section className="relative min-h-screen w-full overflow-hidden bg-white dark:bg-neutral-950 font-mono">
       {/* Notifications - Portal to body for true fixed positioning */}
       <NotificationPortal
         notifications={notifications}
@@ -120,18 +121,13 @@ export default function ContactForm() {
 
       <div className="mx-auto max-w-6xl px-4 py-12 sm:py-16 lg:py-20">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-10"
-        >
-          <h1 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-sky-500 to-purple-500 bg-clip-text text-transparent">
-            Let&apos;s Work Together
-          </h1>
-          <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-            Have a project in mind? I&apos;d love to hear about it.
-          </p>
-        </motion.div>
+        <div className="text-center mb-10">
+          <SectionHeader
+            title="Let&apos;s Work Together"
+            subtitle="Have a project in mind? I&apos;d love to hear about it."
+            gradient
+          />
+        </div>
 
         {/* Main Content - 2 Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
@@ -143,7 +139,7 @@ export default function ContactForm() {
             transition={{ delay: 0.2 }}
             className="flex flex-col justify-center"
           >
-            <div className="rounded-2xl bg-gradient-to-br from-sky-500/10 via-purple-500/10 to-pink-500/10 dark:from-sky-500/5 dark:via-purple-500/5 dark:to-pink-500/5 p-6 sm:p-8 border border-neutral-200 dark:border-neutral-800">
+            <div className="rounded-2xl bg-gradient-to-br from-sky-500/10 via-purple-500/10 to-pink-500/10 dark:from-sky-500/5 dark:via-purple-500/5 dark:to-pink-500/5 p-6 sm:p-8 border border-neutral-200 dark:border-neutral-800 shadow-lg shadow-neutral-200/30 dark:shadow-neutral-900/30">
               <h2 className="text-xl font-bold text-neutral-900 dark:text-white mb-6">
                 Contact Information
               </h2>
@@ -228,16 +224,19 @@ export default function ContactForm() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <div className="rounded-2xl bg-white dark:bg-neutral-900 p-6 sm:p-8 shadow-xl border border-neutral-200 dark:border-neutral-800">
+            <div className="rounded-2xl bg-white/90 dark:bg-neutral-900/90 p-6 sm:p-8 shadow-xl shadow-neutral-200/50 border border-neutral-200 dark:border-neutral-800 backdrop-blur-sm dark:shadow-neutral-900/50">
               <h2 className="text-lg font-bold text-neutral-900 dark:text-white mb-6">
                 Send a Message
               </h2>
 
               <form
-                onSubmit={handleSubmit(onSubmit, () => {
-                  setButtonStatus("idle");
-                  addNotification("Please check your form inputs", "error");
-                })}
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void handleSubmit(onSubmit, () => {
+                    setButtonStatus("idle");
+                    addNotification("Please check your form inputs", "error");
+                  })(e);
+                }}
                 className="space-y-5"
               >
                 <input type="text" className="hidden" {...register("website")} />
@@ -252,7 +251,7 @@ export default function ContactForm() {
                     placeholder="John Doe"
                     {...register("name")}
                     className={cn(
-                      "h-11 rounded-xl border-neutral-200 bg-neutral-50 text-base focus:border-sky-500 focus:ring-sky-500/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white md:text-sm",
+                      "h-12 rounded-xl border-neutral-200 bg-neutral-50 text-base focus:border-sky-500 focus:ring-sky-500/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white md:text-sm",
                       errors.name && "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                     )}
                   />
@@ -272,7 +271,7 @@ export default function ContactForm() {
                     placeholder="john@example.com"
                     {...register("email")}
                     className={cn(
-                      "h-11 rounded-xl border-neutral-200 bg-neutral-50 text-base focus:border-sky-500 focus:ring-sky-500/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white md:text-sm",
+                      "h-12 rounded-xl border-neutral-200 bg-neutral-50 text-base focus:border-sky-500 focus:ring-sky-500/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white md:text-sm",
                       errors.email && "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                     )}
                   />
@@ -291,7 +290,7 @@ export default function ContactForm() {
                     placeholder="Project collaboration"
                     {...register("subject")}
                     className={cn(
-                      "h-11 rounded-xl border-neutral-200 bg-neutral-50 text-base focus:border-sky-500 focus:ring-sky-500/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white md:text-sm",
+                      "h-12 rounded-xl border-neutral-200 bg-neutral-50 text-base focus:border-sky-500 focus:ring-sky-500/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white md:text-sm",
                       errors.subject && "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                     )}
                   />

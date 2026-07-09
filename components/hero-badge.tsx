@@ -2,8 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-
-const badgeBaseStyle = "inline-flex shrink-0 items-center rounded-md px-2 py-1 text-[10px] font-medium sm:rounded-full sm:px-2.5 sm:text-xs";
+import { Badge } from "@/components/ui/badge";
 
 export function OpenToWorkBadge() {
   return (
@@ -11,13 +10,15 @@ export function OpenToWorkBadge() {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5, duration: 0.5 }}
-      className={`${badgeBaseStyle} bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300`}
     >
-      <span className="relative flex h-2 w-2 mr-1.5">
-        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500/75"></span>
-        <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
-      </span>
-      Available for Opportunities
+      <Badge variant="success" icon={
+        <span className="relative flex h-2 w-2">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500/75"></span>
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+        </span>
+      }>
+        Available for Opportunities
+      </Badge>
     </motion.div>
   );
 }

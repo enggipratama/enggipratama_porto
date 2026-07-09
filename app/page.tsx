@@ -21,7 +21,7 @@ export default function Home() {
                 Enggi Pratama.
               </span>
             </h2>
-            <p className="max-w-2xl text-center text-sm italic text-neutral-700 dark:text-neutral-400 sm:text-lg">
+            <p className="max-w-2xl text-center text-sm italic text-neutral-600 dark:text-neutral-300 sm:text-lg">
               &ldquo;Transforming complex problems into elegant solutions, one line of code at a time.&rdquo;
             </p>
             <CTAButtons />
@@ -29,7 +29,7 @@ export default function Home() {
           <ScrollIcon />
         </BackgroundLines>
       </section>
-      <section id="about" className="relative z-10 scroll-mt-10 bg-white dark:bg-black">
+      <section id="about" className="relative z-10 scroll-mt-10 bg-white dark:bg-neutral-950">
         <SpotlightPreview />
       </section>
       <section id="portfolio" className="scroll-mt-0">
@@ -39,7 +39,7 @@ export default function Home() {
         <GithubData />
       </div>
       {/* Footer */}
-      <footer className="bg-white py-10 text-center font-mono text-sm dark:bg-black">
+      <footer className="bg-white py-10 text-center font-mono text-sm dark:bg-neutral-950">
         <div className="flex items-center justify-center gap-1">
           <span className="text-gray-600 dark:text-gray-400">
             Lets discuss with us -

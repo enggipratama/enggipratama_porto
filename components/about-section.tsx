@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Github, Linkedin, Instagram, Mail, Download } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 const socials = [
   {
@@ -29,21 +30,19 @@ const socials = [
 ];
 
 const skills = [
-  { name: "Next.js", color: "bg-neutral-800 text-white dark:bg-white dark:text-neutral-900" },
-  { name: "React", color: "bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300" },
-  { name: "TypeScript", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" },
-  { name: "Tailwind", color: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300" },
-  { name: "Laravel", color: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300" },
-  { name: "PHP", color: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300" },
-  { name: "MySQL", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" },
-  { name: "Framer", color: "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300" },
+  { name: "Next.js", variant: "neutral" as const },
+  { name: "React", variant: "sky" as const },
+  { name: "TypeScript", variant: "blue" as const },
+  { name: "Tailwind", variant: "cyan" as const },
+  { name: "Laravel", variant: "red" as const },
+  { name: "PHP", variant: "indigo" as const },
+  { name: "MySQL", variant: "blue" as const },
+  { name: "Framer", variant: "pink" as const },
 ];
-
-const badgeBaseStyle = "inline-flex shrink-0 items-center rounded-md px-2 py-1 text-[10px] font-medium sm:rounded-full sm:px-2.5 sm:text-xs";
 
 export function SpotlightPreview() {
   return (
-    <section className="relative flex min-h-[60vh] w-full flex-col items-center justify-center overflow-hidden bg-white p-4 font-mono antialiased dark:bg-black md:min-h-[25rem] md:p-10">
+    <section className="relative flex min-h-[60vh] w-full flex-col items-center justify-center overflow-hidden bg-white p-4 font-mono antialiased dark:bg-neutral-950 md:min-h-[25rem] md:p-10">
       {/* Background Grid */}
       <div
         className={cn(
@@ -67,12 +66,15 @@ export function SpotlightPreview() {
           className="flex max-w-2xl flex-col items-center md:items-start"
         >
           {/* Badge - Style sama seperti tech stack */}
-          <div className={`${badgeBaseStyle} mb-4 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300`}>
-            <span className="relative flex h-2 w-2 mr-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500/75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-            </span>
-            Open to Collaborate
+          <div className="mb-4">
+            <Badge variant="success" icon={
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500/75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              </span>
+            }>
+              Open to Collaborate
+            </Badge>
           </div>
 
           {/* Headline */}
@@ -81,7 +83,7 @@ export function SpotlightPreview() {
           </h1>
 
           {/* Description */}
-          <p className="mt-4 text-justify text-sm leading-relaxed text-neutral-600 dark:text-neutral-400 md:text-left">
+          <p className="mt-4 text-justify text-sm leading-relaxed text-neutral-600 dark:text-neutral-300 md:text-left">
             My full name is{" "}
             <span className="font-bold text-neutral-900 dark:text-white">
               Muhammad Einggi Gusti P
@@ -98,7 +100,7 @@ export function SpotlightPreview() {
             that combine clean code with intuitive user experiences.
           </p>
 
-          <p className="mt-2 text-justify text-sm leading-relaxed text-neutral-600 dark:text-neutral-400 md:text-left">
+          <p className="mt-2 text-justify text-sm leading-relaxed text-neutral-600 dark:text-neutral-300 md:text-left">
             Currently focused on modern JavaScript ecosystems and Laravel ecosystem, 
             always eager to tackle challenging problems and learn cutting-edge technologies.
           </p>
@@ -106,12 +108,9 @@ export function SpotlightPreview() {
           {/* Tech Stack - Style sama persis seperti portfolio */}
           <div className="mt-5 flex flex-wrap gap-2">
             {skills.map((skill) => (
-              <span
-                key={skill.name}
-                className={`${badgeBaseStyle} ${skill.color}`}
-              >
+              <Badge key={skill.name} variant={skill.variant}>
                 {skill.name}
-              </span>
+              </Badge>
             ))}
           </div>
 
@@ -156,7 +155,7 @@ export function SpotlightPreview() {
           whileHover={{ y: -4 }}
           className="flex-shrink-0"
         >
-          <div className="my-10 w-full max-w-[260px] cursor-pointer rounded-[20px] bg-neutral-100 p-4 shadow-xl transition-all duration-500 hover:ring-2 hover:ring-sky-500/50 dark:bg-neutral-900 dark:hover:ring-sky-500/50 md:my-20 md:p-5">
+          <div className="my-10 w-full max-w-[280px] cursor-pointer rounded-[20px] bg-neutral-100/80 p-4 shadow-xl shadow-neutral-200/50 backdrop-blur-sm transition-all duration-500 hover:ring-2 hover:ring-sky-500/50 hover:shadow-2xl hover:shadow-sky-500/10 dark:bg-neutral-900/80 dark:shadow-neutral-900/50 dark:hover:ring-sky-500/50 dark:hover:shadow-sky-500/10 md:my-20 md:p-5">
             <div className="mx-1 flex-1">
               <div className="relative mt-1 aspect-[3/4] w-full overflow-hidden rounded-[12px] bg-neutral-200 dark:bg-neutral-800">
                 <Image
@@ -173,12 +172,8 @@ export function SpotlightPreview() {
 
             {/* Card Footer dengan badge style */}
             <div className="mt-3 flex items-center justify-center gap-3">
-              <span className={`${badgeBaseStyle} bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300`}>
-                Full-Stack Dev
-              </span>
-              <span className={`${badgeBaseStyle} bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300`}>
-                Open to Work
-              </span>
+              <Badge variant="sky">Full-Stack Dev</Badge>
+              <Badge variant="success">Open to Work</Badge>
             </div>
           </div>
         </motion.div>

@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Github, Star, GitFork, Code2, Activity, ExternalLink, FolderGit2, Loader2 } from "lucide-react";
+import { Github, Star, GitFork, Code2, Activity, ExternalLink, FolderGit2 } from "lucide-react";
 import GithubHeatmap from "@/components/github-heatmap";
+import { SkeletonCard, SkeletonStatCard, SkeletonHeatmap } from "@/components/skeleton-card";
+import { SectionHeader } from "@/components/ui/section-header";
+import { Badge } from "@/components/ui/badge";
 
 interface GitHubRepo {
   id: string;
@@ -55,12 +58,12 @@ const username = "enggipratama";
 
 function StatCard({ value, label, icon: Icon, iconColor }: { value: string | number; label: string; icon: React.ElementType; iconColor: string }) {
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-1 rounded-xl border border-neutral-200 bg-white p-2 text-center dark:border-neutral-800 dark:bg-neutral-950 sm:p-4">
+    <div className="flex h-full flex-col items-center justify-center gap-1 rounded-xl border border-neutral-200 bg-white p-2 text-center shadow-md shadow-neutral-200/50 dark:border-neutral-800 dark:bg-neutral-950 dark:shadow-neutral-900/50 sm:p-4">
       <div className={`flex h-7 w-7 items-center justify-center rounded-lg sm:h-9 sm:w-9 ${iconColor}`}>
         <Icon className="h-3.5 w-3.5 text-white sm:h-4 sm:w-4" />
       </div>
       <p className="mt-0.5 font-mono text-base font-bold text-neutral-900 dark:text-white sm:mt-1 sm:text-lg">{value}</p>
-      <p className="font-mono text-[10px] leading-tight text-neutral-500 dark:text-neutral-400 sm:text-xs">{label}</p>
+      <p className="font-mono text-[10px] leading-tight text-neutral-500 dark:text-neutral-300 sm:text-xs">{label}</p>
     </div>
   );
 }
@@ -81,7 +84,7 @@ function RepoCard({ repo }: { repo: GitHubRepo }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       whileHover={{ y: -4 }}
-      className="group flex flex-col rounded-xl border border-neutral-200 bg-white p-4 transition-all hover:border-sky-500/30 hover:shadow-md dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-sky-500/30 sm:p-5"
+      className="group flex flex-col rounded-xl border border-neutral-200 bg-white p-4 shadow-md shadow-neutral-200/50 transition-all hover:border-sky-500/30 hover:shadow-lg hover:shadow-sky-500/10 dark:border-neutral-800 dark:bg-neutral-950 dark:shadow-neutral-900/50 dark:hover:border-sky-500/30 dark:hover:shadow-sky-500/10 sm:p-5"
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
@@ -98,23 +101,20 @@ function RepoCard({ repo }: { repo: GitHubRepo }) {
       </p>
 
       <div className="mt-auto flex flex-wrap items-center gap-3 pt-4">
-        <span className="inline-flex shrink-0 items-center rounded-md px-2 py-1 text-[10px] font-medium sm:rounded-full sm:px-2.5 sm:text-xs bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
-          <span className={`h-2 w-2 shrink-0 rounded-full mr-1.5 ${langColor}`} />
+        <Badge variant="default" icon={<span className={`h-2 w-2 shrink-0 rounded-full ${langColor}`} />}>
           {language}
-        </span>
+        </Badge>
 
         {stars > 0 && (
-          <span className="inline-flex shrink-0 items-center rounded-md px-2 py-1 text-[10px] font-medium sm:rounded-full sm:px-2.5 sm:text-xs bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300">
-            <Star className="h-3 w-3 shrink-0 mr-1.5" />
+          <Badge variant="yellow" icon={<Star className="h-3 w-3 shrink-0" />}>
             {stars}
-          </span>
+          </Badge>
         )}
 
         {forks > 0 && (
-          <span className="inline-flex shrink-0 items-center rounded-md px-2 py-1 text-[10px] font-medium sm:rounded-full sm:px-2.5 sm:text-xs bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300">
-            <GitFork className="h-3 w-3 shrink-0 mr-1.5" />
+          <Badge variant="sky" icon={<GitFork className="h-3 w-3 shrink-0" />}>
             {forks}
-          </span>
+          </Badge>
         )}
       </div>
     </motion.a>
@@ -126,28 +126,65 @@ export default function GithubSection() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await fetch("/api/github");
-        if (!res.ok) throw new Error("Failed to fetch");
-        const result = await res.json();
-        setData(result);
-      } catch (err) {
-        setError("Unable to load GitHub data");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+  async function fetchData() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/github");
+      if (!res.ok) throw new Error("Failed to fetch");
+      const result = await res.json();
+      setData(result);
+    } catch (err) {
+      setError("Unable to load GitHub data");
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
+  }
+
+  useEffect(() => {
     fetchData();
   }, []);
 
   if (loading) {
     return (
-      <section className="relative w-full overflow-hidden bg-white py-16 dark:bg-black sm:py-20" id="github">
-        <div className="mx-auto flex max-w-6xl items-center justify-center px-4 py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-sky-500" />
+      <section className="relative w-full overflow-hidden bg-white py-16 dark:bg-neutral-950 sm:py-20" id="github">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          {/* Header Skeleton */}
+          <div className="mb-8 text-center sm:mb-10">
+            <div className="mb-2 inline-flex items-center gap-2">
+              <div className="h-5 w-5 rounded bg-neutral-200 dark:bg-neutral-800" />
+              <div className="h-4 w-24 rounded bg-neutral-200 dark:bg-neutral-800" />
+            </div>
+            <div className="mx-auto mt-2 h-8 w-48 rounded bg-neutral-200 dark:bg-neutral-800 sm:h-10 sm:w-64" />
+            <div className="mx-auto mt-2 h-4 w-64 rounded bg-neutral-200 dark:bg-neutral-800" />
+          </div>
+
+          {/* Main Content Skeleton */}
+          <div className="flex flex-col gap-4 lg:grid lg:grid-cols-3 lg:gap-6">
+            <div className="w-full lg:col-span-2">
+              <SkeletonHeatmap />
+            </div>
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-2 lg:grid-rows-2 lg:gap-4">
+              <SkeletonStatCard />
+              <SkeletonStatCard />
+              <SkeletonStatCard />
+              <SkeletonStatCard />
+            </div>
+          </div>
+
+          {/* Pinned Repositories Skeleton */}
+          <div className="mt-8 sm:mt-10">
+            <div className="mb-4 flex items-center justify-between sm:mb-5">
+              <div className="h-5 w-40 rounded bg-neutral-200 dark:bg-neutral-800 sm:h-6 sm:w-48" />
+              <div className="h-4 w-24 rounded bg-neutral-200 dark:bg-neutral-800" />
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-4">
+              <SkeletonCard />
+              <SkeletonCard />
+              <SkeletonCard />
+            </div>
+          </div>
         </div>
       </section>
     );
@@ -155,9 +192,21 @@ export default function GithubSection() {
 
   if (error || !data) {
     return (
-      <section className="relative w-full overflow-hidden bg-white py-16 dark:bg-black sm:py-20" id="github">
-        <div className="mx-auto max-w-6xl px-4 text-center">
-          <p className="font-mono text-neutral-600 dark:text-neutral-400">{error || "No data available"}</p>
+      <section className="relative w-full overflow-hidden bg-white py-16 dark:bg-neutral-950 sm:py-20" id="github">
+        <div className="mx-auto max-w-6xl px-4 py-20 text-center">
+          <Github className="mx-auto h-12 w-12 text-neutral-400" />
+          <h3 className="mt-4 font-mono text-lg font-semibold text-neutral-900 dark:text-white">
+            Unable to load GitHub data
+          </h3>
+          <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">
+            Please check your connection and try again
+          </p>
+          <button
+            onClick={fetchData}
+            className="mt-4 rounded-lg bg-sky-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-sky-600"
+          >
+            Retry
+          </button>
         </div>
       </section>
     );
@@ -170,26 +219,19 @@ export default function GithubSection() {
   const totalForks = repos.reduce((acc, repo) => acc + (repo.forkCount || repo.forks_count || 0), 0);
 
   return (
-    <section className="relative w-full overflow-hidden bg-white py-12 dark:bg-black sm:py-16 lg:py-20" id="github">
+    <section className="relative w-full overflow-hidden bg-white py-12 dark:bg-neutral-950 sm:py-16 lg:py-20" id="github">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-8 text-center sm:mb-10"
-        >
+        <div className="mb-8 text-center sm:mb-10">
           <div className="mb-2 inline-flex items-center gap-2">
             <Github className="h-5 w-5 text-neutral-700 dark:text-neutral-300" />
             <span className="font-mono text-sm text-neutral-500 dark:text-neutral-400">@{username}</span>
           </div>
-          <h2 className="font-mono text-2xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-3xl md:text-4xl">
-            Code Contributions
-          </h2>
-          <p className="mx-auto mt-2 max-w-md font-mono text-sm text-neutral-500 dark:text-neutral-400">
-            My open-source journey and development metrics
-          </p>
-        </motion.div>
+          <SectionHeader
+            title="Code Contributions"
+            subtitle="My open-source journey and development metrics"
+          />
+        </div>
 
         {/* Main Content - Mobile: Stack, Desktop: Grid */}
         <div className="flex flex-col gap-4 lg:grid lg:grid-cols-3 lg:gap-6">
