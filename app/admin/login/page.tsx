@@ -23,6 +23,26 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
+function getDeviceInfo(): string {
+  if (typeof navigator === "undefined") return "Unknown";
+  const ua = navigator.userAgent;
+  let browser = "Unknown";
+  if (/Edg\//.test(ua)) browser = "Edge";
+  else if (/OPR\//.test(ua)) browser = "Opera";
+  else if (/Firefox\//.test(ua)) browser = "Firefox";
+  else if (/Chrome\//.test(ua)) browser = "Chrome";
+  else if (/Safari\//.test(ua)) browser = "Safari";
+
+  let os = "Unknown";
+  if (/Windows NT/.test(ua)) os = "Windows";
+  else if (/Mac OS X|Macintosh/.test(ua)) os = "macOS";
+  else if (/Android/.test(ua)) os = "Android";
+  else if (/(iPhone|iPad|iPod)/.test(ua)) os = "iOS";
+  else if (/Linux/.test(ua)) os = "Linux";
+
+  return `${browser} · ${os}`;
+}
+
 export default function AdminLoginPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -83,7 +103,7 @@ export default function AdminLoginPage() {
       void fetch("/api/admin/activity", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "login", entity: values.email }),
+        body: JSON.stringify({ action: "login", entity: values.email, details: { device: getDeviceInfo() } }),
       }).catch(() => {});
       router.push("/admin");
       router.refresh();

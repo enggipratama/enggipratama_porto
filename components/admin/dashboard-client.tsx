@@ -56,6 +56,8 @@ export function DashboardClient({
   
   const [stats, setStats] = useState<StatItem[]>(initialStats);
   const [totalViews, setTotalViews] = useState<number>(0);
+  const [onlineUsers, setOnlineUsers] = useState<number>(0);
+  const [activeBar, setActiveBar] = useState<number | null>(null);
   const [exporting, setExporting] = useState(false);
   const [restoring, setRestoring] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -112,6 +114,21 @@ export function DashboardClient({
     void fetchAnalytics();
     void fetchActivity();
   }, []);
+
+  // Subscribe to live "online users" presence from the public site footer
+  useEffect(() => {
+    const channel = supabase.channel("online-users", {
+      config: { presence: { key: "admin-dashboard" } },
+    });
+    channel
+      .on("presence", { event: "sync" }, () => {
+        setOnlineUsers(Object.keys(channel.presenceState()).length);
+      })
+      .subscribe();
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [supabase]);
 
   // Subscribe to real-time admin activity inserts
   useEffect(() => {
@@ -361,7 +378,7 @@ export function DashboardClient({
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 min-w-0">
       {/* Welcome */}
       <div className="flex flex-col justify-between gap-4 border-b border-neutral-800 pb-5 sm:flex-row sm:items-center">
         <div>
@@ -392,7 +409,7 @@ export function DashboardClient({
       </div>
 
       {/* Stats Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat, i) => {
           const Icon = (() => {
             switch (stat.iconName) {
@@ -404,7 +421,7 @@ export function DashboardClient({
             }
           })();
           return (
-            <Card key={i} className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-md h-full flex flex-col transition-all duration-300 hover:-translate-y-1 hover:border-neutral-700/60 hover:shadow-[0_12px_30px_rgba(0,0,0,0.4)] hover:bg-neutral-900/65 group">
+            <Card key={i} className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-md h-full min-w-0 flex flex-col transition-all duration-300 hover:-translate-y-1 hover:border-neutral-700/60 hover:shadow-[0_12px_30px_rgba(0,0,0,0.4)] hover:bg-neutral-900/65 group">
               <CardHeader className="flex flex-row items-center justify-between pb-2 shrink-0">
                 <CardTitle className="text-xs font-mono text-neutral-400 uppercase tracking-wider group-hover:text-neutral-300 transition-colors">
                   {stat.title}
@@ -413,20 +430,20 @@ export function DashboardClient({
                   <Icon className={`size-4 ${stat.color} group-hover:scale-110 transition-transform`} />
                 </div>
               </CardHeader>
-              <CardContent className="flex-1 flex flex-col justify-between pt-2">
-                <div className="text-2xl font-bold text-white font-mono tracking-tight group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-neutral-400 group-hover:bg-clip-text group-hover:text-transparent transition-all">{stat.value}</div>
-                <p className="mt-1 text-xs text-neutral-500 font-mono group-hover:text-neutral-400 transition-colors">{stat.description}</p>
-              </CardContent>
+               <CardContent className="flex-1 flex flex-col justify-between pt-2">
+                 <div className="text-xl sm:text-2xl font-bold text-white font-mono tracking-tight break-words group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-neutral-400 group-hover:bg-clip-text group-hover:text-transparent transition-all">{stat.value}</div>
+                 <p className="mt-1 text-xs text-neutral-500 font-mono group-hover:text-neutral-400 transition-colors break-words">{stat.description}</p>
+               </CardContent>
             </Card>
           );
         })}
       </div>
 
       {/* Visual Analytics & System Row */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
         {/* Visitors Trend Chart */}
-        <Card className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md lg:col-span-2 shadow-md h-full flex flex-col transition-all duration-300 hover:border-neutral-750/80">
-          <CardHeader className="pb-3 flex flex-row items-center justify-between shrink-0">
+        <Card className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md lg:col-span-2 shadow-md h-full min-w-0 flex flex-col transition-all duration-300 hover:border-neutral-750/80">
+           <CardHeader className="pb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between shrink-0">
             <div>
               <CardTitle className="text-white flex items-center gap-2">
                 <TrendingUp className="size-4 text-sky-400 animate-pulse" />
@@ -437,29 +454,36 @@ export function DashboardClient({
             <div className="text-right">
               <div className="text-xl font-bold text-sky-400 font-mono flex items-center gap-1.5 justify-end">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-sky-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
                 </span>
                 {totalViews}
               </div>
-              <p className="text-[10px] text-neutral-500 font-mono">Real-Time Visits</p>
+              <p className="text-[10px] text-neutral-500 font-mono">Total Visits</p>
+              <div className="mt-1.5 flex items-center gap-1.5 justify-end text-[10px] text-emerald-400 font-mono">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                </span>
+                {onlineUsers} online now
+              </div>
             </div>
           </CardHeader>
           <CardContent className="pt-2 flex-1 flex flex-col justify-end">
-            <div className="h-48 w-full flex items-end justify-between gap-2.5 px-2 pb-6 border-b border-neutral-800 relative select-none">
+             <div className="h-40 sm:h-48 w-full flex items-end justify-between gap-2 sm:gap-2.5 px-1 sm:px-2 pb-6 border-b border-neutral-800 relative select-none">
               {/* Grid Lines */}
               <div className="absolute inset-x-0 top-0 border-t border-neutral-800/40 pointer-events-none" />
               <div className="absolute inset-x-0 top-1/3 border-t border-neutral-800/40 pointer-events-none" />
               <div className="absolute inset-x-0 top-2/3 border-t border-neutral-800/40 pointer-events-none" />
 
-              {chartData.map((d, idx) => {
-                const heightPercent = maxViews > 0 ? (d.views / maxViews) * 100 : 0;
-                return (
-                  <div key={idx} className="flex-1 flex flex-col items-center group relative h-full justify-end">
-                    {/* Tooltip */}
-                    <div className="absolute bottom-full mb-2 bg-neutral-950 border border-sky-500/20 text-[10px] text-sky-400 font-mono px-2.5 py-1 rounded-full shadow-[0_0_15px_rgba(14,165,233,0.15)] opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 whitespace-nowrap">
-                      {d.views} hits
-                    </div>
+               {chartData.map((d, idx) => {
+                 const heightPercent = maxViews > 0 ? (d.views / maxViews) * 100 : 0;
+                 return (
+                   <div key={idx} className="flex-1 flex flex-col items-center group relative h-full justify-end cursor-pointer outline-none" onClick={() => setActiveBar(activeBar === idx ? null : idx)}>
+                     {/* Tooltip */}
+                     <div className={`absolute bottom-full mb-2 bg-neutral-950 border border-sky-500/20 text-[10px] text-sky-400 font-mono px-2.5 py-1 rounded-full shadow-[0_0_15px_rgba(14,165,233,0.15)] transition-opacity duration-200 pointer-events-none z-10 whitespace-nowrap ${activeBar === idx ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
+                       {d.views} hits
+                     </div>
                     {/* Bar */}
                     <div 
                       style={{ height: `${Math.max(heightPercent, 8)}%` }}
@@ -481,7 +505,7 @@ export function DashboardClient({
         {/* Database Status & Quick Actions */}
         <div className="h-full flex flex-col">
           {/* System Status Card */}
-          <Card className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-md h-full flex flex-col transition-all duration-300 hover:border-neutral-750/80">
+          <Card className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-md h-full min-w-0 flex flex-col transition-all duration-300 hover:border-neutral-750/80">
             <CardHeader className="pb-3 shrink-0">
               <CardTitle className="text-white flex items-center gap-2">
                 <Database className="size-4 text-emerald-450" />
@@ -511,24 +535,24 @@ export function DashboardClient({
                     <Calendar className="size-3.5 text-neutral-600" /> Recent Updates:
                   </span>
                   <div className="pl-4 space-y-2 border-l border-neutral-850">
-                    <div className="flex flex-col">
-                      <span className="text-neutral-400 text-[10px] font-mono">Projects Table:</span>
-                      <span className="text-neutral-500 text-[9px] truncate font-mono">
-                        {lastUpdatedProject 
-                          ? `"${lastUpdatedProject.title}" (${new Date(lastUpdatedProject.updated_at).toLocaleString()})`
-                          : "No updates yet"
-                        }
-                      </span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-neutral-400 text-[10px] font-mono">Settings Table:</span>
-                      <span className="text-neutral-500 text-[9px] truncate font-mono">
-                        {lastUpdatedSetting
-                          ? `"${lastUpdatedSetting.key}" (${new Date(lastUpdatedSetting.updated_at).toLocaleString()})`
-                          : "No updates yet"
-                        }
-                      </span>
-                    </div>
+                     <div className="flex flex-col">
+                       <span className="text-neutral-400 text-[10px] font-mono">Projects Table:</span>
+                       <span className="text-neutral-500 text-[9px] break-words font-mono">
+                         {lastUpdatedProject 
+                           ? `"${lastUpdatedProject.title}" (${new Date(lastUpdatedProject.updated_at).toLocaleString()})`
+                           : "No updates yet"
+                         }
+                       </span>
+                     </div>
+                     <div className="flex flex-col">
+                       <span className="text-neutral-400 text-[10px] font-mono">Settings Table:</span>
+                       <span className="text-neutral-500 text-[9px] break-words font-mono">
+                         {lastUpdatedSetting
+                           ? `"${lastUpdatedSetting.key}" (${new Date(lastUpdatedSetting.updated_at).toLocaleString()})`
+                           : "No updates yet"
+                         }
+                       </span>
+                     </div>
                   </div>
                 </div>
               </div>
@@ -538,11 +562,11 @@ export function DashboardClient({
       </div>
 
       {/* Detailed Visitor Analytics Grid */}
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {/* Browser Distribution */}
-        <Card className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-md h-full flex flex-col transition-all duration-300 hover:border-neutral-750/80">
-          <CardHeader className="pb-3 shrink-0">
-            <CardTitle className="text-white text-sm font-mono flex items-center gap-2">
+          <Card className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-md h-full min-w-0 flex flex-col transition-all duration-300 hover:border-neutral-750/80">
+            <CardHeader className="pb-3 shrink-0">
+              <CardTitle className="text-white text-sm font-mono flex items-center gap-2">
               <Chrome className="size-4 text-purple-400" />
               Browsers
             </CardTitle>
@@ -557,7 +581,7 @@ export function DashboardClient({
                 return (
                   <div key={idx} className="space-y-1.5 font-mono text-[11px]">
                     <div className="flex justify-between text-neutral-350">
-                      <span className="truncate pr-2">{b.name}</span>
+                      <span className="truncate pr-2 min-w-0">{b.name}</span>
                       <span className="shrink-0 text-neutral-500">{b.value} ({Math.round(displayPct)}%)</span>
                     </div>
                     <div className="h-1.5 w-full bg-neutral-950 rounded-full overflow-hidden">
@@ -573,9 +597,9 @@ export function DashboardClient({
         </Card>
 
         {/* Device Distribution */}
-        <Card className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-md h-full flex flex-col transition-all duration-300 hover:border-neutral-750/80">
-          <CardHeader className="pb-3 shrink-0">
-            <CardTitle className="text-white text-sm font-mono flex items-center gap-2">
+          <Card className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-md h-full min-w-0 flex flex-col transition-all duration-300 hover:border-neutral-750/80">
+            <CardHeader className="pb-3 shrink-0">
+              <CardTitle className="text-white text-sm font-mono flex items-center gap-2">
               <Smartphone className="size-4 text-emerald-400" />
               Devices
             </CardTitle>
@@ -590,7 +614,7 @@ export function DashboardClient({
                 return (
                   <div key={idx} className="space-y-1.5 font-mono text-[11px]">
                     <div className="flex justify-between text-neutral-350">
-                      <span className="truncate pr-2">{d.name}</span>
+                      <span className="truncate pr-2 min-w-0">{d.name}</span>
                       <span className="shrink-0 text-neutral-500">{d.value} ({Math.round(pct)}%)</span>
                     </div>
                     <div className="h-1.5 w-full bg-neutral-950 rounded-full overflow-hidden">
@@ -606,9 +630,9 @@ export function DashboardClient({
         </Card>
 
         {/* Referrer Distribution */}
-        <Card className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-md h-full flex flex-col transition-all duration-300 hover:border-neutral-750/80">
-          <CardHeader className="pb-3 shrink-0">
-            <CardTitle className="text-white text-sm font-mono flex items-center gap-2">
+          <Card className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-md h-full min-w-0 flex flex-col transition-all duration-300 hover:border-neutral-750/80">
+            <CardHeader className="pb-3 shrink-0">
+              <CardTitle className="text-white text-sm font-mono flex items-center gap-2">
               <Share2 className="size-4 text-sky-400" />
               Referrers
             </CardTitle>
@@ -623,7 +647,7 @@ export function DashboardClient({
                 return (
                   <div key={idx} className="space-y-1.5 font-mono text-[11px]">
                     <div className="flex justify-between text-neutral-350">
-                      <span className="truncate pr-2">{r.name}</span>
+                      <span className="truncate pr-2 min-w-0">{r.name}</span>
                       <span className="shrink-0 text-neutral-500">{r.value} ({Math.round(pct)}%)</span>
                     </div>
                     <div className="h-1.5 w-full bg-neutral-950 rounded-full overflow-hidden">
@@ -655,26 +679,30 @@ export function DashboardClient({
             <div className="flex justify-center py-6"><Loader2 className="animate-spin text-neutral-500 size-4" /></div>
           ) : activities.length ? (
             <ul className="space-y-3 max-h-80 overflow-y-auto pr-1">
-              {activities.map((a) => {
-                const meta = activityMeta(a.action);
-                const Icon = meta.icon;
-                return (
-                  <li key={a.id} className="flex items-start gap-3">
-                    <div className={`mt-0.5 p-1.5 rounded-lg bg-neutral-950 border border-neutral-850 ${meta.color}`}>
-                      <Icon className="size-3.5" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs text-neutral-300 font-mono truncate">
-                        <span className={meta.color}>{meta.label}</span>
-                        {a.entity ? <span className="text-neutral-400"> · {a.entity}</span> : null}
-                      </p>
-                      <p className="text-[10px] text-neutral-600 font-mono">
-                        {a.admin_email || "admin"} · {timeAgo(a.created_at)}
-                      </p>
-                    </div>
-                  </li>
-                );
-              })}
+               {activities.map((a) => {
+                 const meta = activityMeta(a.action);
+                 const Icon = meta.icon;
+                 const deviceInfo =
+                   a.details && typeof a.details === "object"
+                     ? ((a.details as Record<string, unknown>).device as string | undefined)
+                     : undefined;
+                 return (
+                   <li key={a.id} className="flex items-start gap-3">
+                     <div className={`mt-0.5 p-1.5 rounded-lg bg-neutral-950 border border-neutral-850 ${meta.color}`}>
+                       <Icon className="size-3.5" />
+                     </div>
+                     <div className="min-w-0 flex-1">
+                       <p className="text-xs text-neutral-300 font-mono truncate">
+                         <span className={meta.color}>{meta.label}</span>
+                         {a.entity ? <span className="text-neutral-400"> · {a.entity}</span> : null}
+                       </p>
+                       <p className="text-[10px] text-neutral-600 font-mono break-words min-w-0">
+                         {a.admin_email || "admin"} · {timeAgo(a.created_at)}{deviceInfo ? ` · ${deviceInfo}` : ""}
+                       </p>
+                     </div>
+                   </li>
+                 );
+               })}
             </ul>
           ) : (
             <p className="text-xs text-neutral-600 font-mono italic py-4 text-center">No activity logged yet.</p>
@@ -688,30 +716,30 @@ export function DashboardClient({
           <CardTitle className="text-white">Content Sections Management</CardTitle>
           <CardDescription>Quick links to edit and configure active page modules.</CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4 sm:grid-cols-3">
-          <Link href="/admin/hero" className="flex items-center justify-between rounded-xl border border-neutral-850 bg-neutral-950/60 p-4 hover:bg-neutral-900/40 hover:border-sky-500/30 hover:shadow-[0_0_20px_rgba(14,165,233,0.06)] transition-all duration-300 group shadow-sm">
-            <div className="flex items-center gap-3">
-              <Home className="size-4 text-sky-400 group-hover:scale-115 transition-transform" />
-              <span className="text-sm font-mono text-neutral-200">Hero Editor</span>
-            </div>
-            <ArrowRight className="size-4 text-neutral-500 group-hover:text-white transition-colors" />
-          </Link>
+        <CardContent className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+           <Link href="/admin/hero" className="flex min-w-0 items-center justify-between rounded-xl border border-neutral-850 bg-neutral-950/60 p-4 hover:bg-neutral-900/40 hover:border-sky-500/30 hover:shadow-[0_0_20px_rgba(14,165,233,0.06)] transition-all duration-300 group shadow-sm">
+             <div className="flex items-center gap-3 min-w-0">
+               <Home className="size-4 text-sky-400 group-hover:scale-115 transition-transform shrink-0" />
+               <span className="text-sm font-mono text-neutral-200 truncate">Hero Editor</span>
+             </div>
+             <ArrowRight className="size-4 text-neutral-500 group-hover:text-white transition-colors shrink-0" />
+           </Link>
 
-          <Link href="/admin/about" className="flex items-center justify-between rounded-xl border border-neutral-850 bg-neutral-950/60 p-4 hover:bg-neutral-900/40 hover:border-purple-500/30 hover:shadow-[0_0_20px_rgba(168,85,247,0.06)] transition-all duration-300 group shadow-sm">
-            <div className="flex items-center gap-3">
-              <User className="size-4 text-purple-400 group-hover:scale-115 transition-transform" />
-              <span className="text-sm font-mono text-neutral-200">About & SEO</span>
-            </div>
-            <ArrowRight className="size-4 text-neutral-500 group-hover:text-white transition-colors" />
-          </Link>
+           <Link href="/admin/about" className="flex min-w-0 items-center justify-between rounded-xl border border-neutral-850 bg-neutral-950/60 p-4 hover:bg-neutral-900/40 hover:border-purple-500/30 hover:shadow-[0_0_20px_rgba(168,85,247,0.06)] transition-all duration-300 group shadow-sm">
+             <div className="flex items-center gap-3 min-w-0">
+               <User className="size-4 text-purple-400 group-hover:scale-115 transition-transform shrink-0" />
+               <span className="text-sm font-mono text-neutral-200 truncate">About & SEO</span>
+             </div>
+             <ArrowRight className="size-4 text-neutral-500 group-hover:text-white transition-colors shrink-0" />
+           </Link>
 
-          <Link href="/admin/projects" className="flex items-center justify-between rounded-xl border border-neutral-850 bg-neutral-950/60 p-4 hover:bg-neutral-900/40 hover:border-emerald-500/30 hover:shadow-[0_0_20px_rgba(16,185,129,0.06)] transition-all duration-300 group shadow-sm">
-            <div className="flex items-center gap-3">
-              <FolderGit className="size-4 text-emerald-400 group-hover:scale-115 transition-transform" />
-              <span className="text-sm font-mono text-neutral-200">Projects Manager</span>
-            </div>
-            <ArrowRight className="size-4 text-neutral-500 group-hover:text-white transition-colors" />
-          </Link>
+           <Link href="/admin/projects" className="flex min-w-0 items-center justify-between rounded-xl border border-neutral-850 bg-neutral-950/60 p-4 hover:bg-neutral-900/40 hover:border-emerald-500/30 hover:shadow-[0_0_20px_rgba(16,185,129,0.06)] transition-all duration-300 group shadow-sm">
+             <div className="flex items-center gap-3 min-w-0">
+               <FolderGit className="size-4 text-emerald-400 group-hover:scale-115 transition-transform shrink-0" />
+               <span className="text-sm font-mono text-neutral-200 truncate">Projects Manager</span>
+             </div>
+             <ArrowRight className="size-4 text-neutral-500 group-hover:text-white transition-colors shrink-0" />
+           </Link>
         </CardContent>
       </Card>
     </div>

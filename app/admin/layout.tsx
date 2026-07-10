@@ -10,7 +10,9 @@ import {
   FolderGit, 
   LogOut, 
   Menu, 
-  ChevronRight
+  ChevronRight,
+  PanelBottom,
+  Github
 } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import { Button } from "@/components/ui/button";
@@ -29,6 +31,8 @@ const sidebarLinks: SidebarLink[] = [
   { name: "Hero Section", href: "/admin/hero", icon: Home },
   { name: "About Section", href: "/admin/about", icon: User },
   { name: "Projects", href: "/admin/projects", icon: FolderGit },
+  { name: "Footer", href: "/admin/footer", icon: PanelBottom },
+  { name: "GitHub", href: "/admin/github", icon: Github },
 ];
 
 interface SidebarContentProps {
@@ -352,7 +356,7 @@ export default function AdminLayout({
         </header>
 
         {/* Content */}
-        <main className="flex-1 p-6 md:p-8 max-w-5xl w-full mx-auto">
+        <main className="flex-1 p-6 md:p-8 max-w-5xl w-full mx-auto overflow-x-hidden">
           {children}
         </main>
       </div>

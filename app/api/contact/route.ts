@@ -81,7 +81,7 @@ export async function POST(req: Request) {
     }
 
     const { error } = await resend.emails.send({
-      from: "Portfolio Email <onboarding@resend.dev>",
+      from: process.env.CONTACT_SENDER_EMAIL || '"Portfolio Email" <onboarding@resend.dev>',
       to: [process.env.CONTACT_RECEIVER_EMAIL || "admin@example.com"],
       subject: `MEGP: ${subject}`,
       react: React.createElement(EmailTemplate, { name, email, subject, message }),

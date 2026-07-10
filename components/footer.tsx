@@ -116,6 +116,8 @@ export function Footer() {
   const [onlineUsers, setOnlineUsers] = useState(0);
   const [totalViews, setTotalViews] = useState<number | null>(null);
   const [tagline, setTagline] = useState("Feel free to reach out. — Say hello anytime!");
+  const [footerName, setFooterName] = useState("Enggi Pratama");
+  const [footerCredit, setFooterCredit] = useState("Enggi Pratama");
   const [socialLinks, setSocialLinks] = useState(DEFAULT_SOCIAL_LINKS);
 
   useEffect(() => {
@@ -147,11 +149,17 @@ export function Footer() {
         const { data, error } = await supabase
           .from("site_settings")
           .select("key, value")
-          .in("key", ["footer_tagline", "social_links"]);
+          .in("key", ["footer_tagline", "footer_name", "footer_credit", "social_links"]);
         
         if (!error && data) {
           const taglineRow = data.find((r) => r.key === "footer_tagline");
           if (taglineRow && taglineRow.value) setTagline(taglineRow.value);
+
+          const nameRow = data.find((r) => r.key === "footer_name");
+          if (nameRow && nameRow.value) setFooterName(nameRow.value);
+
+          const creditRow = data.find((r) => r.key === "footer_credit");
+          if (creditRow && creditRow.value) setFooterCredit(creditRow.value);
 
           const socialsRow = data.find((r) => r.key === "social_links");
           if (socialsRow && Array.isArray(socialsRow.value)) {
@@ -210,7 +218,7 @@ export function Footer() {
         <div className="flex flex-col sm:flex-row items-center justify-between">
           <div className="flex flex-col items-center lg:items-start group">
             <Link href="/" className="text-xl font-bold font-mono text-neutral-800 dark:text-neutral-200 tracking-tighter hover:text-sky-500 transition-colors">
-              Enggi Pratama<span className="text-sky-500">.</span>
+              {footerName}<span className="text-sky-500">.</span>
             </Link>
             <p className="text-xs text-neutral-500 mt-1 font-mono">
               {tagline}
@@ -266,7 +274,7 @@ export function Footer() {
             >
               <Lucide.Heart size={14} className="text-red-500 fill-red-500" />
             </motion.span>
-            by <span className="italic">Enggi Pratama</span>
+            by <span className="italic">{footerCredit}</span>
           </p>
           <div className="flex items-center gap-3">
             <Badge variant="neutral">v{pkg.version}</Badge>
