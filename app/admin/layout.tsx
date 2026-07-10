@@ -310,7 +310,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="dark flex min-h-screen bg-neutral-950 text-neutral-100 relative overflow-hidden">
+    <div className="dark flex min-h-screen bg-neutral-950 text-neutral-100 relative overflow-hidden font-mono">
       {/* Background radial glows for premium modern feel */}
       <div className="pointer-events-none absolute top-0 right-0 h-[450px] w-[450px] rounded-full bg-sky-500/5 blur-[130px] z-0" />
       <div className="pointer-events-none absolute bottom-0 left-64 h-[450px] w-[450px] rounded-full bg-purple-500/5 blur-[130px] z-0" />

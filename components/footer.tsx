@@ -1,18 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import * as Lucide from "lucide-react";
 import Link from "next/link";
 import pkg from "@/package.json";
-import { supabase } from "@/lib/supabase";
+import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-const COMPACT_NUMBER_FORMATTER = new Intl.NumberFormat("en-US", {
-  notation: "compact",
-  compactDisplay: "short",
-  maximumFractionDigits: 1,
-});
+
+
+
 
 interface FooterSocialLinkProps {
   label: string;
@@ -84,37 +82,13 @@ const DEFAULT_SOCIAL_LINKS = [
   { label: "Email", href: "mailto:work.enggipratama@gmail.com", platform: "email" },
 ];
 
-const NUMBER_VARIANTS = {
-  initial: { y: 15, opacity: 0 },
-  animate: { y: 0, opacity: 1 },
-  exit: { y: -15, opacity: 0 },
-  transition: { type: "spring", stiffness: 300, damping: 30 },
-};
-
-function AnimatedNumber({ value }: { value: string | number }) {
-  return (
-    <span className="inline-flex h-full overflow-hidden relative w-auto min-w-[1ch] justify-center mx-2">
-      <AnimatePresence mode="popLayout">
-        <motion.span
-          key={value}
-          variants={NUMBER_VARIANTS}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          className="absolute"
-        >
-          {value}
-        </motion.span>
-      </AnimatePresence>
-      <span className="invisible">{value}</span>
-    </span>
-  );
-}
+// Render numbers directly in the footer to prevent layout or baseline alignment glitches.
 
 export function Footer() {
+  const supabase = createSupabaseBrowserClient();
   const currentYear = new Date().getFullYear();
   const [onlineUsers, setOnlineUsers] = useState(0);
-  const [totalViews, setTotalViews] = useState<number | null>(null);
+  const [totalViews, setTotalViews] = useState<number>(0);
   const [tagline, setTagline] = useState("Feel free to reach out. — Say hello anytime!");
   const [footerName, setFooterName] = useState("Enggi Pratama");
   const [footerCredit, setFooterCredit] = useState("Enggi Pratama");
@@ -122,16 +96,8 @@ export function Footer() {
 
   useEffect(() => {
     const initStats = async () => {
-      await supabase.rpc("increment_views", { row_key: "total_views" });
-      const { data } = await supabase
-        .from("statistics")
-        .select("value")
-        .eq("key", "total_views")
-        .single();
-      if (data) setTotalViews(data.value);
-
       try {
-        await fetch("/api/analytics/track", {
+        const res = await fetch("/api/analytics/track", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -139,8 +105,13 @@ export function Footer() {
             referrer: document.referrer,
           }),
         });
-      } catch {
-        // ignore tracking failures
+        const data = await res.json();
+        if (data.success) {
+          setTotalViews(Number(data.totalViews || 0));
+          setOnlineUsers(Number(data.onlineUsers || 0));
+        }
+      } catch (err) {
+        console.error("Failed to track visits & load statistics:", err);
       }
     };
 
@@ -173,42 +144,7 @@ export function Footer() {
 
     initStats();
     fetchFooterSettings();
-
-    const sessionId = Math.random().toString(36).substring(2, 15);
-    const presenceChannel = supabase.channel("online-users", {
-      config: { presence: { key: sessionId } },
-    });
-
-    presenceChannel
-      .on("presence", { event: "sync" }, () => {
-        const state = presenceChannel.presenceState();
-        setOnlineUsers(Object.keys(state).length);
-      })
-      .subscribe(async (status) => {
-        if (status === "SUBSCRIBED") {
-          await presenceChannel.track({ online_at: new Date().toISOString() });
-        }
-      });
-
-    const viewsChannel = supabase
-      .channel("views-realtime")
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "statistics",
-          filter: "key=eq.total_views",
-        },
-        (payload) => setTotalViews(payload.new.value)
-      )
-      .subscribe();
-
-    return () => {
-      presenceChannel.unsubscribe();
-      viewsChannel.unsubscribe();
-    };
-  }, []);
+  }, [supabase]);
 
   return (
     <footer className="relative w-full border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black overflow-hidden">
@@ -232,34 +168,38 @@ export function Footer() {
               ))}
             </div>
 
-            <div className="flex items-center gap-3 text-neutral-500">
-              <div className="flex items-center gap-2">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+            <div className="flex items-center gap-3.5 rounded-full border border-neutral-200/30 dark:border-neutral-800/40 bg-neutral-100/30 dark:bg-neutral-900/20 px-3.5 py-1.5 backdrop-blur-sm shadow-[0_2px_8px_rgba(0,0,0,0.04)] select-none">
+              <div className="flex items-center gap-1.5">
+                <span className="relative flex h-1.5 w-1.5 shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                 </span>
-                <p className="text-[10px] font-mono tracking-widest flex items-center">
-                  <AnimatedNumber
-                    value={COMPACT_NUMBER_FORMATTER.format(onlineUsers)}
-                  />
+                <span className="text-xs font-bold font-mono text-emerald-500 dark:text-emerald-400">
+                  {new Intl.NumberFormat("en-US", {
+                    notation: "compact",
+                    compactDisplay: "short",
+                    maximumFractionDigits: 1,
+                  }).format(onlineUsers)}
+                </span>
+                <span className="text-[10px] font-normal font-mono text-neutral-500 whitespace-nowrap">
                   {onlineUsers <= 1 ? "User" : "Users"} Live
-                </p>
+                </span>
               </div>
 
-              <span className="text-neutral-300 dark:text-neutral-800">|</span>
+              <span className="h-3 w-px bg-neutral-300 dark:bg-neutral-800" />
 
-              <div className="flex items-center gap-2">
-                <Lucide.Eye size={12} className="text-sky-500" />
-                <p className="text-[10px] font-mono tracking-widest flex items-center">
-                  <AnimatedNumber
-                    value={
-                      totalViews !== null
-                        ? COMPACT_NUMBER_FORMATTER.format(totalViews)
-                        : "---"
-                    }
-                  />
-                  Views
-                </p>
+              <div className="flex items-center gap-1.5">
+                <Lucide.Eye size={12} className="text-sky-500 dark:text-sky-400 filter drop-shadow-[0_0_2px_rgba(14,165,233,0.3)] shrink-0" />
+                <span className="text-xs font-bold font-mono text-sky-500 dark:text-sky-400">
+                  {new Intl.NumberFormat("en-US", {
+                    notation: "compact",
+                    compactDisplay: "short",
+                    maximumFractionDigits: 1,
+                  }).format(totalViews)}
+                </span>
+                <span className="text-[10px] font-normal font-mono text-neutral-500 whitespace-nowrap">
+                  Visits
+                </span>
               </div>
             </div>
           </div>

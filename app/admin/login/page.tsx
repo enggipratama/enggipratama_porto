@@ -34,11 +34,24 @@ function getDeviceInfo(): string {
   else if (/Safari\//.test(ua)) browser = "Safari";
 
   let os = "Unknown";
-  if (/Windows NT/.test(ua)) os = "Windows";
-  else if (/Mac OS X|Macintosh/.test(ua)) os = "macOS";
-  else if (/Android/.test(ua)) os = "Android";
-  else if (/(iPhone|iPad|iPod)/.test(ua)) os = "iOS";
-  else if (/Linux/.test(ua)) os = "Linux";
+  if (/Android/.test(ua)) {
+    const androidMatch = ua.match(/Android\s+[0-9.]+;\s*([^;)]+)/);
+    if (androidMatch) {
+      os = androidMatch[1].trim().split(" Build/")[0];
+    } else {
+      os = "Android";
+    }
+  } else if (/iPhone/.test(ua)) {
+    os = "iPhone";
+  } else if (/iPad/.test(ua)) {
+    os = "iPad";
+  } else if (/Windows NT/.test(ua)) {
+    os = "Windows";
+  } else if (/Mac OS X|Macintosh/.test(ua)) {
+    os = "macOS";
+  } else if (/Linux/.test(ua)) {
+    os = "Linux";
+  }
 
   return `${browser} · ${os}`;
 }
@@ -115,7 +128,7 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="dark flex min-h-screen items-center justify-center bg-neutral-955 px-4 relative overflow-hidden">
+    <div className="dark flex min-h-screen items-center justify-center bg-neutral-955 px-4 relative overflow-hidden font-mono">
       {/* Dynamic Background ambient glow effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-[15%] left-[5%] size-[280px] sm:size-[400px] rounded-full bg-sky-500/5 blur-[120px] animate-pulse" style={{ animationDuration: "12s" }} />

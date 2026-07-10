@@ -224,8 +224,8 @@ export function ProjectForm({ initialData, isEdit = false }: ProjectFormProps) {
           <div className="md:col-span-2 flex">
             <Card className="w-full border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-md rounded-xl transition-all duration-300 hover:border-neutral-750/80 hover:bg-neutral-900/50 flex flex-col justify-between">
               <CardHeader className="pb-4">
-                <CardTitle className="text-white">Project Details</CardTitle>
-                <CardDescription>Enter primary name, tags, and description.</CardDescription>
+                <CardTitle className="text-white text-sm font-mono">Project Details</CardTitle>
+                <CardDescription className="text-[10px] font-mono">Enter primary name, tags, and description.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 flex-1 flex flex-col justify-between">
                 <div className="space-y-1.5 shrink-0">
@@ -298,8 +298,8 @@ export function ProjectForm({ initialData, isEdit = false }: ProjectFormProps) {
           <div className="md:col-span-1 flex">
             <Card className="w-full border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-md rounded-xl transition-all duration-300 hover:border-neutral-750/80 hover:bg-neutral-900/50 flex flex-col justify-between">
               <CardHeader className="pb-4">
-                <CardTitle className="text-white">Project Image</CardTitle>
-                <CardDescription>Upload a cover image representing the project.</CardDescription>
+                <CardTitle className="text-white text-sm font-mono">Project Image</CardTitle>
+                <CardDescription className="text-[10px] font-mono">Upload a cover image representing the project.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 flex-1 flex flex-col justify-between">
                 <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border border-neutral-800 bg-neutral-955 flex items-center justify-center shadow-inner flex-1 min-h-[180px]">
@@ -356,8 +356,8 @@ export function ProjectForm({ initialData, isEdit = false }: ProjectFormProps) {
           <div className="md:col-span-2 flex">
             <Card className="w-full border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-md rounded-xl transition-all duration-300 hover:border-neutral-750/80 hover:bg-neutral-900/50 flex flex-col justify-between">
               <CardHeader className="pb-4">
-                <CardTitle className="text-white">Links, Visibility & Settings</CardTitle>
-                <CardDescription>Configure external resources, ordering indices, and publishing parameters.</CardDescription>
+                <CardTitle className="text-white text-sm font-mono">Links, Visibility & Settings</CardTitle>
+                <CardDescription className="text-[10px] font-mono">Configure external resources, ordering indices, and publishing parameters.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-5 flex-1 flex flex-col justify-between">
                 <div className="space-y-4">
@@ -428,8 +428,8 @@ export function ProjectForm({ initialData, isEdit = false }: ProjectFormProps) {
           <div className="md:col-span-1 flex">
             <Card className="w-full border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-md rounded-xl transition-all duration-300 hover:border-neutral-750/80 hover:bg-neutral-900/50 flex flex-col justify-between">
               <CardHeader className="pb-4">
-                <CardTitle className="text-white">Tech Stack</CardTitle>
-                <CardDescription>Select or add tools used in building.</CardDescription>
+                <CardTitle className="text-white text-sm font-mono">Tech Stack</CardTitle>
+                <CardDescription className="text-[10px] font-mono">Select or add tools used in building.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 flex-1 flex flex-col justify-between">
                 {/* List tags */}

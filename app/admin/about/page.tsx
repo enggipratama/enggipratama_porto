@@ -304,8 +304,8 @@ export default function AboutEditorPage() {
           {/* Profile Image Card */}
           <Card className="border-neutral-800 bg-neutral-900/50 shadow-lg h-full transition-all hover:border-neutral-800/80">
             <CardHeader className="pb-4">
-              <CardTitle className="text-white">Profile Image</CardTitle>
-              <CardDescription>Your profile photo displayed in the about section.</CardDescription>
+              <CardTitle className="text-white text-sm font-mono">Profile Image</CardTitle>
+              <CardDescription className="text-[10px] font-mono">Your profile photo displayed in the about section.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex flex-col sm:flex-row items-center gap-6">
@@ -349,8 +349,8 @@ export default function AboutEditorPage() {
           {/* CV / Resume File Card */}
           <Card className="border-neutral-800 bg-neutral-900/50 shadow-lg h-full transition-all hover:border-neutral-800/80">
             <CardHeader className="pb-4">
-              <CardTitle className="text-white">CV / Resume File</CardTitle>
-              <CardDescription>Provide your downloadable curriculum vitae.</CardDescription>
+              <CardTitle className="text-white text-sm font-mono">CV / Resume File</CardTitle>
+              <CardDescription className="text-[10px] font-mono">Provide your downloadable curriculum vitae.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 flex flex-col justify-between h-[calc(100%-80px)]">
               <div className="space-y-3 flex-grow">
@@ -397,8 +397,8 @@ export default function AboutEditorPage() {
         {/* Basic Info */}
         <Card className="border-neutral-800 bg-neutral-900/50 shadow-lg transition-all hover:border-neutral-800/80">
           <CardHeader className="pb-4">
-            <CardTitle className="text-white">Basic Information</CardTitle>
-            <CardDescription>Your identity titles and status badge text.</CardDescription>
+            <CardTitle className="text-white text-sm font-mono">Basic Information</CardTitle>
+            <CardDescription className="text-[10px] font-mono">Your identity titles and status badge text.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-6 sm:grid-cols-2">
@@ -450,8 +450,8 @@ export default function AboutEditorPage() {
         {/* Description Paragraphs */}
         <Card className="border-neutral-800 bg-neutral-900/50 shadow-lg transition-all hover:border-neutral-800/80">
           <CardHeader className="pb-4">
-            <CardTitle className="text-white">Description</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-white text-sm font-mono">Description</CardTitle>
+            <CardDescription className="text-[10px] font-mono">
               Write your about description. Each block becomes a separate paragraph.
             </CardDescription>
           </CardHeader>
@@ -496,8 +496,8 @@ export default function AboutEditorPage() {
         {/* Social Links Card */}
         <Card className="border-neutral-800 bg-neutral-900/50 shadow-lg transition-all hover:border-neutral-800/80">
           <CardHeader className="pb-4">
-            <CardTitle className="text-white">Social Media Links</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-white text-sm font-mono">Social Media Links</CardTitle>
+            <CardDescription className="text-[10px] font-mono">
               Configure your social profiles displayed globally across the site.
             </CardDescription>
           </CardHeader>
@@ -626,8 +626,8 @@ export default function AboutEditorPage() {
         {/* SEO & Metadata Card */}
         <Card className="border-neutral-800 bg-neutral-900/50 shadow-lg transition-all hover:border-neutral-800/80">
           <CardHeader className="pb-4">
-            <CardTitle className="text-white">SEO & Search Engine Settings</CardTitle>
-            <CardDescription>Configure tags that help search engines index your website correctly.</CardDescription>
+            <CardTitle className="text-white text-sm font-mono">SEO & Search Engine Settings</CardTitle>
+            <CardDescription className="text-[10px] font-mono">Configure tags that help search engines index your website correctly.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-6 sm:grid-cols-2">

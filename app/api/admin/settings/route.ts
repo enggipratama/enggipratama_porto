@@ -83,6 +83,15 @@ export async function PUT(request: NextRequest) {
 
     const supabase = await createSupabaseServerClient();
 
+    // Fetch existing setting to see if it changed
+    const { data: existing } = await supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", key)
+      .maybeSingle();
+
+    const hasChanged = !existing || JSON.stringify(existing.value) !== JSON.stringify(value);
+
     const { data, error } = await supabase
       .from("site_settings")
       .upsert(
@@ -99,7 +108,9 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    await logActivity("settings_update", key);
+    if (hasChanged) {
+      await logActivity("settings_update", key);
+    }
 
     return NextResponse.json({ success: true, data });
   } catch (err) {

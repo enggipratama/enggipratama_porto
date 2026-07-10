@@ -57,6 +57,13 @@ export const DEFAULTS = {
     },
   ],
   footer_tagline: "Feel free to reach out. — Say hello anytime!",
+  portfolio_section_title: "Selected Works",
+  portfolio_section_subtitle: "A curated collection of projects that showcase my growth as a developer",
+  contact_location: "Indonesia",
+  contact_response_time: "Usually within 24 hours",
+  giscus_repo: "enggipratama/enggipratama",
+  giscus_repo_id: "R_kgDOL-qXqQ",
+  giscus_category_id: "DIC_kwDOL-qXqc4C0tG-",
 } as const;
 
 export type SiteSettings = typeof DEFAULTS;

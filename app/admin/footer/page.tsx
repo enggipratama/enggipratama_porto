@@ -22,6 +22,11 @@ const footerSchema = z.object({
   footer_name: z.string().min(1, "Footer name is required"),
   footer_credit: z.string().min(1, "Credit name is required"),
   footer_tagline: z.string().min(1, "Description is required"),
+  contact_location: z.string().min(1, "Location is required"),
+  contact_response_time: z.string().min(1, "Response time is required"),
+  giscus_repo: z.string().min(1, "Giscus repo is required"),
+  giscus_repo_id: z.string().min(1, "Giscus repo ID is required"),
+  giscus_category_id: z.string().min(1, "Giscus category ID is required"),
 });
 
 type FooterFormValues = z.infer<typeof footerSchema>;
@@ -45,6 +50,11 @@ export default function FooterEditorPage() {
       footer_name: "",
       footer_credit: "",
       footer_tagline: "",
+      contact_location: "",
+      contact_response_time: "",
+      giscus_repo: "",
+      giscus_repo_id: "",
+      giscus_category_id: "",
     },
   });
 
@@ -52,7 +62,16 @@ export default function FooterEditorPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const keys = ["footer_name", "footer_credit", "footer_tagline"];
+        const keys = [
+          "footer_name",
+          "footer_credit",
+          "footer_tagline",
+          "contact_location",
+          "contact_response_time",
+          "giscus_repo",
+          "giscus_repo_id",
+          "giscus_category_id"
+        ];
         const params = keys.map((k) => `key=${k}`).join("&");
         const res = await fetch(`/api/admin/settings?${params}`);
         if (!res.ok) throw new Error("Failed to fetch");
@@ -62,6 +81,11 @@ export default function FooterEditorPage() {
           footer_name: data.footer_name ?? "",
           footer_credit: data.footer_credit ?? "",
           footer_tagline: data.footer_tagline ?? "",
+          contact_location: data.contact_location ?? "",
+          contact_response_time: data.contact_response_time ?? "",
+          giscus_repo: data.giscus_repo ?? "",
+          giscus_repo_id: data.giscus_repo_id ?? "",
+          giscus_category_id: data.giscus_category_id ?? "",
         });
       } catch {
         toast.error("Failed to load footer settings");
@@ -80,6 +104,11 @@ export default function FooterEditorPage() {
         { key: "footer_name", value: values.footer_name },
         { key: "footer_credit", value: values.footer_credit },
         { key: "footer_tagline", value: values.footer_tagline },
+        { key: "contact_location", value: values.contact_location },
+        { key: "contact_response_time", value: values.contact_response_time },
+        { key: "giscus_repo", value: values.giscus_repo },
+        { key: "giscus_repo_id", value: values.giscus_repo_id },
+        { key: "giscus_category_id", value: values.giscus_category_id },
       ];
 
       for (const entry of entries) {
@@ -90,10 +119,10 @@ export default function FooterEditorPage() {
         });
         if (!res.ok) throw new Error(`Failed to save ${entry.key}`);
       }
-      toast.success("Footer settings saved successfully");
+      toast.success("Settings saved successfully");
       router.refresh();
     } catch {
-      toast.error("Failed to save footer settings");
+      toast.error("Failed to save settings");
     } finally {
       setSaving(false);
     }
@@ -126,8 +155,8 @@ export default function FooterEditorPage() {
       <form onSubmit={handleSubmit(onSave)} className="max-w-4xl mx-auto space-y-8">
         <Card className="border-neutral-800 bg-neutral-900/50 shadow-lg transition-all hover:border-neutral-800/80">
           <CardHeader className="pb-4">
-            <CardTitle className="text-white">Footer Content</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-white text-sm font-mono">Footer Content</CardTitle>
+            <CardDescription className="text-[10px] font-mono">
               These values appear at the bottom of every page across the site.
             </CardDescription>
           </CardHeader>
@@ -183,7 +212,92 @@ export default function FooterEditorPage() {
           </CardContent>
         </Card>
 
-        {/* Save Footer */}
+        {/* Contact Page Settings Card */}
+        <Card className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-lg transition-all hover:border-neutral-800/80">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-white text-sm font-mono">Contact Details</CardTitle>
+            <CardDescription className="text-[10px] text-neutral-400 font-mono">
+              These values appear on the public contact form page.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="contact_location" className="font-mono text-xs text-neutral-300">Physical Location</Label>
+              <Input
+                id="contact_location"
+                placeholder="e.g. Indonesia"
+                {...register("contact_location")}
+                className="bg-neutral-950 border-neutral-850 text-neutral-200 focus-visible:ring-sky-500 font-mono text-sm h-10"
+              />
+              {errors.contact_location && (
+                <p className="text-xs text-red-400">{errors.contact_location.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="contact_response_time" className="font-mono text-xs text-neutral-300">Average Response Time</Label>
+              <Input
+                id="contact_response_time"
+                placeholder="e.g. Usually within 24 hours"
+                {...register("contact_response_time")}
+                className="bg-neutral-950 border-neutral-850 text-neutral-200 focus-visible:ring-sky-500 font-mono text-sm h-10"
+              />
+              {errors.contact_response_time && (
+                <p className="text-xs text-red-400">{errors.contact_response_time.message}</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Giscus Integration Settings Card */}
+        <Card className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-lg transition-all hover:border-neutral-800/80">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-white text-sm font-mono">Giscus Comments Configuration</CardTitle>
+            <CardDescription className="text-[10px] text-neutral-400 font-mono">
+              Configure parameters for the public discussions section powered by Giscus.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="giscus_repo" className="font-mono text-xs text-neutral-300">GitHub Repository</Label>
+              <Input
+                id="giscus_repo"
+                placeholder="e.g. username/repo"
+                {...register("giscus_repo")}
+                className="bg-neutral-950 border-neutral-850 text-neutral-200 focus-visible:ring-sky-500 font-mono text-sm h-10"
+              />
+              {errors.giscus_repo && (
+                <p className="text-xs text-red-400">{errors.giscus_repo.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="giscus_repo_id" className="font-mono text-xs text-neutral-300">Repository ID</Label>
+              <Input
+                id="giscus_repo_id"
+                placeholder="e.g. R_kgDOL-qXqQ"
+                {...register("giscus_repo_id")}
+                className="bg-neutral-950 border-neutral-850 text-neutral-200 focus-visible:ring-sky-500 font-mono text-sm h-10"
+              />
+              {errors.giscus_repo_id && (
+                <p className="text-xs text-red-400">{errors.giscus_repo_id.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="giscus_category_id" className="font-mono text-xs text-neutral-300">Category ID</Label>
+              <Input
+                id="giscus_category_id"
+                placeholder="e.g. DIC_kwDOL-qXqc4C0tG-"
+                {...register("giscus_category_id")}
+                className="bg-neutral-950 border-neutral-850 text-neutral-200 focus-visible:ring-sky-500 font-mono text-sm h-10"
+              />
+              {errors.giscus_category_id && (
+                <p className="text-xs text-red-400">{errors.giscus_category_id.message}</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
         <div className="flex justify-end border-t border-neutral-900/60 pt-6">
           <Button
             type="submit"

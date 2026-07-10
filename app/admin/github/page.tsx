@@ -148,8 +148,8 @@ export default function GithubEditorPage() {
       <form onSubmit={handleSubmit(onSave)} className="max-w-4xl mx-auto space-y-8">
         <Card className="border-neutral-800 bg-neutral-900/50 shadow-lg transition-all hover:border-neutral-800/80">
           <CardHeader className="pb-4">
-            <CardTitle className="text-white">General</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-white text-sm font-mono">General</CardTitle>
+            <CardDescription className="text-[10px] font-mono">
               The GitHub username controls the &ldquo;@{`{username}`}&rdquo; display and the View All link.
             </CardDescription>
           </CardHeader>
@@ -174,8 +174,8 @@ export default function GithubEditorPage() {
 
         <Card className="border-neutral-800 bg-neutral-900/50 shadow-lg transition-all hover:border-neutral-800/80">
           <CardHeader className="pb-4">
-            <CardTitle className="text-white">Section Header</CardTitle>
-            <CardDescription>The title and subtitle of the GitHub stats section.</CardDescription>
+            <CardTitle className="text-white text-sm font-mono">Section Header</CardTitle>
+            <CardDescription className="text-[10px] font-mono">The title and subtitle of the GitHub stats section.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-1.5">
@@ -208,8 +208,8 @@ export default function GithubEditorPage() {
 
         <Card className="border-neutral-800 bg-neutral-900/50 shadow-lg transition-all hover:border-neutral-800/80">
           <CardHeader className="pb-4">
-            <CardTitle className="text-white">Stat Card Labels</CardTitle>
-            <CardDescription>The four metric cards in the GitHub stats grid.</CardDescription>
+            <CardTitle className="text-white text-sm font-mono">Stat Card Labels</CardTitle>
+            <CardDescription className="text-[10px] font-mono">The four metric cards in the GitHub stats grid.</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
@@ -268,8 +268,8 @@ export default function GithubEditorPage() {
 
         <Card className="border-neutral-800 bg-neutral-900/50 shadow-lg transition-all hover:border-neutral-800/80">
           <CardHeader className="pb-4">
-            <CardTitle className="text-white">Pinned Repositories</CardTitle>
-            <CardDescription>The heading and link for the highlighted projects list.</CardDescription>
+            <CardTitle className="text-white text-sm font-mono">Pinned Repositories</CardTitle>
+            <CardDescription className="text-[10px] font-mono">The heading and link for the highlighted projects list.</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">

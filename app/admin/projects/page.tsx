@@ -99,6 +99,47 @@ export default function ProjectsListPage() {
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [sectionTitle, setSectionTitleState] = useState("Selected Works");
+  const [sectionSubtitle, setSectionSubtitleState] = useState("A curated collection of projects that showcase my growth as a developer");
+  const [headerSaving, setHeaderSaving] = useState(false);
+
+  // Fetch header settings
+  useEffect(() => {
+    async function fetchHeaderSettings() {
+      try {
+        const res = await fetch("/api/admin/settings?key=portfolio_section_title&key=portfolio_section_subtitle");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.portfolio_section_title) setSectionTitleState(data.portfolio_section_title);
+          if (data.portfolio_section_subtitle) setSectionSubtitleState(data.portfolio_section_subtitle);
+        }
+      } catch {
+        // ignore
+      }
+    }
+    fetchHeaderSettings();
+  }, []);
+
+  async function saveHeaderSettings() {
+    setHeaderSaving(true);
+    try {
+      await fetch("/api/admin/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: "portfolio_section_title", value: sectionTitle }),
+      });
+      await fetch("/api/admin/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: "portfolio_section_subtitle", value: sectionSubtitle }),
+      });
+      toast.success("Portfolio header settings saved successfully");
+    } catch {
+      toast.error("Failed to save portfolio header settings");
+    } finally {
+      setHeaderSaving(false);
+    }
+  }
 
   // Fetch projects
   useEffect(() => {
@@ -198,6 +239,47 @@ export default function ProjectsListPage() {
           </Button>
         </Link>
       </div>
+
+      {/* Portfolio Header Settings Card */}
+      <Card className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-lg rounded-xl">
+        <CardContent className="p-4 space-y-4">
+          <div className="flex flex-col gap-1">
+            <h3 className="font-mono text-xs font-semibold text-white">Portfolio Section Header Settings</h3>
+            <p className="text-[10px] text-neutral-400 font-mono">Customize the title and description of your portfolio section on the main page.</p>
+          </div>
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <label className="text-[10px] text-neutral-400 font-mono uppercase">Header Title</label>
+              <input
+                type="text"
+                value={sectionTitle}
+                onChange={(e) => setSectionTitleState(e.target.value)}
+                className="w-full rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-1.5 text-xs text-white font-mono focus:border-sky-500 focus:outline-none"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] text-neutral-400 font-mono uppercase">Header Subtitle</label>
+              <input
+                type="text"
+                value={sectionSubtitle}
+                onChange={(e) => setSectionSubtitleState(e.target.value)}
+                className="w-full rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-1.5 text-xs text-white font-mono focus:border-sky-500 focus:outline-none"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end pt-2">
+            <Button
+              onClick={saveHeaderSettings}
+              disabled={headerSaving}
+              size="sm"
+              className="h-8 font-mono bg-gradient-to-r from-sky-500 to-purple-500 hover:from-sky-400 hover:to-purple-400 border-0 text-white text-[10px] font-bold rounded-lg px-3 transition-all duration-300 shadow-md shadow-sky-500/10"
+            >
+              {headerSaving ? <Loader2 className="mr-1.5 size-3 animate-spin" /> : null}
+              Save Header Settings
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Project List */}
       {projects.length === 0 ? (

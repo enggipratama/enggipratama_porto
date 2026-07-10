@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useTheme } from "next-themes";
+import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 
 const Giscus = dynamic(() => import("@giscus/react"), { ssr: false });
 
@@ -9,6 +10,9 @@ export default function GiscusWrapper() {
   const [isLoaded, setIsLoaded] = useState(false);
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [repo, setRepo] = useState("enggipratama/enggipratama");
+  const [repoId, setRepoId] = useState("R_kgDOL-qXqQ");
+  const [categoryId, setCategoryId] = useState("DIC_kwDOL-qXqc4C0tG-");
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
@@ -16,6 +20,32 @@ export default function GiscusWrapper() {
     });
     return () => cancelAnimationFrame(frame);
   }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    async function fetchGiscusSettings() {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const { data, error } = await supabase
+          .from("site_settings")
+          .select("key, value")
+          .in("key", ["giscus_repo", "giscus_repo_id", "giscus_category_id"]);
+        if (!error && data) {
+          const repoRow = data.find((r) => r.key === "giscus_repo");
+          if (repoRow && repoRow.value) setRepo(repoRow.value);
+
+          const repoIdRow = data.find((r) => r.key === "giscus_repo_id");
+          if (repoIdRow && repoIdRow.value) setRepoId(repoIdRow.value);
+
+          const categoryIdRow = data.find((r) => r.key === "giscus_category_id");
+          if (categoryIdRow && categoryIdRow.value) setCategoryId(categoryIdRow.value);
+        }
+      } catch (err) {
+        console.error("Failed to load Giscus settings:", err);
+      }
+    }
+    fetchGiscusSettings();
+  }, [mounted]);
 
   if (!mounted) return <div className="min-h-[100px]" />;
 
@@ -47,10 +77,10 @@ export default function GiscusWrapper() {
           >
             <Giscus
               id="comments"
-              repo="enggipratama/enggipratama"
-              repoId="R_kgDOL-qXqQ"
+              repo={repo as `${string}/${string}`}
+              repoId={repoId}
               category="General"
-              categoryId="DIC_kwDOL-qXqc4C0tG-"
+              categoryId={categoryId}
               mapping="specific"
               term="Let's Connect"
               reactionsEnabled="1"

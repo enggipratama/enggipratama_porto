@@ -24,7 +24,7 @@ export default async function Home() {
         <SpotlightPreview settings={settings} />
       </section>
       <section id="portfolio" className="scroll-mt-0">
-        <TimelinePortfolio projects={projects} />
+        <TimelinePortfolio projects={projects} settings={settings} />
       </section>
       <div className="font-mono">
         <GithubData />

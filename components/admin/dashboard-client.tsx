@@ -157,8 +157,8 @@ export function DashboardClient({
         .select("value")
         .eq("key", "total_views")
         .maybeSingle();
-      if (data && typeof data.value === "number") {
-        setTotalViews(data.value);
+      if (data && data.value !== undefined && data.value !== null) {
+        setTotalViews(Number(data.value));
       }
     }
     getInitialViews();
@@ -174,8 +174,8 @@ export function DashboardClient({
           filter: "key=eq.total_views",
         },
         (payload) => {
-          if (typeof payload.new.value === "number") {
-            setTotalViews(payload.new.value);
+          if (payload.new.value !== undefined && payload.new.value !== null) {
+            setTotalViews(Number(payload.new.value));
           }
         }
       )
@@ -445,27 +445,40 @@ export function DashboardClient({
         <Card className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md lg:col-span-2 shadow-md h-full min-w-0 flex flex-col transition-all duration-300 hover:border-neutral-750/80">
            <CardHeader className="pb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between shrink-0">
             <div>
-              <CardTitle className="text-white flex items-center gap-2">
+              <CardTitle className="text-white text-sm font-mono flex items-center gap-2">
                 <TrendingUp className="size-4 text-sky-400 animate-pulse" />
                 Visitor Trends (7 Days)
               </CardTitle>
-              <CardDescription>Estimated traffic analytics based on {totalViews} total views.</CardDescription>
+              <CardDescription className="text-[10px] font-mono">
+                Estimated traffic analytics based on {new Intl.NumberFormat("en-US").format(totalViews)} total views.
+              </CardDescription>
             </div>
-            <div className="text-right">
-              <div className="text-xl font-bold text-sky-400 font-mono flex items-center gap-1.5 justify-end">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+            <div className="flex items-center gap-3 rounded-full border border-neutral-800 bg-neutral-950/60 px-3.5 py-1.5 shadow-[0_2px_10px_rgba(0,0,0,0.2)] select-none">
+              <div className="flex items-center gap-1.5">
+                <span className="relative flex h-1.5 w-1.5 shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                 </span>
-                {totalViews}
+                <div className="flex items-baseline font-mono">
+                  <span className="text-[10px] font-bold text-emerald-400">{onlineUsers}</span>
+                  <span className="text-[8px] font-normal text-neutral-500 ml-1 whitespace-nowrap">Online</span>
+                </div>
               </div>
-              <p className="text-[10px] text-neutral-500 font-mono">Total Visits</p>
-              <div className="mt-1.5 flex items-center gap-1.5 justify-end text-[10px] text-emerald-400 font-mono">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                </span>
-                {onlineUsers} online now
+
+              <span className="h-3 w-px bg-neutral-800" />
+
+              <div className="flex items-center gap-1.5">
+                <Eye className="size-3.5 text-sky-400 filter drop-shadow-[0_0_2px_rgba(14,165,233,0.3)] shrink-0" />
+                <div className="flex items-baseline font-mono">
+                  <span className="text-[10px] font-bold text-sky-400">
+                    {new Intl.NumberFormat("en-US", {
+                      notation: "compact",
+                      compactDisplay: "short",
+                      maximumFractionDigits: 1,
+                    }).format(totalViews)}
+                  </span>
+                  <span className="text-[8px] font-normal text-neutral-500 ml-1 whitespace-nowrap">Visits</span>
+                </div>
               </div>
             </div>
           </CardHeader>
@@ -482,7 +495,7 @@ export function DashboardClient({
                    <div key={idx} className="flex-1 flex flex-col items-center group relative h-full justify-end cursor-pointer outline-none" onClick={() => setActiveBar(activeBar === idx ? null : idx)}>
                      {/* Tooltip */}
                      <div className={`absolute bottom-full mb-2 bg-neutral-950 border border-sky-500/20 text-[10px] text-sky-400 font-mono px-2.5 py-1 rounded-full shadow-[0_0_15px_rgba(14,165,233,0.15)] transition-opacity duration-200 pointer-events-none z-10 whitespace-nowrap ${activeBar === idx ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
-                       {d.views} hits
+                       {new Intl.NumberFormat("en-US").format(d.views)} hits
                      </div>
                     {/* Bar */}
                     <div 
@@ -507,11 +520,11 @@ export function DashboardClient({
           {/* System Status Card */}
           <Card className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-md h-full min-w-0 flex flex-col transition-all duration-300 hover:border-neutral-750/80">
             <CardHeader className="pb-3 shrink-0">
-              <CardTitle className="text-white flex items-center gap-2">
+              <CardTitle className="text-white text-sm font-mono flex items-center gap-2">
                 <Database className="size-4 text-emerald-450" />
                 Connection & Updates
               </CardTitle>
-              <CardDescription>Live database state information.</CardDescription>
+              <CardDescription className="text-[10px] font-mono">Live database state information.</CardDescription>
             </CardHeader>
             <CardContent className="flex-1 pb-4 flex flex-col">
               <div className="rounded-lg bg-neutral-950 p-4 border border-neutral-850 font-mono text-xs shadow-inner flex-1 flex flex-col justify-between space-y-3.5">
@@ -664,21 +677,21 @@ export function DashboardClient({
       </div>
 
       {/* Recent Admin Activity Feed */}
-      <Card className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-md">
+      <Card className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-md min-w-0 w-full overflow-hidden">
         <CardHeader className="pb-3 flex flex-row items-center justify-between shrink-0">
           <div>
-            <CardTitle className="text-white flex items-center gap-2">
+            <CardTitle className="text-white text-sm font-mono flex items-center gap-2">
               <History className="size-4 text-sky-400" />
               Recent Activity
             </CardTitle>
-            <CardDescription>Live audit trail of admin actions.</CardDescription>
+            <CardDescription className="text-[10px] font-mono">Live audit trail of admin actions.</CardDescription>
           </div>
         </CardHeader>
         <CardContent className="pt-2">
           {loadingActivity ? (
             <div className="flex justify-center py-6"><Loader2 className="animate-spin text-neutral-500 size-4" /></div>
           ) : activities.length ? (
-            <ul className="space-y-3 max-h-80 overflow-y-auto pr-1">
+            <ul className="space-y-2 max-h-80 overflow-y-auto pr-1 min-w-0 w-full">
                {activities.map((a) => {
                  const meta = activityMeta(a.action);
                  const Icon = meta.icon;
@@ -686,18 +699,26 @@ export function DashboardClient({
                    a.details && typeof a.details === "object"
                      ? ((a.details as Record<string, unknown>).device as string | undefined)
                      : undefined;
+                 const shouldShowEntity = a.entity && a.action !== "login" && a.action !== "logout";
                  return (
-                   <li key={a.id} className="flex items-start gap-3">
-                     <div className={`mt-0.5 p-1.5 rounded-lg bg-neutral-950 border border-neutral-850 ${meta.color}`}>
+                   <li key={a.id} className="flex items-start gap-3 min-w-0 w-full py-2 px-2.5 rounded-xl hover:bg-neutral-900/30 transition-all border border-transparent hover:border-neutral-850/40">
+                     <div className={`mt-0.5 p-1.5 rounded-lg bg-neutral-950 border border-neutral-850 shrink-0 ${meta.color}`}>
                        <Icon className="size-3.5" />
                      </div>
-                     <div className="min-w-0 flex-1">
-                       <p className="text-xs text-neutral-300 font-mono truncate">
+                     <div className="min-w-0 flex-1 space-y-0.5">
+                       <div className="flex flex-wrap items-center gap-1.5 text-xs font-mono font-medium text-neutral-200">
                          <span className={meta.color}>{meta.label}</span>
-                         {a.entity ? <span className="text-neutral-400"> · {a.entity}</span> : null}
-                       </p>
-                       <p className="text-[10px] text-neutral-600 font-mono break-words min-w-0">
-                         {a.admin_email || "admin"} · {timeAgo(a.created_at)}{deviceInfo ? ` · ${deviceInfo}` : ""}
+                         {shouldShowEntity ? <span className="text-neutral-400">· {a.entity}</span> : null}
+                         <span className="text-neutral-500 font-normal">· {timeAgo(a.created_at)}</span>
+                       </div>
+                       <p className="text-[10px] text-neutral-500 font-mono break-all flex flex-wrap items-center gap-1.5 leading-relaxed">
+                         <span className="text-neutral-400">{a.admin_email || "admin"}</span>
+                         {deviceInfo && (
+                           <>
+                             <span className="text-neutral-700 font-sans">·</span>
+                             <span className="text-neutral-500">{deviceInfo}</span>
+                           </>
+                         )}
                        </p>
                      </div>
                    </li>
@@ -713,8 +734,8 @@ export function DashboardClient({
       {/* Quick Navigation Card */}
       <Card className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-md">
         <CardHeader>
-          <CardTitle className="text-white">Content Sections Management</CardTitle>
-          <CardDescription>Quick links to edit and configure active page modules.</CardDescription>
+          <CardTitle className="text-white text-sm font-mono">Content Sections Management</CardTitle>
+          <CardDescription className="text-[10px] font-mono">Quick links to edit and configure active page modules.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 grid-cols-1 sm:grid-cols-3">
            <Link href="/admin/hero" className="flex min-w-0 items-center justify-between rounded-xl border border-neutral-850 bg-neutral-950/60 p-4 hover:bg-neutral-900/40 hover:border-sky-500/30 hover:shadow-[0_0_20px_rgba(14,165,233,0.06)] transition-all duration-300 group shadow-sm">

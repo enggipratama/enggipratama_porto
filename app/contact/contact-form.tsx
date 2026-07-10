@@ -110,26 +110,36 @@ export default function ContactForm() {
     { label: "Instagram", href: "https://instagram.com/enggiipratama", platform: "instagram" },
     { label: "Email", href: "work.enggipratama@gmail.com", platform: "email" },
   ]);
+  const [location, setLocation] = useState("Indonesia");
+  const [responseTime, setResponseTime] = useState("Usually within 24 hours");
 
   const contactEmail =
     socialLinks.find((l) => l.platform === "email")?.href || "work.enggipratama@gmail.com";
 
   useEffect(() => {
-    async function fetchSocialLinks() {
+    async function fetchContactSettings() {
       try {
         const { data, error } = await supabase
           .from("site_settings")
           .select("key, value")
-          .eq("key", "social_links")
-          .single();
-        if (!error && data && Array.isArray(data.value)) {
-          setSocialLinks(data.value);
+          .in("key", ["social_links", "contact_location", "contact_response_time"]);
+        if (!error && data) {
+          const socialsRow = data.find((r) => r.key === "social_links");
+          if (socialsRow && Array.isArray(socialsRow.value)) {
+            setSocialLinks(socialsRow.value);
+          }
+
+          const locationRow = data.find((r) => r.key === "contact_location");
+          if (locationRow && locationRow.value) setLocation(locationRow.value);
+
+          const responseRow = data.find((r) => r.key === "contact_response_time");
+          if (responseRow && responseRow.value) setResponseTime(responseRow.value);
         }
       } catch {
         // ignore
       }
     }
-    fetchSocialLinks();
+    fetchContactSettings();
   }, []);
 
 
@@ -225,6 +235,7 @@ export default function ContactForm() {
         win.turnstile.remove(widgetId);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const {
@@ -332,7 +343,7 @@ export default function ContactForm() {
                   <div>
                     <p className="text-xs text-neutral-500 dark:text-neutral-400">Location</p>
                     <p className="text-sm font-medium text-neutral-900 dark:text-white">
-                      Indonesia
+                      {location}
                     </p>
                   </div>
                 </div>
@@ -345,7 +356,7 @@ export default function ContactForm() {
                   <div>
                     <p className="text-xs text-neutral-500 dark:text-neutral-400">Response Time</p>
                     <p className="text-sm font-medium text-neutral-900 dark:text-white">
-                      Usually within 24 hours
+                      {responseTime}
                     </p>
                   </div>
                 </div>

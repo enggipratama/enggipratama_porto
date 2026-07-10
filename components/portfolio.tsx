@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { Timeline } from "@/components/ui/timeline";
 import { SectionHeader } from "@/components/ui/section-header";
-import { Project } from "@/lib/data";
+import { Project, SiteSettings } from "@/lib/data";
 import { PortfolioCardComponent } from "./portfolio_card/2023_2025";
 
 const containerVariants = {
@@ -19,9 +19,13 @@ const containerVariants = {
 
 interface TimelinePortfolioProps {
   projects?: Project[];
+  settings?: SiteSettings;
 }
 
-export function TimelinePortfolio({ projects = [] }: TimelinePortfolioProps) {
+export function TimelinePortfolio({ projects = [], settings }: TimelinePortfolioProps) {
+  const sectionTitle = settings?.portfolio_section_title || "Selected Works";
+  const sectionSubtitle = settings?.portfolio_section_subtitle || "A curated collection of projects that showcase my growth as a developer";
+
   // Group projects by year
   const groups: Record<string, Project[]> = {};
   for (const project of projects) {
@@ -61,8 +65,8 @@ export function TimelinePortfolio({ projects = [] }: TimelinePortfolioProps) {
       {/* Header */}
       <div className="px-4 text-center sm:mb-12 lg:mb-16">
         <SectionHeader
-          title="Selected Works"
-          subtitle="A curated collection of projects that showcase my growth as a developer"
+          title={sectionTitle}
+          subtitle={sectionSubtitle}
         />
       </div>
 

@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { TextFlip } from "@/components/text-flip";
 
 // ---------------------------------------------------------------------------
 // Schema
@@ -153,8 +154,8 @@ export default function HeroEditorPage() {
         {/* Basic Info */}
         <Card className="border-neutral-800 bg-neutral-900/50 shadow-lg transition-all hover:border-neutral-800/80">
           <CardHeader className="pb-4">
-            <CardTitle className="text-white">Basic Information</CardTitle>
-            <CardDescription>Your name, tagline, and badge text displayed in the hero.</CardDescription>
+            <CardTitle className="text-white text-sm font-mono">Basic Information</CardTitle>
+            <CardDescription className="text-[10px] font-mono">Your name, tagline, and badge text displayed in the hero.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-6 sm:grid-cols-2">
@@ -194,8 +195,8 @@ export default function HeroEditorPage() {
         {/* Flip Words */}
         <Card className="border-neutral-800 bg-neutral-900/50 shadow-lg transition-all hover:border-neutral-800/80">
           <CardHeader className="pb-4">
-            <CardTitle className="text-white">Text Flip Words</CardTitle>
-            <CardDescription>Words that cycle in the hero text animation.</CardDescription>
+            <CardTitle className="text-white text-sm font-mono">Text Flip Words</CardTitle>
+            <CardDescription className="text-[10px] font-mono">Words that cycle in the hero text animation.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-wrap gap-2.5 p-3.5 rounded-lg border border-neutral-855 bg-neutral-950/30">
@@ -240,11 +241,11 @@ export default function HeroEditorPage() {
         {/* Live Preview */}
         <Card className="border-neutral-800 bg-neutral-900/50 shadow-lg transition-all hover:border-neutral-800/80">
           <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-white">
+            <CardTitle className="text-white text-sm font-mono flex items-center gap-2">
               <Lucide.Eye className="size-4" />
               Live Preview
             </CardTitle>
-            <CardDescription>Visual mock-up of how the hero content is presented.</CardDescription>
+            <CardDescription className="text-[10px] font-mono">Visual mock-up of how the hero content is presented.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="relative overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950 p-8 text-center shadow-inner">
@@ -264,19 +265,10 @@ export default function HeroEditorPage() {
 
               {/* Flip Word Animation Preview */}
               <div className="relative z-10 mb-2 flex flex-col items-center justify-center gap-1 font-mono text-xl font-bold tracking-tight">
-                {flipWords.length > 0 ? (
-                  <div className="flex items-center gap-1 text-sm sm:text-base text-neutral-450">
-                    <span>I&apos;m a</span>
-                    <span className="bg-gradient-to-r from-sky-400 to-purple-400 bg-clip-text text-transparent underline decoration-sky-500/30">
-                      {flipWords[0]}
-                    </span>
-                  </div>
-                ) : (
-                  <span className="text-neutral-500 text-xs">No Flip Words Added</span>
-                )}
+                <TextFlip words={flipWords.length > 0 ? flipWords : undefined} />
                 
                 {/* Name */}
-                <span className="mt-2 block bg-gradient-to-b from-neutral-600 to-white bg-clip-text text-lg tracking-[0.2em] text-transparent uppercase">
+                <span className="mt-3 block bg-gradient-to-b from-neutral-600 to-white bg-clip-text text-lg tracking-[0.2em] text-transparent uppercase">
                   {watchedValues.hero_name || "Your Name"}.
                 </span>
               </div>
@@ -284,7 +276,7 @@ export default function HeroEditorPage() {
               <Separator className="mx-auto my-5 w-12 bg-neutral-800" />
 
               {/* Tagline */}
-              <p className="relative z-10 mx-auto max-w-lg text-xs italic text-neutral-400 leading-relaxed">
+              <p className="relative z-10 mx-auto max-w-2xl text-center text-xs sm:text-sm italic text-neutral-450 leading-relaxed">
                 &ldquo;{watchedValues.hero_tagline || "Your tagline..."}&rdquo;
               </p>
             </div>

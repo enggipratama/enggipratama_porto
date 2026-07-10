@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     }
 
     const supabase = await createSupabaseServerClient();
-    const { error } = await supabase.from("visitor_logs").insert({
+    const { error: insertError } = await supabase.from("visitor_logs").insert({
       ip,
       browser,
       device,
@@ -61,11 +61,52 @@ export async function POST(req: NextRequest) {
       path: path || "/",
     });
 
-    if (error) {
-      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    if (insertError) {
+      return NextResponse.json({ success: false, error: insertError.message }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true });
+    // Increment total_views in the database
+    try {
+      await supabase.rpc("increment_views", { row_key: "total_views" });
+    } catch (err) {
+      console.error("Increment views error:", err);
+    }
+
+    // Fetch updated total views
+    let totalViews = 0;
+    try {
+      const { data: statsData } = await supabase
+        .from("statistics")
+        .select("value")
+        .eq("key", "total_views")
+        .maybeSingle();
+      if (statsData) {
+        totalViews = Number(statsData.value);
+      }
+    } catch (err) {
+      console.error("Fetch total views error:", err);
+    }
+
+    // Fetch active users in last 5 minutes
+    let onlineUsers = 1;
+    try {
+      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+      const { data: activeLogs } = await supabase
+        .from("visitor_logs")
+        .select("ip")
+        .gt("created_at", fiveMinutesAgo);
+      
+      const uniqueIps = new Set(activeLogs?.map(log => log.ip) || []);
+      onlineUsers = Math.max(1, uniqueIps.size);
+    } catch (err) {
+      console.error("Fetch active users error:", err);
+    }
+
+    return NextResponse.json({
+      success: true,
+      totalViews,
+      onlineUsers,
+    });
   } catch (err) {
     return NextResponse.json(
       { success: false, error: err instanceof Error ? err.message : "Internal Server Error" },
