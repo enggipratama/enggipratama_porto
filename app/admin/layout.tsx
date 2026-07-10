@@ -129,6 +129,11 @@ export default function AdminLayout({
       }
       await supabase.auth.signOut({ scope: "local" });
       localStorage.removeItem("admin_session_token");
+      void fetch("/api/admin/activity", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "logout" }),
+      }).catch(() => {});
       router.push("/admin/login");
       router.refresh();
     } catch {

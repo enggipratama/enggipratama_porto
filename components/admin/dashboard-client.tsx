@@ -20,7 +20,12 @@ import {
   EyeOff,
   Chrome,
   Smartphone,
-  Share2
+  Share2,
+  LogIn,
+  Plus,
+  Pencil,
+  Trash2,
+  History
 } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -64,6 +69,17 @@ export function DashboardClient({
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loadingAnalytics, setLoadingAnalytics] = useState(true);
 
+  interface ActivityItem {
+    id: string;
+    action: string;
+    entity: string | null;
+    details: Record<string, unknown> | null;
+    admin_email: string | null;
+    created_at: string;
+  }
+  const [activities, setActivities] = useState<ActivityItem[]>([]);
+  const [loadingActivity, setLoadingActivity] = useState(true);
+
   // Fetch detailed visitor analytics function (component scope)
   const fetchAnalytics = async () => {
     try {
@@ -78,9 +94,43 @@ export function DashboardClient({
     }
   };
 
+  // Fetch recent admin activity
+  const fetchActivity = async () => {
+    try {
+      const res = await fetch("/api/admin/activity");
+      if (!res.ok) throw new Error("Failed to fetch activity");
+      const data = await res.json();
+      setActivities(data.activities || []);
+    } catch {
+      // ignore
+    } finally {
+      setLoadingActivity(false);
+    }
+  };
+
   useEffect(() => {
     void fetchAnalytics();
+    void fetchActivity();
   }, []);
+
+  // Subscribe to real-time admin activity inserts
+  useEffect(() => {
+    const channel = supabase
+      .channel("realtime-admin-activity")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "admin_activity_log" },
+        (payload) => {
+          const row = payload.new as ActivityItem;
+          setActivities((prev) => [row, ...prev].slice(0, 25));
+        }
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [supabase]);
 
   // Subscribe to real-time views from the statistics table
   useEffect(() => {
@@ -220,6 +270,11 @@ export function DashboardClient({
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       toast.success("Settings backup downloaded successfully!");
+      void fetch("/api/admin/activity", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "backup" }),
+      }).catch(() => {});
     } catch {
       toast.error("Failed to backup settings");
     } finally {
@@ -256,6 +311,11 @@ export function DashboardClient({
       }
 
       toast.success("Settings restored successfully!", { id: toastId });
+      void fetch("/api/admin/activity", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "restore", details: { keys: keys.length } }),
+      }).catch(() => {});
       router.refresh();
       setTimeout(() => window.location.reload(), 1000);
     } catch (err) {
@@ -275,6 +335,30 @@ export function DashboardClient({
     views: Math.round(totalViewsSafe * dailyDistribution[idx]),
   }));
   const maxViews = Math.max(...chartData.map((d) => d.views));
+
+  // Map raw activity action to display label/icon/color
+  const activityMeta = (action: string) => {
+    switch (action) {
+      case "login": return { label: "Login", icon: LogIn, color: "text-emerald-400" };
+      case "logout": return { label: "Logout", icon: LogIn, color: "text-neutral-400" };
+      case "project_create": return { label: "Created project", icon: Plus, color: "text-sky-400" };
+      case "project_update": return { label: "Updated project", icon: Pencil, color: "text-sky-400" };
+      case "project_delete": return { label: "Deleted project", icon: Trash2, color: "text-red-400" };
+      case "settings_update": return { label: "Updated setting", icon: Settings, color: "text-purple-400" };
+      case "backup": return { label: "Backed up data", icon: Download, color: "text-amber-400" };
+      case "restore": return { label: "Restored data", icon: Upload, color: "text-amber-400" };
+      default: return { label: action, icon: Activity, color: "text-neutral-400" };
+    }
+  };
+
+  const timeAgo = (iso: string) => {
+    const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    return `${Math.floor(hrs / 24)}d ago`;
+  };
 
   return (
     <div className="space-y-8">
@@ -554,6 +638,49 @@ export function DashboardClient({
           </CardContent>
         </Card>
       </div>
+
+      {/* Recent Admin Activity Feed */}
+      <Card className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-md">
+        <CardHeader className="pb-3 flex flex-row items-center justify-between shrink-0">
+          <div>
+            <CardTitle className="text-white flex items-center gap-2">
+              <History className="size-4 text-sky-400" />
+              Recent Activity
+            </CardTitle>
+            <CardDescription>Live audit trail of admin actions.</CardDescription>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-2">
+          {loadingActivity ? (
+            <div className="flex justify-center py-6"><Loader2 className="animate-spin text-neutral-500 size-4" /></div>
+          ) : activities.length ? (
+            <ul className="space-y-3 max-h-80 overflow-y-auto pr-1">
+              {activities.map((a) => {
+                const meta = activityMeta(a.action);
+                const Icon = meta.icon;
+                return (
+                  <li key={a.id} className="flex items-start gap-3">
+                    <div className={`mt-0.5 p-1.5 rounded-lg bg-neutral-950 border border-neutral-850 ${meta.color}`}>
+                      <Icon className="size-3.5" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs text-neutral-300 font-mono truncate">
+                        <span className={meta.color}>{meta.label}</span>
+                        {a.entity ? <span className="text-neutral-400"> · {a.entity}</span> : null}
+                      </p>
+                      <p className="text-[10px] text-neutral-600 font-mono">
+                        {a.admin_email || "admin"} · {timeAgo(a.created_at)}
+                      </p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p className="text-xs text-neutral-600 font-mono italic py-4 text-center">No activity logged yet.</p>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Quick Navigation Card */}
       <Card className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-md">

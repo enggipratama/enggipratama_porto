@@ -80,6 +80,11 @@ export default function AdminLoginPage() {
       }
 
       toast.success("Logged in successfully!");
+      void fetch("/api/admin/activity", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "login", entity: values.email }),
+      }).catch(() => {});
       router.push("/admin");
       router.refresh();
     } catch {

@@ -48,7 +48,21 @@ interface Project {
   updated_at: string;
 }
 
-const badgeColors = [
+type BadgeColor =
+  | "default"
+  | "success"
+  | "sky"
+  | "purple"
+  | "emerald"
+  | "neutral"
+  | "yellow"
+  | "red"
+  | "blue"
+  | "cyan"
+  | "indigo"
+  | "pink";
+
+const badgeColors: BadgeColor[] = [
   "sky",
   "purple",
   "emerald",
@@ -61,7 +75,7 @@ const badgeColors = [
   "success",
 ];
 
-function getYearColorVariant(year: string): "default" | "success" | "sky" | "purple" | "emerald" | "neutral" | "yellow" | "red" | "blue" | "cyan" | "indigo" | "pink" {
+function getYearColorVariant(year: string): BadgeColor {
   const clean = year.trim();
   if (clean === "TBA" || clean === "Coming Soon") return "neutral";
   const yearNum = parseInt(clean);
@@ -71,10 +85,10 @@ function getYearColorVariant(year: string): "default" | "success" | "sky" | "pur
       hash = clean.charCodeAt(i) + ((hash << 5) - hash);
     }
     const index = Math.abs(hash) % badgeColors.length;
-    return badgeColors[index] as any;
+    return badgeColors[index];
   }
   const index = yearNum % badgeColors.length;
-  return badgeColors[index] as any;
+  return badgeColors[index];
 }
 
 // ---------------------------------------------------------------------------

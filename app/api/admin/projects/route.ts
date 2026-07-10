@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { requireAdmin } from "@/lib/admin-auth";
+import { logActivity } from "@/lib/admin-activity";
 
 // GET: Fetch all projects (for admin, include hidden)
 export async function GET() {
@@ -55,6 +56,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    await logActivity("project_create", data.title);
+
     return NextResponse.json({ success: true, data }, { status: 201 });
   } catch (err) {
     if (err instanceof Error && err.message === "Unauthorized") {
@@ -105,6 +108,8 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    await logActivity("project_update", data.title);
+
     return NextResponse.json({ success: true, data });
   } catch (err) {
     if (err instanceof Error && err.message === "Unauthorized") {
@@ -138,6 +143,19 @@ export async function DELETE(request: NextRequest) {
 
     const supabase = await createSupabaseServerClient();
 
+    const { data: existing, error: fetchError } = await supabase
+      .from("projects")
+      .select("title")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (fetchError) {
+      return NextResponse.json(
+        { success: false, error: fetchError.message },
+        { status: 500 }
+      );
+    }
+
     const { error } = await supabase
       .from("projects")
       .delete()
@@ -149,6 +167,8 @@ export async function DELETE(request: NextRequest) {
         { status: 500 }
       );
     }
+
+    await logActivity("project_delete", existing?.title ?? id);
 
     return NextResponse.json({ success: true, data: { id } });
   } catch (err) {

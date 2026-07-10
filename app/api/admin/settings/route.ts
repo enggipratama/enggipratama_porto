@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { requireAdmin } from "@/lib/admin-auth";
+import { logActivity } from "@/lib/admin-activity";
 
 // GET: Fetch all settings or specific keys via ?key=xxx
 export async function GET(request: NextRequest) {
@@ -97,6 +98,8 @@ export async function PUT(request: NextRequest) {
         { status: 500 }
       );
     }
+
+    await logActivity("settings_update", key);
 
     return NextResponse.json({ success: true, data });
   } catch (err) {

@@ -104,60 +104,15 @@ export default function ContactForm() {
   const lastFormData = useRef<ContactFormData | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (typeof window !== "undefined" && !document.getElementById("turnstile-script")) {
-      const script = document.createElement("script");
-      script.id = "turnstile-script";
-      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
-      script.async = true;
-      script.defer = true;
-      document.body.appendChild(script);
-    }
-
-    let widgetId: string | null = null;
-    const interval = setInterval(() => {
-      const win = typeof window !== "undefined" ? (window as unknown as {
-        turnstile?: {
-          render: (el: string, options: { sitekey: string; callback: (token: string) => void }) => string;
-          remove: (id: string) => void;
-        };
-      }) : null;
-
-      if (win && win.turnstile) {
-        clearInterval(interval);
-        try {
-          const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA";
-          widgetId = win.turnstile.render("#turnstile-container", {
-            sitekey: siteKey,
-            callback: (token: string) => {
-              setTurnstileToken(token);
-            },
-          });
-        } catch (e) {
-          console.error("Turnstile rendering failed", e);
-        }
-      }
-    }, 200);
-
-    return () => {
-      clearInterval(interval);
-      const win = typeof window !== "undefined" ? (window as unknown as {
-        turnstile?: {
-          remove: (id: string) => void;
-        };
-      }) : null;
-      if (widgetId && win && win.turnstile) {
-        win.turnstile.remove(widgetId);
-      }
-    };
-  }, []);
-
   const [socialLinks, setSocialLinks] = useState<SocialLinkData[]>([
     { label: "Github", href: "https://github.com/enggipratama", platform: "github" },
     { label: "LinkedIn", href: "https://linkedin.com/in/enggipratama", platform: "linkedin" },
     { label: "Instagram", href: "https://instagram.com/enggiipratama", platform: "instagram" },
     { label: "Email", href: "work.enggipratama@gmail.com", platform: "email" },
   ]);
+
+  const contactEmail =
+    socialLinks.find((l) => l.platform === "email")?.href || "work.enggipratama@gmail.com";
 
   useEffect(() => {
     async function fetchSocialLinks() {
@@ -205,7 +160,72 @@ export default function ContactForm() {
     setNotifications([]);
   };
 
+  useEffect(() => {
+    if (typeof window !== "undefined" && !document.getElementById("turnstile-script")) {
+      const script = document.createElement("script");
+      script.id = "turnstile-script";
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+    }
 
+    let widgetId: string | null = null;
+    const interval = setInterval(() => {
+      const win = typeof window !== "undefined" ? (window as unknown as {
+        turnstile?: {
+          render: (
+            el: string,
+            options: {
+              sitekey: string;
+              callback: (token: string) => void;
+              "error-callback"?: () => void;
+              "expired-callback"?: () => void;
+            }
+          ) => string;
+          remove: (id: string) => void;
+        };
+      }) : null;
+
+      if (win && win.turnstile) {
+        clearInterval(interval);
+        try {
+          const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "";
+          widgetId = win.turnstile.render("#turnstile-container", {
+            sitekey: siteKey,
+            callback: (token: string) => {
+              setTurnstileToken(token);
+            },
+            "error-callback": () => {
+              setTurnstileToken(null);
+              addNotification(
+                "Captcha gagal dimuat. Periksa koneksi internet atau izin domain di Cloudflare Turnstile.",
+                "error"
+              );
+            },
+            "expired-callback": () => {
+              setTurnstileToken(null);
+              addNotification("Captcha kedaluwarsa, silakan coba lagi.", "error");
+            },
+          });
+        } catch (e) {
+          console.error("Turnstile rendering failed", e);
+        }
+      }
+    }, 200);
+
+    return () => {
+      clearInterval(interval);
+      const win = typeof window !== "undefined" ? (window as unknown as {
+        turnstile?: {
+          remove: (id: string) => void;
+        };
+      }) : null;
+      if (widgetId && win && win.turnstile) {
+        win.turnstile.remove(widgetId);
+      }
+    };
+  }, []);
 
   const {
     register,
@@ -298,8 +318,8 @@ export default function ContactForm() {
                   </div>
                   <div>
                     <p className="text-xs text-neutral-500 dark:text-neutral-400">Email</p>
-                    <a href="mailto:work.enggipratama@gmail.com" className="text-sm font-medium text-neutral-900 dark:text-white hover:text-sky-500 transition-colors">
-                      work.enggipratama@gmail.com
+                    <a href={`mailto:${contactEmail}`} className="text-sm font-medium text-neutral-900 dark:text-white hover:text-sky-500 transition-colors">
+                      {contactEmail}
                     </a>
                   </div>
                 </div>

@@ -252,3 +252,31 @@ ALTER PUBLICATION supabase_realtime ADD TABLE visitor_logs;
 ALTER PUBLICATION supabase_realtime ADD TABLE projects;
 ALTER PUBLICATION supabase_realtime ADD TABLE site_settings;
 ALTER PUBLICATION supabase_realtime ADD TABLE statistics;
+
+-- 10. Admin Activity Log Table (audit trail of admin actions)
+CREATE TABLE IF NOT EXISTS admin_activity_log (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  action text NOT NULL,
+  entity text,
+  details jsonb DEFAULT null,
+  admin_email text,
+  created_at timestamptz DEFAULT now()
+);
+
+-- Enable RLS
+ALTER TABLE admin_activity_log ENABLE ROW LEVEL SECURITY;
+
+-- Authenticated users can read the activity log
+CREATE POLICY "Authenticated users can read admin_activity_log"
+  ON admin_activity_log FOR SELECT
+  TO authenticated
+  USING (true);
+
+-- Authenticated users can insert activity log entries
+CREATE POLICY "Authenticated users can insert admin_activity_log"
+  ON admin_activity_log FOR INSERT
+  TO authenticated
+  WITH CHECK (true);
+
+-- Realtime for live activity feed
+ALTER PUBLICATION supabase_realtime ADD TABLE admin_activity_log;
