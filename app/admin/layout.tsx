@@ -327,7 +327,7 @@ export default function AdminLayout({
       {/* Main Column */}
       <div className="flex flex-1 flex-col md:pl-64 relative z-10">
         {/* Header */}
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-neutral-900/60 bg-neutral-950/70 px-6 backdrop-blur-md">
+        <header className="fixed top-0 right-0 left-0 md:left-64 z-30 flex h-16 items-center justify-between border-b border-neutral-900/60 bg-neutral-950/70 px-6 backdrop-blur-md">
           {/* Mobile menu trigger */}
           <div className="flex items-center md:hidden">
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -356,7 +356,7 @@ export default function AdminLayout({
         </header>
 
         {/* Content */}
-        <main className="flex-1 p-6 md:p-8 max-w-5xl w-full mx-auto overflow-x-hidden">
+        <main className="flex-1 p-6 pt-20 md:p-8 md:pt-24 max-w-5xl w-full mx-auto overflow-x-hidden">
           {children}
         </main>
       </div>
