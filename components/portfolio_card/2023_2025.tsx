@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ExternalLink, Github } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { renderMarkdown } from "@/lib/markdown";
 
 const techStackData: Record<string, "default" | "success" | "sky" | "purple" | "emerald" | "neutral" | "yellow" | "red" | "blue" | "cyan" | "indigo" | "pink"> = {
   laravel: "red",
@@ -97,8 +98,37 @@ function StatusBadge({ status }: { status: "checking" | "up" | "down" | "mainten
   );
 }
 
+const badgeColors: ("success" | "sky" | "purple" | "emerald" | "yellow" | "red" | "blue" | "cyan" | "indigo" | "pink")[] = [
+  "sky",
+  "purple",
+  "emerald",
+  "yellow",
+  "red",
+  "blue",
+  "cyan",
+  "indigo",
+  "pink",
+  "success",
+];
+
+function getTechColorVariant(tech: string): "default" | "success" | "sky" | "purple" | "emerald" | "neutral" | "yellow" | "red" | "blue" | "cyan" | "indigo" | "pink" {
+  const key = tech.toLowerCase().trim();
+  if (techStackData[key]) {
+    return techStackData[key];
+  }
+  
+  // Dynamic string hashing
+  let hash = 0;
+  for (let i = 0; i < key.length; i++) {
+    hash = key.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  
+  const index = Math.abs(hash) % badgeColors.length;
+  return badgeColors[index];
+}
+
 function TechBadge({ name, tech }: { name: string; tech: string }) {
-  const variant = techStackData[tech] || "default";
+  const variant = getTechColorVariant(tech);
   
   return (
     <Badge variant={variant}>
@@ -107,27 +137,42 @@ function TechBadge({ name, tech }: { name: string; tech: string }) {
   );
 }
 
+function getYearColorVariant(year: string): "default" | "success" | "sky" | "purple" | "emerald" | "neutral" | "yellow" | "red" | "blue" | "cyan" | "indigo" | "pink" {
+  const clean = year.trim();
+  if (clean === "TBA" || clean === "Coming Soon") return "neutral";
+  const yearNum = parseInt(clean);
+  if (isNaN(yearNum)) {
+    // Dynamic string hashing fallback
+    let hash = 0;
+    for (let i = 0; i < clean.length; i++) {
+      hash = clean.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash) % badgeColors.length;
+    return badgeColors[index];
+  }
+  
+  // Array mapping for years (using the same badgeColors array)
+  const index = yearNum % badgeColors.length;
+  return badgeColors[index];
+}
+
 function CardWrapper({ 
   children, 
   year 
-}: { 
+ }: { 
   children: React.ReactNode; 
   year: string; 
-}) {
+ }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 35, scale: 0.98 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: false, amount: 0.2 }}
+      viewport={{ once: true, amount: 0.05 }}
       transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 1.0 }}
       className="group relative overflow-hidden rounded-xl border border-neutral-300/50 bg-neutral-50/80 p-4 shadow-lg shadow-neutral-200/40 backdrop-blur-md transition-all hover:border-sky-500/30 hover:shadow-lg hover:shadow-sky-500/10 dark:border-white/[0.08] dark:bg-white/[0.04] dark:hover:border-sky-500/30 dark:shadow-2xl dark:shadow-black/50 dark:hover:shadow-sky-500/10 sm:rounded-2xl sm:p-5"
     >
       <div className="absolute right-3 top-3 z-10">
-        <Badge variant={
-          year === "2023" ? "blue" :
-          year === "2024" ? "purple" :
-          year === "2025" ? "success" : "neutral"
-        } size="sm">
+        <Badge variant={getYearColorVariant(year)} size="sm">
           {year}
         </Badge>
       </div>
@@ -148,7 +193,7 @@ function ActionButtons({ demoUrl, githubUrl }: { demoUrl?: string; githubUrl?: s
               href={demoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative inline-flex shrink-0 items-center gap-1.5 overflow-hidden rounded-lg bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-900 px-3 py-2 text-xs font-mono font-medium text-white shadow-md transition-all hover:shadow-lg hover:shadow-sky-500/25 dark:from-white dark:via-neutral-200 dark:to-white dark:text-neutral-900 dark:hover:shadow-sky-400/25 sm:gap-2 sm:px-4 sm:text-sm"
+              className="group relative inline-flex shrink-0 items-center gap-1.5 overflow-hidden rounded-lg bg-gradient-to-r from-sky-500 via-sky-600 to-purple-600 px-3 py-2 text-xs font-mono font-bold text-white shadow-md shadow-sky-500/15 hover:shadow-lg hover:shadow-sky-500/25 hover:brightness-110 transition-all dark:from-sky-500 dark:via-sky-600 dark:to-purple-650 dark:text-white sm:gap-2 sm:px-4 sm:text-sm"
             >
               <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
               
@@ -438,9 +483,9 @@ export function PortfolioCardComponent({ project }: { project: ProjectType }) {
               {project.subtitle}
             </p>
 
-            <p className="mt-3 font-mono text-xs leading-relaxed text-neutral-600 dark:text-neutral-400 sm:text-sm">
-              {project.description}
-            </p>
+            <div className="mt-3 space-y-1.5">
+              {renderMarkdown(project.description)}
+            </div>
 
             <div className="mt-4 flex flex-wrap gap-2">
               {project.tech_stack.map((t) => (
@@ -492,9 +537,9 @@ export function PortfolioCardComponent({ project }: { project: ProjectType }) {
             {project.subtitle}
           </p>
 
-          <p className="mt-3 font-mono text-xs leading-relaxed text-neutral-600 dark:text-neutral-400 sm:text-sm">
-            {project.description}
-          </p>
+          <div className="mt-3 space-y-1.5">
+            {renderMarkdown(project.description)}
+          </div>
 
           <div className="mt-4 flex flex-wrap gap-2">
             {project.tech_stack.map((t) => (

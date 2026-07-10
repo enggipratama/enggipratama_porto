@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import * as Lucide from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -31,6 +32,7 @@ type HeroFormValues = z.infer<typeof heroSchema>;
 // Page
 // ---------------------------------------------------------------------------
 export default function HeroEditorPage() {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [flipWords, setFlipWords] = useState<string[]>([]);
@@ -110,6 +112,7 @@ export default function HeroEditorPage() {
         if (!res.ok) throw new Error(`Failed to save ${entry.key}`);
       }
       toast.success("Hero section saved successfully");
+      router.refresh();
     } catch {
       toast.error("Failed to save hero settings");
     } finally {
@@ -140,7 +143,7 @@ export default function HeroEditorPage() {
       {/* Header */}
       <div className="border-b border-neutral-800 pb-5">
         <h1 className="font-mono text-2xl font-bold text-white">Hero Section</h1>
-        <p className="mt-1 text-sm text-neutral-400">
+        <p className="mt-1 font-mono text-sm text-neutral-400">
           Manage the hero section content of your portfolio.
         </p>
       </div>
@@ -156,16 +159,16 @@ export default function HeroEditorPage() {
           <CardContent className="space-y-4">
             <div className="grid gap-6 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label htmlFor="hero_name" className="text-neutral-300">Name</Label>
-                <Input id="hero_name" placeholder="Your name" {...register("hero_name")} className="bg-neutral-950 border-neutral-850 text-neutral-200 focus-visible:ring-sky-500" />
+                <Label htmlFor="hero_name" className="font-mono text-xs text-neutral-300">Name</Label>
+                <Input id="hero_name" placeholder="Your name" {...register("hero_name")} className="font-mono text-sm h-10 bg-neutral-950 border-neutral-850 text-neutral-200 focus-visible:ring-sky-500" />
                 {errors.hero_name && (
                   <p className="text-xs text-red-400">{errors.hero_name.message}</p>
                 )}
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="hero_badge_text" className="text-neutral-300">Badge Text</Label>
-                <Input id="hero_badge_text" placeholder="e.g. Available for Opportunities" {...register("hero_badge_text")} className="bg-neutral-950 border-neutral-850 text-neutral-200 focus-visible:ring-sky-500" />
+                <Label htmlFor="hero_badge_text" className="font-mono text-xs text-neutral-300">Badge Text</Label>
+                <Input id="hero_badge_text" placeholder="e.g. Available for Opportunities" {...register("hero_badge_text")} className="font-mono text-sm h-10 bg-neutral-950 border-neutral-850 text-neutral-200 focus-visible:ring-sky-500" />
                 {errors.hero_badge_text && (
                   <p className="text-xs text-red-400">{errors.hero_badge_text.message}</p>
                 )}
@@ -173,7 +176,7 @@ export default function HeroEditorPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="hero_tagline" className="text-neutral-300">Tagline</Label>
+              <Label htmlFor="hero_tagline" className="font-mono text-xs text-neutral-300">Tagline</Label>
               <Textarea
                 id="hero_tagline"
                 placeholder="Your tagline..."
@@ -224,9 +227,9 @@ export default function HeroEditorPage() {
                     addFlipWord();
                   }
                 }}
-                className="bg-neutral-950 border-neutral-850 text-neutral-200 focus-visible:ring-sky-500 w-full h-10"
+                className="font-mono text-sm bg-neutral-950 border-neutral-850 text-neutral-200 focus-visible:ring-sky-500 w-full h-10"
               />
-              <Button type="button" variant="outline" size="sm" onClick={addFlipWord} className="w-full sm:w-auto shrink-0 h-10 px-4">
+              <Button type="button" variant="outline" size="sm" onClick={addFlipWord} className="font-mono w-full sm:w-auto shrink-0 h-10 px-4">
                 <Lucide.Plus className="mr-1.5 size-4" />
                 Add Word
               </Button>
@@ -289,8 +292,8 @@ export default function HeroEditorPage() {
         </Card>
 
         {/* Save Footer */}
-        <div className="flex justify-end border-t border-neutral-800 pt-6">
-          <Button type="submit" disabled={saving} className="min-w-[120px] w-full sm:w-auto">
+        <div className="flex justify-end border-t border-neutral-900/60 pt-6">
+          <Button type="submit" disabled={saving} className="min-w-[120px] w-full sm:w-auto bg-gradient-to-r from-sky-500 to-purple-500 hover:from-sky-400 hover:to-purple-400 text-white font-mono rounded-lg transition-all duration-300 shadow-md shadow-sky-500/10 border-0 h-10 text-xs font-bold">
             {saving && <Lucide.Loader2 className="mr-2 size-4 animate-spin" />}
             {saving ? "Saving..." : "Save Changes"}
           </Button>

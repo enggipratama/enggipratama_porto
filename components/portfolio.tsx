@@ -32,14 +32,17 @@ export function TimelinePortfolio({ projects = [] }: TimelinePortfolioProps) {
     groups[key].push(project);
   }
 
-  // Sort groups: ascending order, with "Coming Soon" or "TBA" at the end
+  // Sort groups: ordered dynamically by minimum sort_order of projects in the group, with "Coming Soon" at the end
   const sortedKeys = Object.keys(groups).sort((a, b) => {
     const isSpecialA = a === "Coming Soon" || a === "TBA";
     const isSpecialB = b === "Coming Soon" || b === "TBA";
     if (isSpecialA && !isSpecialB) return 1;
     if (!isSpecialA && isSpecialB) return -1;
     if (isSpecialA && isSpecialB) return 0;
-    return a.localeCompare(b);
+    
+    const minSortA = Math.min(...groups[a].map(p => p.sort_order ?? 9999));
+    const minSortB = Math.min(...groups[b].map(p => p.sort_order ?? 9999));
+    return minSortA - minSortB;
   });
 
   const timelineData = sortedKeys.map((key) => ({
@@ -68,7 +71,7 @@ export function TimelinePortfolio({ projects = [] }: TimelinePortfolioProps) {
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: false, amount: 0.2 }}
+        viewport={{ once: true, amount: 0.05 }}
         className="relative w-full px-4 sm:px-6 lg:px-8"
       >
         {timelineData.length > 0 ? (

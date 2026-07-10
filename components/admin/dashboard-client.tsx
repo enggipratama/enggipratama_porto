@@ -17,7 +17,10 @@ import {
   Calendar,
   Settings,
   Eye,
-  EyeOff
+  EyeOff,
+  Chrome,
+  Smartphone,
+  Share2
 } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -46,17 +49,44 @@ export function DashboardClient({
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
   
-  const stats = initialStats;
+  const [stats, setStats] = useState<StatItem[]>(initialStats);
   const [totalViews, setTotalViews] = useState<number>(0);
   const [exporting, setExporting] = useState(false);
   const [restoring, setRestoring] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Subscribe to real-time views
+  interface AnalyticsData {
+    totalVisits: number;
+    browsers: { name: string; value: number }[];
+    devices: { name: string; value: number }[];
+    referrers: { name: string; value: number }[];
+  }
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
+  const [loadingAnalytics, setLoadingAnalytics] = useState(true);
+
+  // Fetch detailed visitor analytics function (component scope)
+  const fetchAnalytics = async () => {
+    try {
+      const res = await fetch("/api/admin/analytics");
+      if (!res.ok) throw new Error("Failed to fetch analytics");
+      const data = await res.json();
+      setAnalytics(data);
+    } catch {
+      // ignore
+    } finally {
+      setLoadingAnalytics(false);
+    }
+  };
+
+  useEffect(() => {
+    void fetchAnalytics();
+  }, []);
+
+  // Subscribe to real-time views from the statistics table
   useEffect(() => {
     async function getInitialViews() {
       const { data } = await supabase
-        .from("site_settings")
+        .from("statistics")
         .select("value")
         .eq("key", "total_views")
         .maybeSingle();
@@ -73,7 +103,7 @@ export function DashboardClient({
         {
           event: "UPDATE",
           schema: "public",
-          table: "site_settings",
+          table: "statistics",
           filter: "key=eq.total_views",
         },
         (payload) => {
@@ -86,6 +116,89 @@ export function DashboardClient({
 
     return () => {
       viewsChannel.unsubscribe();
+    };
+  }, [supabase]);
+
+  // Subscribe to real-time visitor logs inserts to live-update analytics charts
+  useEffect(() => {
+    const visitorChannel = supabase
+      .channel("realtime-visitor-logs")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "visitor_logs" },
+        () => {
+          void fetchAnalytics();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      visitorChannel.unsubscribe();
+    };
+  }, [supabase]);
+
+  // Subscribe to real-time database changes for projects & settings stats
+  useEffect(() => {
+    const projectsChannel = supabase
+      .channel("dashboard-realtime-projects")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "projects" },
+        async () => {
+          const { count: total } = await supabase
+            .from("projects")
+            .select("*", { count: "exact", head: true });
+          const { count: visible } = await supabase
+            .from("projects")
+            .select("*", { count: "exact", head: true })
+            .eq("is_visible", true);
+          const { count: hidden } = await supabase
+            .from("projects")
+            .select("*", { count: "exact", head: true })
+            .eq("is_visible", false);
+
+          setStats((prev) =>
+            prev.map((s) => {
+              if (s.iconName === "projects") {
+                return { ...s, value: total || 0, description: `${visible || 0} visible, ${hidden || 0} hidden` };
+              }
+              if (s.iconName === "visible") {
+                return { ...s, value: visible || 0 };
+              }
+              if (s.iconName === "hidden") {
+                return { ...s, value: hidden || 0 };
+              }
+              return s;
+            })
+          );
+        }
+      )
+      .subscribe();
+
+    const settingsChannel = supabase
+      .channel("dashboard-realtime-settings")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "site_settings" },
+        async () => {
+          const { count: total } = await supabase
+            .from("site_settings")
+            .select("*", { count: "exact", head: true });
+          setStats((prev) =>
+            prev.map((s) => {
+              if (s.iconName === "settings") {
+                return { ...s, value: total || 0 };
+              }
+              return s;
+            })
+          );
+        }
+      )
+      .subscribe();
+
+    return () => {
+      projectsChannel.unsubscribe();
+      settingsChannel.unsubscribe();
     };
   }, [supabase]);
 
@@ -207,16 +320,18 @@ export function DashboardClient({
             }
           })();
           return (
-            <Card key={i} className="border-neutral-800 bg-neutral-900/50 shadow-md">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-xs font-mono text-neutral-400 uppercase tracking-wider">
+            <Card key={i} className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-md h-full flex flex-col transition-all duration-300 hover:-translate-y-1 hover:border-neutral-700/60 hover:shadow-[0_12px_30px_rgba(0,0,0,0.4)] hover:bg-neutral-900/65 group">
+              <CardHeader className="flex flex-row items-center justify-between pb-2 shrink-0">
+                <CardTitle className="text-xs font-mono text-neutral-400 uppercase tracking-wider group-hover:text-neutral-300 transition-colors">
                   {stat.title}
                 </CardTitle>
-                <Icon className={`size-4 ${stat.color}`} />
+                <div className="p-1.5 rounded-lg bg-neutral-950 border border-neutral-850 group-hover:border-neutral-750 transition-colors">
+                  <Icon className={`size-4 ${stat.color} group-hover:scale-110 transition-transform`} />
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-white font-mono">{stat.value}</div>
-                <p className="mt-1 text-xs text-neutral-500 font-mono">{stat.description}</p>
+              <CardContent className="flex-1 flex flex-col justify-between pt-2">
+                <div className="text-2xl font-bold text-white font-mono tracking-tight group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-neutral-400 group-hover:bg-clip-text group-hover:text-transparent transition-all">{stat.value}</div>
+                <p className="mt-1 text-xs text-neutral-500 font-mono group-hover:text-neutral-400 transition-colors">{stat.description}</p>
               </CardContent>
             </Card>
           );
@@ -226,17 +341,17 @@ export function DashboardClient({
       {/* Visual Analytics & System Row */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Visitors Trend Chart */}
-        <Card className="border-neutral-800 bg-neutral-900/50 lg:col-span-2 shadow-md">
-          <CardHeader className="pb-3 flex flex-row items-center justify-between">
+        <Card className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md lg:col-span-2 shadow-md h-full flex flex-col transition-all duration-300 hover:border-neutral-750/80">
+          <CardHeader className="pb-3 flex flex-row items-center justify-between shrink-0">
             <div>
               <CardTitle className="text-white flex items-center gap-2">
-                <TrendingUp className="size-4 text-sky-400" />
+                <TrendingUp className="size-4 text-sky-400 animate-pulse" />
                 Visitor Trends (7 Days)
               </CardTitle>
               <CardDescription>Estimated traffic analytics based on {totalViews} total views.</CardDescription>
             </div>
             <div className="text-right">
-              <div className="text-xl font-bold text-sky-450 font-mono flex items-center gap-1.5 justify-end">
+              <div className="text-xl font-bold text-sky-400 font-mono flex items-center gap-1.5 justify-end">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-sky-500"></span>
@@ -246,7 +361,7 @@ export function DashboardClient({
               <p className="text-[10px] text-neutral-500 font-mono">Real-Time Visits</p>
             </div>
           </CardHeader>
-          <CardContent className="pt-2">
+          <CardContent className="pt-2 flex-1 flex flex-col justify-end">
             <div className="h-48 w-full flex items-end justify-between gap-2.5 px-2 pb-6 border-b border-neutral-800 relative select-none">
               {/* Grid Lines */}
               <div className="absolute inset-x-0 top-0 border-t border-neutral-800/40 pointer-events-none" />
@@ -258,13 +373,13 @@ export function DashboardClient({
                 return (
                   <div key={idx} className="flex-1 flex flex-col items-center group relative h-full justify-end">
                     {/* Tooltip */}
-                    <div className="absolute bottom-full mb-2 bg-neutral-950 border border-neutral-800 text-[10px] text-neutral-200 font-mono px-2 py-1 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 whitespace-nowrap">
+                    <div className="absolute bottom-full mb-2 bg-neutral-950 border border-sky-500/20 text-[10px] text-sky-400 font-mono px-2.5 py-1 rounded-full shadow-[0_0_15px_rgba(14,165,233,0.15)] opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 whitespace-nowrap">
                       {d.views} hits
                     </div>
                     {/* Bar */}
                     <div 
                       style={{ height: `${Math.max(heightPercent, 8)}%` }}
-                      className="w-full bg-gradient-to-t from-sky-600/20 to-sky-500/80 hover:to-sky-400 rounded-t border-t border-sky-400/40 transition-all duration-300 relative overflow-hidden"
+                      className="w-full bg-gradient-to-t from-purple-600/30 via-sky-550/70 to-sky-400 hover:from-purple-500 hover:to-sky-300 rounded-t border-t border-sky-400/50 transition-all duration-300 relative overflow-hidden shadow-[0_0_10px_rgba(56,189,248,0.15)]"
                     >
                       <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,0.15)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.15)_50%,rgba(255,255,255,0.15)_75%,transparent_75%,transparent)] bg-[size:10px_10px] opacity-10 group-hover:opacity-20 transition-opacity" />
                     </div>
@@ -280,41 +395,41 @@ export function DashboardClient({
         </Card>
 
         {/* Database Status & Quick Actions */}
-        <div className="space-y-6">
+        <div className="h-full flex flex-col">
           {/* System Status Card */}
-          <Card className="border-neutral-800 bg-neutral-900/50 shadow-md">
-            <CardHeader className="pb-3">
+          <Card className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-md h-full flex flex-col transition-all duration-300 hover:border-neutral-750/80">
+            <CardHeader className="pb-3 shrink-0">
               <CardTitle className="text-white flex items-center gap-2">
                 <Database className="size-4 text-emerald-450" />
                 Connection & Updates
               </CardTitle>
               <CardDescription>Live database state information.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="rounded-lg bg-neutral-950 p-4 border border-neutral-800 space-y-3.5 font-mono text-xs shadow-inner">
-                <div className="flex items-center justify-between">
-                  <span className="text-neutral-500 flex items-center gap-1.5">
+            <CardContent className="flex-1 pb-4 flex flex-col">
+              <div className="rounded-lg bg-neutral-950 p-4 border border-neutral-850 font-mono text-xs shadow-inner flex-1 flex flex-col justify-between space-y-3.5">
+                <div className="flex items-center justify-between shrink-0">
+                  <span className="text-neutral-550 flex items-center gap-1.5">
                     <Activity className="size-3.5 text-neutral-600" /> Connection:
                   </span>
                   <span className="text-emerald-400 font-semibold flex items-center gap-1.5">
                     <span className="relative flex h-1.5 w-1.5">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-green-500"></span>
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                     </span>
                     Connected
                   </span>
                 </div>
 
-                <div className="h-px bg-neutral-800/60" />
+                <div className="h-px bg-neutral-850/60 shrink-0" />
 
-                <div className="space-y-2">
-                  <span className="text-neutral-500 flex items-center gap-1.5 mb-1.5">
+                <div className="space-y-2 flex-1 flex flex-col justify-end">
+                  <span className="text-neutral-550 flex items-center gap-1.5 mb-1 shrink-0">
                     <Calendar className="size-3.5 text-neutral-600" /> Recent Updates:
                   </span>
-                  <div className="pl-5 space-y-2 border-l border-neutral-850">
+                  <div className="pl-4 space-y-2 border-l border-neutral-850">
                     <div className="flex flex-col">
-                      <span className="text-neutral-300 text-[11px]">Projects Table:</span>
-                      <span className="text-neutral-500 text-[9px] truncate">
+                      <span className="text-neutral-400 text-[10px] font-mono">Projects Table:</span>
+                      <span className="text-neutral-500 text-[9px] truncate font-mono">
                         {lastUpdatedProject 
                           ? `"${lastUpdatedProject.title}" (${new Date(lastUpdatedProject.updated_at).toLocaleString()})`
                           : "No updates yet"
@@ -322,8 +437,8 @@ export function DashboardClient({
                       </span>
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-neutral-300 text-[11px]">Settings Table:</span>
-                      <span className="text-neutral-500 text-[9px] truncate">
+                      <span className="text-neutral-400 text-[10px] font-mono">Settings Table:</span>
+                      <span className="text-neutral-500 text-[9px] truncate font-mono">
                         {lastUpdatedSetting
                           ? `"${lastUpdatedSetting.key}" (${new Date(lastUpdatedSetting.updated_at).toLocaleString()})`
                           : "No updates yet"
@@ -338,32 +453,134 @@ export function DashboardClient({
         </div>
       </div>
 
+      {/* Detailed Visitor Analytics Grid */}
+      <div className="grid gap-6 md:grid-cols-3">
+        {/* Browser Distribution */}
+        <Card className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-md h-full flex flex-col transition-all duration-300 hover:border-neutral-750/80">
+          <CardHeader className="pb-3 shrink-0">
+            <CardTitle className="text-white text-sm font-mono flex items-center gap-2">
+              <Chrome className="size-4 text-purple-400" />
+              Browsers
+            </CardTitle>
+            <CardDescription className="text-[10px] font-mono">Top visitor browsers</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4 pt-2 flex-1">
+            {loadingAnalytics ? (
+              <div className="flex justify-center py-6"><Loader2 className="animate-spin text-neutral-500 size-4" /></div>
+            ) : analytics?.browsers.length ? (
+              analytics.browsers.slice(0, 5).map((b, idx) => {
+                const displayPct = analytics.totalVisits > 0 ? (b.value / analytics.totalVisits) * 100 : 0;
+                return (
+                  <div key={idx} className="space-y-1.5 font-mono text-[11px]">
+                    <div className="flex justify-between text-neutral-350">
+                      <span className="truncate pr-2">{b.name}</span>
+                      <span className="shrink-0 text-neutral-500">{b.value} ({Math.round(displayPct)}%)</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-neutral-950 rounded-full overflow-hidden">
+                      <div style={{ width: `${displayPct}%` }} className="h-full bg-gradient-to-r from-purple-600 to-purple-400 rounded-full shadow-[0_0_8px_rgba(168,85,247,0.3)]" />
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-xs text-neutral-600 font-mono italic">No data logged yet.</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Device Distribution */}
+        <Card className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-md h-full flex flex-col transition-all duration-300 hover:border-neutral-750/80">
+          <CardHeader className="pb-3 shrink-0">
+            <CardTitle className="text-white text-sm font-mono flex items-center gap-2">
+              <Smartphone className="size-4 text-emerald-400" />
+              Devices
+            </CardTitle>
+            <CardDescription className="text-[10px] font-mono">Visitor device classes</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4 pt-2 flex-1">
+            {loadingAnalytics ? (
+              <div className="flex justify-center py-6"><Loader2 className="animate-spin text-neutral-500 size-4" /></div>
+            ) : analytics?.devices.length ? (
+              analytics.devices.slice(0, 5).map((d, idx) => {
+                const pct = analytics.totalVisits > 0 ? (d.value / analytics.totalVisits) * 100 : 0;
+                return (
+                  <div key={idx} className="space-y-1.5 font-mono text-[11px]">
+                    <div className="flex justify-between text-neutral-350">
+                      <span className="truncate pr-2">{d.name}</span>
+                      <span className="shrink-0 text-neutral-500">{d.value} ({Math.round(pct)}%)</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-neutral-950 rounded-full overflow-hidden">
+                      <div style={{ width: `${pct}%` }} className="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.3)]" />
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-xs text-neutral-600 font-mono italic">No data logged yet.</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Referrer Distribution */}
+        <Card className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-md h-full flex flex-col transition-all duration-300 hover:border-neutral-750/80">
+          <CardHeader className="pb-3 shrink-0">
+            <CardTitle className="text-white text-sm font-mono flex items-center gap-2">
+              <Share2 className="size-4 text-sky-400" />
+              Referrers
+            </CardTitle>
+            <CardDescription className="text-[10px] font-mono">Traffic origin hostnames</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4 pt-2 flex-1">
+            {loadingAnalytics ? (
+              <div className="flex justify-center py-6"><Loader2 className="animate-spin text-neutral-500 size-4" /></div>
+            ) : analytics?.referrers.length ? (
+              analytics.referrers.slice(0, 5).map((r, idx) => {
+                const pct = analytics.totalVisits > 0 ? (r.value / analytics.totalVisits) * 100 : 0;
+                return (
+                  <div key={idx} className="space-y-1.5 font-mono text-[11px]">
+                    <div className="flex justify-between text-neutral-350">
+                      <span className="truncate pr-2">{r.name}</span>
+                      <span className="shrink-0 text-neutral-500">{r.value} ({Math.round(pct)}%)</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-neutral-950 rounded-full overflow-hidden">
+                      <div style={{ width: `${pct}%` }} className="h-full bg-gradient-to-r from-sky-600 to-sky-400 rounded-full shadow-[0_0_8px_rgba(14,165,233,0.3)]" />
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-xs text-neutral-600 font-mono italic">No data logged yet.</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Quick Navigation Card */}
-      <Card className="border-neutral-800 bg-neutral-900/50 shadow-md">
+      <Card className="border-neutral-800 bg-neutral-900/40 backdrop-blur-md shadow-md">
         <CardHeader>
           <CardTitle className="text-white">Content Sections Management</CardTitle>
           <CardDescription>Quick links to edit and configure active page modules.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-3">
-          <Link href="/admin/hero" className="flex items-center justify-between rounded-lg border border-neutral-800 bg-neutral-950 p-4 hover:bg-neutral-900 hover:border-neutral-700 transition-all group shadow-sm">
+          <Link href="/admin/hero" className="flex items-center justify-between rounded-xl border border-neutral-850 bg-neutral-950/60 p-4 hover:bg-neutral-900/40 hover:border-sky-500/30 hover:shadow-[0_0_20px_rgba(14,165,233,0.06)] transition-all duration-300 group shadow-sm">
             <div className="flex items-center gap-3">
-              <Home className="size-4 text-sky-400" />
+              <Home className="size-4 text-sky-400 group-hover:scale-115 transition-transform" />
               <span className="text-sm font-mono text-neutral-200">Hero Editor</span>
             </div>
             <ArrowRight className="size-4 text-neutral-500 group-hover:text-white transition-colors" />
           </Link>
 
-          <Link href="/admin/about" className="flex items-center justify-between rounded-lg border border-neutral-800 bg-neutral-950 p-4 hover:bg-neutral-900 hover:border-neutral-700 transition-all group shadow-sm">
+          <Link href="/admin/about" className="flex items-center justify-between rounded-xl border border-neutral-850 bg-neutral-950/60 p-4 hover:bg-neutral-900/40 hover:border-purple-500/30 hover:shadow-[0_0_20px_rgba(168,85,247,0.06)] transition-all duration-300 group shadow-sm">
             <div className="flex items-center gap-3">
-              <User className="size-4 text-purple-400" />
+              <User className="size-4 text-purple-400 group-hover:scale-115 transition-transform" />
               <span className="text-sm font-mono text-neutral-200">About & SEO</span>
             </div>
             <ArrowRight className="size-4 text-neutral-500 group-hover:text-white transition-colors" />
           </Link>
 
-          <Link href="/admin/projects" className="flex items-center justify-between rounded-lg border border-neutral-800 bg-neutral-950 p-4 hover:bg-neutral-900 hover:border-neutral-700 transition-all group shadow-sm">
+          <Link href="/admin/projects" className="flex items-center justify-between rounded-xl border border-neutral-850 bg-neutral-950/60 p-4 hover:bg-neutral-900/40 hover:border-emerald-500/30 hover:shadow-[0_0_20px_rgba(16,185,129,0.06)] transition-all duration-300 group shadow-sm">
             <div className="flex items-center gap-3">
-              <FolderGit className="size-4 text-emerald-400" />
+              <FolderGit className="size-4 text-emerald-400 group-hover:scale-115 transition-transform" />
               <span className="text-sm font-mono text-neutral-200">Projects Manager</span>
             </div>
             <ArrowRight className="size-4 text-neutral-500 group-hover:text-white transition-colors" />

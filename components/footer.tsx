@@ -14,7 +14,15 @@ const COMPACT_NUMBER_FORMATTER = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 1,
 });
 
-function FooterSocialLink({ link }: { link: any }) {
+interface FooterSocialLinkProps {
+  label: string;
+  href: string;
+  platform: string;
+  icon?: string;
+  color?: string;
+}
+
+function FooterSocialLink({ link }: { link: FooterSocialLinkProps }) {
   const [isHovered, setIsHovered] = useState(false);
   
   const baseColor = "text-neutral-500";
@@ -38,13 +46,13 @@ function FooterSocialLink({ link }: { link: any }) {
     }
   }
   
-  let Icon = Lucide.Globe;
+  let Icon: React.ComponentType<{ size?: number }> = Lucide.Globe;
   if (link.platform === "github") Icon = Lucide.Github;
   else if (link.platform === "linkedin") Icon = Lucide.Linkedin;
   else if (link.platform === "instagram") Icon = Lucide.Instagram;
   else if (link.platform === "email") Icon = Lucide.Mail;
   else if (link.icon) {
-    const IconComp = (Lucide as any)[link.icon];
+    const IconComp = (Lucide as unknown as Record<string, React.ComponentType<{ size?: number }>>)[link.icon];
     if (IconComp) Icon = IconComp;
   }
   
@@ -119,6 +127,19 @@ export function Footer() {
         .eq("key", "total_views")
         .single();
       if (data) setTotalViews(data.value);
+
+      try {
+        await fetch("/api/analytics/track", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            path: window.location.pathname,
+            referrer: document.referrer,
+          }),
+        });
+      } catch {
+        // ignore tracking failures
+      }
     };
 
     const fetchFooterSettings = async () => {

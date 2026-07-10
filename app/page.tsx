@@ -6,7 +6,7 @@ import { TimelinePortfolio } from "@/components/portfolio";
 import GithubData from "@/components/github-section";
 import { getAllSettings, getProjects } from "@/lib/data";
 
-export const revalidate = 3600; // Cache for 1 hour
+export const revalidate = 0; // Disable static caching to fetch live data
 
 export default async function Home() {
   const settings = await getAllSettings();

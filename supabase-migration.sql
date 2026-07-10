@@ -179,3 +179,76 @@ ON CONFLICT DO NOTHING;
 
 -- 6. Create storage bucket for uploads (run separately in Supabase Dashboard > Storage)
 -- CREATE BUCKET: 'portfolio-images' with public access
+
+-- 7. Statistics Table
+CREATE TABLE IF NOT EXISTS statistics (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  key text UNIQUE NOT NULL,
+  value int NOT NULL DEFAULT 0,
+  updated_at timestamptz DEFAULT now()
+);
+
+-- Enable RLS for statistics
+ALTER TABLE statistics ENABLE ROW LEVEL SECURITY;
+
+-- Public can read statistics
+CREATE POLICY "Public can read statistics"
+  ON statistics FOR SELECT
+  TO anon, authenticated
+  USING (true);
+
+-- Authenticated can edit statistics
+CREATE POLICY "Authenticated users can update statistics"
+  ON statistics FOR UPDATE
+  TO authenticated
+  USING (true);
+
+-- RPC for incrementing views
+CREATE OR REPLACE FUNCTION increment_views(row_key text)
+RETURNS void AS $$
+BEGIN
+  INSERT INTO statistics (key, value)
+  VALUES (row_key, 1)
+  ON CONFLICT (key)
+  DO UPDATE SET value = statistics.value + 1, updated_at = now();
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 8. Visitor Logs Table
+CREATE TABLE IF NOT EXISTS visitor_logs (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  ip text,
+  browser text,
+  device text,
+  os text,
+  country text,
+  referrer text,
+  path text,
+  created_at timestamptz DEFAULT now()
+);
+
+-- Enable RLS for visitor_logs
+ALTER TABLE visitor_logs ENABLE ROW LEVEL SECURITY;
+
+-- Public can insert logs (to track visits)
+CREATE POLICY "Public can insert visitor_logs"
+  ON visitor_logs FOR INSERT
+  TO anon, authenticated
+  WITH CHECK (true);
+
+-- Only authenticated users can read/delete logs
+CREATE POLICY "Authenticated users can read visitor_logs"
+  ON visitor_logs FOR SELECT
+  TO authenticated
+  USING (true);
+
+CREATE POLICY "Authenticated users can delete visitor_logs"
+  ON visitor_logs FOR DELETE
+  TO authenticated
+  USING (true);
+
+-- 9. Enable Realtime for all dynamic tables (Run in Supabase to receive updates)
+ALTER PUBLICATION supabase_realtime ADD TABLE visitor_logs;
+ALTER PUBLICATION supabase_realtime ADD TABLE projects;
+ALTER PUBLICATION supabase_realtime ADD TABLE site_settings;
+ALTER PUBLICATION supabase_realtime ADD TABLE statistics;

@@ -48,13 +48,13 @@ function SocialIconLink({ link }: { link: SocialLinkData }) {
     }
   }
   
-  let Icon = Lucide.Globe;
+  let Icon: React.ComponentType<{ size?: number }> = Lucide.Globe;
   if (link.platform === "github") Icon = Lucide.Github;
   else if (link.platform === "linkedin") Icon = Lucide.Linkedin;
   else if (link.platform === "instagram") Icon = Lucide.Instagram;
   else if (link.platform === "email") Icon = Lucide.Mail;
   else if (link.icon) {
-    const IconComp = (Lucide as any)[link.icon];
+    const IconComp = (Lucide as unknown as Record<string, React.ComponentType<{ size?: number }>>)[link.icon];
     if (IconComp) Icon = IconComp;
   }
   
@@ -112,7 +112,7 @@ export function SpotlightPreview({ settings }: SpotlightPreviewProps) {
       ];
 
   const dbSocials = Array.isArray(settings?.social_links)
-    ? (settings.social_links as { label: string; href: string; platform: string }[])
+    ? (settings.social_links as SocialLinkData[])
     : [
         { label: "Github", href: "https://github.com/enggipratama", platform: "github" },
         { label: "LinkedIn", href: "https://linkedin.com/in/enggipratama", platform: "linkedin" },
@@ -202,7 +202,7 @@ export function SpotlightPreview({ settings }: SpotlightPreviewProps) {
                   }
                 }}
               >
-                <Badge variant={skill.variant as any}>
+                <Badge variant={skill.variant as "default" | "success" | "sky" | "purple" | "emerald" | "neutral" | "yellow" | "red" | "blue" | "cyan" | "indigo" | "pink"}>
                   {skill.name}
                 </Badge>
               </motion.div>
@@ -212,7 +212,7 @@ export function SpotlightPreview({ settings }: SpotlightPreviewProps) {
           {/* Social Icons + Resume */}
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3 w-full md:justify-start">
               {dbSocials.map((link) => (
-                <SocialIconLink key={link.label} link={link as any} />
+                <SocialIconLink key={link.label} link={link} />
               ))}
             
             {/* Download CV Button */}

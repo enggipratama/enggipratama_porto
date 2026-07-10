@@ -63,13 +63,13 @@ function ContactSocialLink({ link }: { link: SocialLinkData }) {
     }
   }
   
-  let Icon = Lucide.Globe;
+  let Icon: React.ComponentType<{ size?: number }> = Lucide.Globe;
   if (link.platform === "github") Icon = Lucide.Github;
   else if (link.platform === "linkedin") Icon = Lucide.Linkedin;
   else if (link.platform === "instagram") Icon = Lucide.Instagram;
   else if (link.platform === "email") Icon = Lucide.Mail;
   else if (link.icon) {
-    const IconComp = (Lucide as any)[link.icon];
+    const IconComp = (Lucide as unknown as Record<string, React.ComponentType<{ size?: number }>>)[link.icon];
     if (IconComp) Icon = IconComp;
   }
 
@@ -102,6 +102,55 @@ export default function ContactForm() {
   const [buttonStatus, setButtonStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const lastFormData = useRef<ContactFormData | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && !document.getElementById("turnstile-script")) {
+      const script = document.createElement("script");
+      script.id = "turnstile-script";
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+    }
+
+    let widgetId: string | null = null;
+    const interval = setInterval(() => {
+      const win = typeof window !== "undefined" ? (window as unknown as {
+        turnstile?: {
+          render: (el: string, options: { sitekey: string; callback: (token: string) => void }) => string;
+          remove: (id: string) => void;
+        };
+      }) : null;
+
+      if (win && win.turnstile) {
+        clearInterval(interval);
+        try {
+          const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA";
+          widgetId = win.turnstile.render("#turnstile-container", {
+            sitekey: siteKey,
+            callback: (token: string) => {
+              setTurnstileToken(token);
+            },
+          });
+        } catch (e) {
+          console.error("Turnstile rendering failed", e);
+        }
+      }
+    }, 200);
+
+    return () => {
+      clearInterval(interval);
+      const win = typeof window !== "undefined" ? (window as unknown as {
+        turnstile?: {
+          remove: (id: string) => void;
+        };
+      }) : null;
+      if (widgetId && win && win.turnstile) {
+        win.turnstile.remove(widgetId);
+      }
+    };
+  }, []);
 
   const [socialLinks, setSocialLinks] = useState<SocialLinkData[]>([
     { label: "Github", href: "https://github.com/enggipratama", platform: "github" },
@@ -170,13 +219,18 @@ export default function ContactForm() {
 
   const onSubmit = async (data: ContactFormData) => {
     if (data.website) return;
+    if (!turnstileToken) {
+      setButtonStatus("idle");
+      addNotification("Please complete the Captcha check.", "error");
+      return;
+    }
     lastFormData.current = data;
     setButtonStatus("loading");
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, turnstileToken }),
       });
 
       const result = await res.json();
@@ -412,6 +466,11 @@ export default function ContactForm() {
                   {errors.message && (
                     <p className="text-xs text-red-500">{errors.message.message}</p>
                   )}
+                </div>
+
+                {/* Cloudflare Turnstile Captcha */}
+                <div className="flex justify-center my-2 select-none">
+                  <div id="turnstile-container" className="mx-auto" />
                 </div>
 
                 {/* Submit Button */}

@@ -35,15 +35,15 @@ export function CTAButtons() {
         <motion.button
           whileHover={{ 
             scale: 1.05,
-            boxShadow: "0 10px 30px -10px rgba(14, 165, 233, 0.5)"
+            boxShadow: "0 10px 30px -10px rgba(14, 165, 233, 0.4)"
           }}
           whileTap={{ scale: 0.98 }}
           transition={{ type: "spring", stiffness: 400, damping: 15 }}
-          className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-lg bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-900 px-6 py-2.5 text-sm font-medium text-white shadow-lg transition-all dark:from-white dark:via-neutral-200 dark:to-white dark:text-neutral-900 dark:shadow-neutral-800/50"
+          className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-lg bg-gradient-to-r from-sky-500 via-sky-600 to-purple-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-sky-500/25 transition-all hover:shadow-xl hover:shadow-sky-500/35 hover:brightness-110 dark:from-sky-500 dark:via-sky-600 dark:to-purple-650"
         >
           <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
           
-          <span className="relative">Let&apos;s Talk</span>
+          <span className="relative font-mono tracking-wider">Let&apos;s Talk</span>
           <motion.span 
             className="relative"
             initial={{ x: 0 }}

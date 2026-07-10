@@ -55,6 +55,24 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
+    const { turnstileToken } = body;
+
+    // Verify Cloudflare Turnstile token
+    const turnstileSecret = process.env.TURNSTILE_SECRET_KEY || "1x00000000000000000000000000000000OP";
+    const verifyRes = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `secret=${encodeURIComponent(turnstileSecret)}&response=${encodeURIComponent(turnstileToken || "")}&remoteip=${encodeURIComponent(ip)}`,
+    });
+    
+    const verifyData = await verifyRes.json();
+    if (!verifyData.success) {
+      return NextResponse.json(
+        { success: false, error: "Captcha verification failed. Please try again." },
+        { status: 400 }
+      );
+    }
+
     const parsedData = contactSchema.parse(body);
     const { name, email, subject, message, website } = parsedData;
 

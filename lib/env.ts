@@ -8,6 +8,8 @@ const envSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: z.string().url("NEXT_PUBLIC_SUPABASE_URL must be a valid URL"),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1, "NEXT_PUBLIC_SUPABASE_ANON_KEY is missing"),
   ADMIN_EMAIL: z.string().email("ADMIN_EMAIL must be a valid email").optional().default("work.enggipratama@gmail.com"),
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().min(1, "NEXT_PUBLIC_TURNSTILE_SITE_KEY is missing").optional().default("1x00000000000000000000AA"),
+  TURNSTILE_SECRET_KEY: z.string().min(1, "TURNSTILE_SECRET_KEY is missing").optional().default("1x00000000000000000000000000000000OP"),
 });
 
 const isServer = typeof window === "undefined";
@@ -20,6 +22,8 @@ const envData = {
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   ADMIN_EMAIL: process.env.ADMIN_EMAIL,
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+  TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY,
 };
 
 let env: z.infer<typeof envSchema>;
@@ -33,7 +37,7 @@ if (isServer) {
       "❌ CRITICAL ENVIRONMENT CONFIGURATION ERROR:",
       JSON.stringify(parsed.error.format(), null, 2)
     );
-    env = envData as any; // Fallback to raw process.env values if validation fails
+    env = envData as unknown as z.infer<typeof envSchema>; // Fallback to raw process.env values if validation fails
   } else {
     env = parsed.data;
   }
@@ -42,10 +46,12 @@ if (isServer) {
   const clientSchema = envSchema.pick({
     NEXT_PUBLIC_SUPABASE_URL: true,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: true,
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY: true,
   });
   const parsed = clientSchema.safeParse({
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
   });
   if (!parsed.success) {
     console.error(
@@ -54,7 +60,7 @@ if (isServer) {
       JSON.stringify(parsed.error.format(), null, 2)
     );
   }
-  env = envData as any;
+  env = envData as unknown as z.infer<typeof envSchema>;
 }
 
 export { env };

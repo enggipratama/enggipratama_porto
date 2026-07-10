@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import * as Lucide from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -35,6 +36,7 @@ type AboutFormValues = z.infer<typeof aboutSchema>;
 // Page
 // ---------------------------------------------------------------------------
 export default function AboutEditorPage() {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [paragraphs, setParagraphs] = useState<string[]>([""]);
@@ -42,7 +44,7 @@ export default function AboutEditorPage() {
   const [cvUrl, setCvUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadingCv, setUploadingCv] = useState(false);
-  const [socialLinks, setSocialLinks] = useState<{ label: string; href: string; platform: string }[]>([]);
+  const [socialLinks, setSocialLinks] = useState<{ label: string; href: string; platform: string; icon?: string; color?: string }[]>([]);
 
   const {
     register,
@@ -202,8 +204,8 @@ export default function AboutEditorPage() {
             // Seed custom fields if converting to custom
             return {
               ...updated,
-              icon: (item as any).icon || "Globe",
-              color: (item as any).color || "#0ea5e9",
+              icon: item.icon || "Globe",
+              color: item.color || "#0ea5e9",
             };
           }
           return updated;
@@ -258,6 +260,7 @@ export default function AboutEditorPage() {
         if (!res.ok) throw new Error(`Failed to save ${entry.key}`);
       }
       toast.success("About section saved successfully");
+      router.refresh();
     } catch {
       toast.error("Failed to save about settings");
     } finally {
@@ -288,7 +291,7 @@ export default function AboutEditorPage() {
       {/* Header */}
       <div className="border-b border-neutral-800 pb-5">
         <h1 className="font-mono text-2xl font-bold text-white">About Section</h1>
-        <p className="mt-1 text-sm text-neutral-400">
+        <p className="mt-1 font-mono text-sm text-neutral-400">
           Manage the about section content of your portfolio.
         </p>
       </div>
@@ -335,7 +338,7 @@ export default function AboutEditorPage() {
                     onChange={handleImageUpload}
                     disabled={uploading}
                   />
-                  <p className="text-[11px] text-neutral-500">
+                  <p className="font-mono text-[11px] text-neutral-500">
                     Recommended: Square image, at least 400×400px
                   </p>
                 </div>
@@ -352,13 +355,13 @@ export default function AboutEditorPage() {
             <CardContent className="space-y-4 flex flex-col justify-between h-[calc(100%-80px)]">
               <div className="space-y-3 flex-grow">
                 <div className="space-y-1.5">
-                  <Label htmlFor="cv_url_input" className="text-neutral-350">CV File Link</Label>
+                  <Label htmlFor="cv_url_input" className="font-mono text-xs text-neutral-300">CV File Link</Label>
                   <Input
                     id="cv_url_input"
                     value={cvUrl}
                     onChange={(e) => setCvUrl(e.target.value)}
                     placeholder="/Resume.pdf or https://..."
-                    className="bg-neutral-950 border-neutral-850 text-neutral-200 focus-visible:ring-sky-500"
+                    className="bg-neutral-950 border-neutral-850 text-neutral-200 focus-visible:ring-sky-500 font-mono text-sm h-10"
                   />
                 </div>
 
@@ -400,16 +403,16 @@ export default function AboutEditorPage() {
           <CardContent className="space-y-4">
             <div className="grid gap-6 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label htmlFor="about_fullname" className="text-neutral-300">Full Name</Label>
-                <Input id="about_fullname" placeholder="Your full name" {...register("about_fullname")} className="bg-neutral-950 border-neutral-850 text-neutral-200 focus-visible:ring-sky-500" />
+                <Label htmlFor="about_fullname" className="font-mono text-xs text-neutral-300">Full Name</Label>
+                <Input id="about_fullname" placeholder="Your full name" {...register("about_fullname")} className="bg-neutral-950 border-neutral-850 text-neutral-200 focus-visible:ring-sky-500 font-mono text-sm h-10" />
                 {errors.about_fullname && (
                   <p className="text-xs text-red-400">{errors.about_fullname.message}</p>
                 )}
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="about_nickname" className="text-neutral-300">Nickname (Hello, I'm ...)</Label>
-                <Input id="about_nickname" placeholder="e.g. Enggi" {...register("about_nickname")} className="bg-neutral-950 border-neutral-850 text-neutral-200" />
+                <Label htmlFor="about_nickname" className="font-mono text-xs text-neutral-300">Nickname (Hello, I&apos;m ...)</Label>
+                <Input id="about_nickname" placeholder="e.g. Enggi" {...register("about_nickname")} className="bg-neutral-950 border-neutral-850 text-neutral-200 font-mono text-sm h-10" />
                 {errors.about_nickname && (
                   <p className="text-xs text-red-400">{errors.about_nickname.message}</p>
                 )}
@@ -418,16 +421,16 @@ export default function AboutEditorPage() {
 
             <div className="grid gap-6 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label htmlFor="about_title" className="text-neutral-300">Title in Description</Label>
-                <Input id="about_title" placeholder="e.g. Full-Stack Developer" {...register("about_title")} className="bg-neutral-950 border-neutral-850 text-neutral-200" />
+                <Label htmlFor="about_title" className="font-mono text-xs text-neutral-300">Title in Description</Label>
+                <Input id="about_title" placeholder="e.g. Full-Stack Developer" {...register("about_title")} className="bg-neutral-950 border-neutral-850 text-neutral-200 font-mono text-sm h-10" />
                 {errors.about_title && (
                   <p className="text-xs text-red-400">{errors.about_title.message}</p>
                 )}
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="about_badge_title" className="text-neutral-300">Title in Profile Card Badge</Label>
-                <Input id="about_badge_title" placeholder="e.g. Full-Stack Dev" {...register("about_badge_title")} className="bg-neutral-950 border-neutral-850 text-neutral-200" />
+                <Label htmlFor="about_badge_title" className="font-mono text-xs text-neutral-300">Title in Profile Card Badge</Label>
+                <Input id="about_badge_title" placeholder="e.g. Full-Stack Dev" {...register("about_badge_title")} className="bg-neutral-950 border-neutral-850 text-neutral-200 font-mono text-sm h-10" />
                 {errors.about_badge_title && (
                   <p className="text-xs text-red-400">{errors.about_badge_title.message}</p>
                 )}
@@ -435,8 +438,8 @@ export default function AboutEditorPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="about_badge_text" className="text-neutral-300">Badge Text (Open to Collaborate)</Label>
-              <Input id="about_badge_text" placeholder="e.g. Open to Collaborate" {...register("about_badge_text")} className="bg-neutral-950 border-neutral-850 text-neutral-200" />
+              <Label htmlFor="about_badge_text" className="font-mono text-xs text-neutral-300">Badge Text (Open to Collaborate)</Label>
+              <Input id="about_badge_text" placeholder="e.g. Open to Collaborate" {...register("about_badge_text")} className="bg-neutral-950 border-neutral-850 text-neutral-200 font-mono text-sm h-10" />
               {errors.about_badge_text && (
                 <p className="text-xs text-red-400">{errors.about_badge_text.message}</p>
               )}
@@ -457,7 +460,7 @@ export default function AboutEditorPage() {
               {paragraphs.map((paragraph, idx) => (
                 <div key={idx} className="space-y-2.5 p-5 rounded-xl border border-neutral-855 bg-neutral-950/30 border-l-2 border-l-sky-500/80 shadow-sm transition-all hover:border-neutral-800">
                   <div className="flex items-center justify-between">
-                    <Label className="text-neutral-350 text-xs font-mono">Paragraph {idx + 1}</Label>
+                    <Label className="font-mono text-xs text-neutral-300">Paragraph {idx + 1}</Label>
                     {paragraphs.length > 1 && (
                       <Button
                         type="button"
@@ -475,7 +478,7 @@ export default function AboutEditorPage() {
                     onChange={(e) => updateParagraph(idx, e.target.value)}
                     placeholder="Write a paragraph..."
                     rows={4}
-                    className="bg-neutral-950 border-neutral-800 text-neutral-200 focus:border-sky-500 focus:ring-sky-500 transition-colors leading-relaxed"
+                    className="bg-neutral-950 border-neutral-800 text-neutral-200 focus:border-sky-500 focus:ring-sky-500 transition-colors leading-relaxed font-mono text-sm"
                   />
                 </div>
               ))}
@@ -483,7 +486,7 @@ export default function AboutEditorPage() {
 
             <Separator className="bg-neutral-800/60" />
 
-            <Button type="button" variant="outline" size="sm" onClick={addParagraph} className="w-full sm:w-auto">
+            <Button type="button" variant="outline" size="sm" onClick={addParagraph} className="w-full sm:w-auto font-mono">
               <Lucide.Plus className="mr-1 size-4" />
               Add Paragraph
             </Button>
@@ -510,18 +513,18 @@ export default function AboutEditorPage() {
                     {/* Icon Live Preview */}
                     <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-neutral-850 bg-neutral-900 shadow-inner">
                       {(() => {
-                        let IconComp = Lucide.Globe;
+                        let IconComp: React.ComponentType<{ className?: string; style?: React.CSSProperties }> = Lucide.Globe;
                         if (link.platform === "github") IconComp = Lucide.Github;
                         else if (link.platform === "linkedin") IconComp = Lucide.Linkedin;
                         else if (link.platform === "instagram") IconComp = Lucide.Instagram;
                         else if (link.platform === "email") IconComp = Lucide.Mail;
-                        else if ((link as any).icon) {
-                          const customIcon = (Lucide as any)[(link as any).icon];
+                        else if (link.icon) {
+                          const customIcon = (Lucide as unknown as Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>>)[link.icon];
                           if (customIcon) IconComp = customIcon;
                         }
                         
                         // Inline preview color
-                        const previewColor = link.platform === "custom" ? ((link as any).color || "#0ea5e9") : undefined;
+                        const previewColor = link.platform === "custom" ? (link.color || "#0ea5e9") : undefined;
                         return <IconComp className="size-4.5 text-neutral-300" style={previewColor ? { color: previewColor } : undefined} />;
                       })()}
                     </div>
@@ -548,7 +551,7 @@ export default function AboutEditorPage() {
                   {/* Inputs Grid */}
                   <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 pt-1">
                     <div className="space-y-1">
-                      <Label className="text-[10px] text-neutral-400 font-mono">Platform</Label>
+                      <Label className="font-mono text-xs text-neutral-300">Platform</Label>
                       <select
                         value={link.platform}
                         onChange={(e) => updateSocialLink(idx, "platform", e.target.value)}
@@ -563,44 +566,44 @@ export default function AboutEditorPage() {
                     </div>
 
                     <div className="space-y-1">
-                      <Label className="text-[10px] text-neutral-400 font-mono">Label</Label>
+                      <Label className="font-mono text-xs text-neutral-300">Label</Label>
                       <Input
                         value={link.label}
                         onChange={(e) => updateSocialLink(idx, "label", e.target.value)}
                         placeholder="e.g. GitHub"
-                        className="bg-neutral-950 border-neutral-800 text-xs text-neutral-200 focus:border-sky-500 focus:ring-sky-500 transition-colors h-8"
+                        className="bg-neutral-950 border-neutral-800 text-sm text-neutral-200 focus:border-sky-500 focus:ring-sky-500 transition-colors h-10 font-mono"
                       />
                     </div>
 
                     <div className="space-y-1 sm:col-span-2">
-                      <Label className="text-[10px] text-neutral-400 font-mono">{link.platform === "email" ? "Email Address" : "URL / Link"}</Label>
+                      <Label className="font-mono text-xs text-neutral-300">{link.platform === "email" ? "Email Address" : "URL / Link"}</Label>
                       <Input
                         value={link.href}
                         onChange={(e) => updateSocialLink(idx, "href", e.target.value)}
                         placeholder={link.platform === "email" ? "e.g. work@example.com" : "e.g. https://..."}
-                        className="bg-neutral-950 border-neutral-800 text-xs text-neutral-200 focus:border-sky-500 focus:ring-sky-500 transition-colors h-8"
+                        className="bg-neutral-950 border-neutral-800 text-sm text-neutral-200 focus:border-sky-500 focus:ring-sky-500 transition-colors h-10 font-mono"
                       />
                     </div>
 
                     {link.platform === "custom" && (
                       <div className="sm:col-span-2 grid gap-2 grid-cols-1 sm:grid-cols-2 border-t border-neutral-850/50 pt-2.5 mt-0.5">
                         <div className="space-y-1">
-                          <Label className="text-[10px] text-neutral-400 font-mono">Custom Icon</Label>
+                          <Label className="font-mono text-xs text-neutral-300">Custom Icon</Label>
                           <Input
-                            value={(link as any).icon || ""}
+                            value={link.icon || ""}
                             onChange={(e) => updateSocialLink(idx, "icon", e.target.value)}
                             placeholder="e.g. Twitter"
-                            className="bg-neutral-950 border-neutral-800 text-xs text-neutral-200 focus:border-sky-500 focus:ring-sky-500 transition-colors h-8"
+                            className="bg-neutral-950 border-neutral-800 text-sm text-neutral-200 focus:border-sky-500 focus:ring-sky-500 transition-colors h-10 font-mono"
                           />
                         </div>
 
                         <div className="space-y-1">
-                          <Label className="text-[10px] text-neutral-400 font-mono">Custom Color</Label>
+                          <Label className="font-mono text-xs text-neutral-300">Custom Color</Label>
                           <Input
-                            value={(link as any).color || ""}
+                            value={link.color || ""}
                             onChange={(e) => updateSocialLink(idx, "color", e.target.value)}
                             placeholder="e.g. #1da1f2"
-                            className="bg-neutral-950 border-neutral-800 text-xs text-neutral-200 focus:border-sky-500 focus:ring-sky-500 transition-colors h-8"
+                            className="bg-neutral-950 border-neutral-800 text-sm text-neutral-200 focus:border-sky-500 focus:ring-sky-500 transition-colors h-10 font-mono"
                           />
                         </div>
                       </div>
@@ -613,7 +616,7 @@ export default function AboutEditorPage() {
 
             <Separator className="bg-neutral-800/60" />
 
-            <Button type="button" variant="outline" size="sm" onClick={addSocialLink} className="w-full sm:w-auto">
+            <Button type="button" variant="outline" size="sm" onClick={addSocialLink} className="w-full sm:w-auto font-mono">
               <Lucide.Plus className="mr-1 size-4" />
               Add Social Link
             </Button>
@@ -629,16 +632,16 @@ export default function AboutEditorPage() {
           <CardContent className="space-y-4">
             <div className="grid gap-6 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label htmlFor="seo_title" className="text-neutral-300">Search Engine Title</Label>
-                <Input id="seo_title" placeholder="e.g. Enggi Pratama | Full-Stack Developer" {...register("seo_title")} className="bg-neutral-950 border-neutral-850 text-neutral-200 focus-visible:ring-sky-500" />
+                <Label htmlFor="seo_title" className="font-mono text-xs text-neutral-300">Search Engine Title</Label>
+                <Input id="seo_title" placeholder="e.g. Enggi Pratama | Full-Stack Developer" {...register("seo_title")} className="bg-neutral-950 border-neutral-850 text-neutral-200 focus-visible:ring-sky-500 font-mono text-sm h-10" />
                 {errors.seo_title && (
                   <p className="text-xs text-red-400">{errors.seo_title.message}</p>
                 )}
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="seo_keywords" className="text-neutral-350">Keywords (Comma-separated)</Label>
-                <Input id="seo_keywords" placeholder="e.g. Enggi Pratama, portfolio, web developer, nextjs" {...register("seo_keywords")} className="bg-neutral-950 border-neutral-850 text-neutral-200 focus-visible:ring-sky-500" />
+                <Label htmlFor="seo_keywords" className="font-mono text-xs text-neutral-300">Keywords (Comma-separated)</Label>
+                <Input id="seo_keywords" placeholder="e.g. Enggi Pratama, portfolio, web developer, nextjs" {...register("seo_keywords")} className="bg-neutral-950 border-neutral-850 text-neutral-200 focus-visible:ring-sky-500 font-mono text-sm h-10" />
                 {errors.seo_keywords && (
                   <p className="text-xs text-red-400">{errors.seo_keywords.message}</p>
                 )}
@@ -646,13 +649,13 @@ export default function AboutEditorPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="seo_description" className="text-neutral-350">Meta Description</Label>
+              <Label htmlFor="seo_description" className="font-mono text-xs text-neutral-300">Meta Description</Label>
               <Textarea
                 id="seo_description"
                 placeholder="Write a brief summary of your portfolio for search engine results..."
                 rows={3}
                 {...register("seo_description")}
-                className="bg-neutral-950 border-neutral-850 text-neutral-200 focus-visible:ring-sky-500 leading-relaxed"
+                className="bg-neutral-950 border-neutral-850 text-neutral-200 focus-visible:ring-sky-500 leading-relaxed font-mono text-sm"
               />
               {errors.seo_description && (
                 <p className="text-xs text-red-400">{errors.seo_description.message}</p>
@@ -662,8 +665,8 @@ export default function AboutEditorPage() {
         </Card>
 
         {/* Save Footer */}
-        <div className="flex justify-end border-t border-neutral-800 pt-6">
-          <Button type="submit" disabled={saving} className="min-w-[120px] w-full sm:w-auto">
+        <div className="flex justify-end border-t border-neutral-900/60 pt-6">
+          <Button type="submit" disabled={saving} className="min-w-[120px] w-full sm:w-auto bg-gradient-to-r from-sky-500 to-purple-500 hover:from-sky-400 hover:to-purple-400 text-white font-mono rounded-lg transition-all duration-300 shadow-md shadow-sky-500/10 border-0 h-10 text-xs font-bold">
             {saving && <Lucide.Loader2 className="mr-2 size-4 animate-spin" />}
             {saving ? "Saving..." : "Save Changes"}
           </Button>

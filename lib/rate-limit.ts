@@ -4,10 +4,11 @@
 const lru = new Map<string, { count: number; reset: number }>();
 
 // Cleanup interval to prevent memory leaks from old entries
-if (typeof global !== "undefined") {
+if (typeof globalThis !== "undefined") {
   const intervalKey = "_rate_limit_cleanup";
-  if (!(global as any)[intervalKey]) {
-    (global as any)[intervalKey] = setInterval(() => {
+  const g = globalThis as unknown as Record<string, unknown>;
+  if (!g[intervalKey]) {
+    g[intervalKey] = setInterval(() => {
       const now = Date.now();
       for (const [key, value] of lru.entries()) {
         if (now > value.reset) {
