@@ -1,117 +1,150 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Github, Linkedin, Instagram, Mail, Heart, Eye } from "lucide-react";
+import { motion } from "framer-motion";
+import * as Lucide from "lucide-react";
 import Link from "next/link";
 import pkg from "@/package.json";
-import { supabase } from "@/lib/supabase";
+import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-const COMPACT_NUMBER_FORMATTER = new Intl.NumberFormat("en-US", {
-  notation: "compact",
-  compactDisplay: "short",
-  maximumFractionDigits: 1,
-});
 
-const SOCIAL_LINKS = [
-  { Icon: Github, href: "https://github.com/enggipratama", label: "GitHub", color: "hover:text-neutral-900 dark:hover:text-white" },
-  {
-    Icon: Linkedin,
-    href: "https://linkedin.com/in/enggipratama",
-    label: "LinkedIn",
-    color: "hover:text-blue-600 dark:hover:text-blue-400",
-  },
-  {
-    Icon: Instagram,
-    href: "https://instagram.com/enggiipratama",
-    label: "Instagram",
-    color: "hover:text-pink-600 dark:hover:text-pink-400",
-  },
-  { Icon: Mail, href: "mailto:work.enggipratama@gmail.com", label: "Email", color: "hover:text-sky-500 dark:hover:text-sky-400" },
-];
 
-const NUMBER_VARIANTS = {
-  initial: { y: 15, opacity: 0 },
-  animate: { y: 0, opacity: 1 },
-  exit: { y: -15, opacity: 0 },
-  transition: { type: "spring", stiffness: 300, damping: 30 },
-};
 
-function AnimatedNumber({ value }: { value: string | number }) {
+interface FooterSocialLinkProps {
+  label: string;
+  href: string;
+  platform: string;
+  icon?: string;
+  color?: string;
+}
+
+function FooterSocialLink({ link }: { link: FooterSocialLinkProps }) {
+  const [isHovered, setIsHovered] = useState(false);
+  
+  const baseColor = "text-neutral-500";
+  
+  let activeColorClass = "";
+  let activeStyle: React.CSSProperties = {};
+  
+  if (isHovered) {
+    if (link.platform === "github") {
+      activeColorClass = "text-neutral-900 dark:text-white";
+    } else if (link.platform === "linkedin") {
+      activeColorClass = "text-blue-600 dark:text-blue-400";
+    } else if (link.platform === "instagram") {
+      activeColorClass = "text-pink-600 dark:text-pink-400";
+    } else if (link.platform === "email") {
+      activeColorClass = "text-sky-500 dark:text-sky-400";
+    } else if (link.color) {
+      activeStyle = { color: link.color };
+    } else {
+      activeColorClass = "text-sky-500 dark:text-sky-400";
+    }
+  }
+  
+  let Icon: React.ComponentType<{ size?: number }> = Lucide.Globe;
+  if (link.platform === "github") Icon = Lucide.Github;
+  else if (link.platform === "linkedin") Icon = Lucide.Linkedin;
+  else if (link.platform === "instagram") Icon = Lucide.Instagram;
+  else if (link.platform === "email") Icon = Lucide.Mail;
+  else if (link.icon) {
+    const IconComp = (Lucide as unknown as Record<string, React.ComponentType<{ size?: number }>>)[link.icon];
+    if (IconComp) Icon = IconComp;
+  }
+  
+  const finalHref = link.platform === "email" && link.href && !link.href.startsWith("mailto:")
+    ? `mailto:${link.href}`
+    : link.href;
+    
   return (
-    <span className="inline-flex h-full overflow-hidden relative w-auto min-w-[1ch] justify-center mx-2">
-      <AnimatePresence mode="popLayout">
-        <motion.span
-          key={value}
-          variants={NUMBER_VARIANTS}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          className="absolute"
-        >
-          {value}
-        </motion.span>
-      </AnimatePresence>
-      <span className="invisible">{value}</span>
-    </span>
+    <motion.a
+      href={finalHref}
+      aria-label={link.label}
+      target="_blank"
+      rel="noopener noreferrer"
+      whileHover={{ y: -3, scale: 1.1 }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={cn("transition-colors", isHovered ? activeColorClass : baseColor)}
+      style={activeStyle}
+    >
+      <Icon size={20} />
+    </motion.a>
   );
 }
 
+const DEFAULT_SOCIAL_LINKS = [
+  { label: "Github", href: "https://github.com/enggipratama", platform: "github" },
+  { label: "LinkedIn", href: "https://linkedin.com/in/enggipratama", platform: "linkedin" },
+  { label: "Instagram", href: "https://instagram.com/enggiipratama", platform: "instagram" },
+  { label: "Email", href: "mailto:work.enggipratama@gmail.com", platform: "email" },
+];
+
+// Render numbers directly in the footer to prevent layout or baseline alignment glitches.
+
 export function Footer() {
+  const supabase = createSupabaseBrowserClient();
   const currentYear = new Date().getFullYear();
   const [onlineUsers, setOnlineUsers] = useState(0);
-  const [totalViews, setTotalViews] = useState<number | null>(null);
+  const [totalViews, setTotalViews] = useState<number>(0);
+  const [tagline, setTagline] = useState("Feel free to reach out. — Say hello anytime!");
+  const [footerName, setFooterName] = useState("Enggi Pratama");
+  const [footerCredit, setFooterCredit] = useState("Enggi Pratama");
+  const [socialLinks, setSocialLinks] = useState(DEFAULT_SOCIAL_LINKS);
 
   useEffect(() => {
     const initStats = async () => {
-      await supabase.rpc("increment_views", { row_key: "total_views" });
-      const { data } = await supabase
-        .from("statistics")
-        .select("value")
-        .eq("key", "total_views")
-        .single();
-      if (data) setTotalViews(data.value);
+      try {
+        const res = await fetch("/api/analytics/track", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            path: window.location.pathname,
+            referrer: document.referrer,
+          }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          setTotalViews(Number(data.totalViews || 0));
+          setOnlineUsers(Number(data.onlineUsers || 0));
+        }
+      } catch (err) {
+        console.error("Failed to track visits & load statistics:", err);
+      }
+    };
+
+    const fetchFooterSettings = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("site_settings")
+          .select("key, value")
+          .in("key", ["footer_tagline", "footer_name", "footer_credit", "social_links"]);
+        
+        if (!error && data) {
+          const taglineRow = data.find((r) => r.key === "footer_tagline");
+          if (taglineRow && taglineRow.value) setTagline(taglineRow.value);
+
+          const nameRow = data.find((r) => r.key === "footer_name");
+          if (nameRow && nameRow.value) setFooterName(nameRow.value);
+
+          const creditRow = data.find((r) => r.key === "footer_credit");
+          if (creditRow && creditRow.value) setFooterCredit(creditRow.value);
+
+          const socialsRow = data.find((r) => r.key === "social_links");
+          if (socialsRow && Array.isArray(socialsRow.value)) {
+            setSocialLinks(socialsRow.value);
+          }
+        }
+      } catch {
+        // Fallback to defaults
+      }
     };
 
     initStats();
-
-    const sessionId = Math.random().toString(36).substring(2, 15);
-    const presenceChannel = supabase.channel("online-users", {
-      config: { presence: { key: sessionId } },
-    });
-
-    presenceChannel
-      .on("presence", { event: "sync" }, () => {
-        const state = presenceChannel.presenceState();
-        setOnlineUsers(Object.keys(state).length);
-      })
-      .subscribe(async (status) => {
-        if (status === "SUBSCRIBED") {
-          await presenceChannel.track({ online_at: new Date().toISOString() });
-        }
-      });
-
-    const viewsChannel = supabase
-      .channel("views-realtime")
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "statistics",
-          filter: "key=eq.total_views",
-        },
-        (payload) => setTotalViews(payload.new.value)
-      )
-      .subscribe();
-
-    return () => {
-      presenceChannel.unsubscribe();
-      viewsChannel.unsubscribe();
-    };
-  }, []);
+    fetchFooterSettings();
+  }, [supabase]);
 
   return (
     <footer className="relative w-full border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black overflow-hidden">
@@ -121,58 +154,52 @@ export function Footer() {
         <div className="flex flex-col sm:flex-row items-center justify-between">
           <div className="flex flex-col items-center lg:items-start group">
             <Link href="/" className="text-xl font-bold font-mono text-neutral-800 dark:text-neutral-200 tracking-tighter hover:text-sky-500 transition-colors">
-              Enggi Pratama<span className="text-sky-500">.</span>
+              {footerName}<span className="text-sky-500">.</span>
             </Link>
             <p className="text-xs text-neutral-500 mt-1 font-mono">
-              Feel free to reach out. — Say hello anytime!
+              {tagline}
             </p>
           </div>
 
           <div className="flex flex-col items-center sm:items-end mt-2 sm:mt-0 gap-2">
-            <div className="flex items-center gap-4">
-              {SOCIAL_LINKS.map(({ Icon, href, label, color }) => (
-                <motion.a
-                  key={label}
-                  href={href}
-                  aria-label={label}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  whileHover={{ y: -3, scale: 1.1 }}
-                  className={cn("text-neutral-500 transition-colors", color)}
-                >
-                  <Icon size={20} />
-                </motion.a>
+            <div className="flex flex-wrap items-center gap-4">
+              {socialLinks.map((link) => (
+                <FooterSocialLink key={link.label} link={link} />
               ))}
             </div>
 
-            <div className="flex items-center gap-3 text-neutral-500">
-              <div className="flex items-center gap-2">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+            <div className="flex items-center gap-3.5 rounded-full border border-neutral-200/30 dark:border-neutral-800/40 bg-neutral-100/30 dark:bg-neutral-900/20 px-3.5 py-1.5 backdrop-blur-sm shadow-[0_2px_8px_rgba(0,0,0,0.04)] select-none">
+              <div className="flex items-center gap-1.5">
+                <span className="relative flex h-1.5 w-1.5 shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                 </span>
-                <p className="text-[10px] font-mono tracking-widest flex items-center">
-                  <AnimatedNumber
-                    value={COMPACT_NUMBER_FORMATTER.format(onlineUsers)}
-                  />
+                <span className="text-xs font-bold font-mono text-emerald-500 dark:text-emerald-400">
+                  {new Intl.NumberFormat("en-US", {
+                    notation: "compact",
+                    compactDisplay: "short",
+                    maximumFractionDigits: 1,
+                  }).format(onlineUsers)}
+                </span>
+                <span className="text-[10px] font-normal font-mono text-neutral-500 whitespace-nowrap">
                   {onlineUsers <= 1 ? "User" : "Users"} Live
-                </p>
+                </span>
               </div>
 
-              <span className="text-neutral-300 dark:text-neutral-800">|</span>
+              <span className="h-3 w-px bg-neutral-300 dark:bg-neutral-800" />
 
-              <div className="flex items-center gap-2">
-                <Eye size={12} className="text-sky-500" />
-                <p className="text-[10px] font-mono tracking-widest flex items-center">
-                  <AnimatedNumber
-                    value={
-                      totalViews !== null
-                        ? COMPACT_NUMBER_FORMATTER.format(totalViews)
-                        : "---"
-                    }
-                  />
-                  Views
-                </p>
+              <div className="flex items-center gap-1.5">
+                <Lucide.Eye size={12} className="text-sky-500 dark:text-sky-400 filter drop-shadow-[0_0_2px_rgba(14,165,233,0.3)] shrink-0" />
+                <span className="text-xs font-bold font-mono text-sky-500 dark:text-sky-400">
+                  {new Intl.NumberFormat("en-US", {
+                    notation: "compact",
+                    compactDisplay: "short",
+                    maximumFractionDigits: 1,
+                  }).format(totalViews)}
+                </span>
+                <span className="text-[10px] font-normal font-mono text-neutral-500 whitespace-nowrap">
+                  Visits
+                </span>
               </div>
             </div>
           </div>
@@ -185,9 +212,9 @@ export function Footer() {
               animate={{ scale: [1, 1.2, 1] }}
               transition={{ repeat: Infinity, duration: 2 }}
             >
-              <Heart size={14} className="text-red-500 fill-red-500" />
+              <Lucide.Heart size={14} className="text-red-500 fill-red-500" />
             </motion.span>
-            by <span className="italic">Enggi Pratama</span>
+            by <span className="italic">{footerCredit}</span>
           </p>
           <div className="flex items-center gap-3">
             <Badge variant="neutral">v{pkg.version}</Badge>

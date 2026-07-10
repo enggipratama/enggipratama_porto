@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { NotificationPortal, Notification, NotificationAction } from "./notification-portal";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,8 +10,10 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { nanoid } from "nanoid";
-import { Mail, MapPin, Clock, Github, Linkedin, Instagram, Send, Loader2 } from "lucide-react";
+import { Mail, MapPin, Clock, Send, Loader2 } from "lucide-react";
+import * as Lucide from "lucide-react";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 
 const contactSchema = z.object({
   name: z
@@ -29,19 +31,116 @@ const contactSchema = z.object({
 
 type ContactFormData = z.infer<typeof contactSchema>;
 
+interface SocialLinkData {
+  label: string;
+  href: string;
+  platform: string;
+  icon?: string;
+  color?: string;
+}
 
+function ContactSocialLink({ link }: { link: SocialLinkData }) {
+  const [isHovered, setIsHovered] = useState(false);
+  
+  const baseColor = "text-neutral-700 dark:text-neutral-300";
+  
+  let activeColorClass = "";
+  let activeStyle: React.CSSProperties = {};
+  
+  if (isHovered) {
+    if (link.platform === "github") {
+      activeColorClass = "text-neutral-900 dark:text-white";
+    } else if (link.platform === "linkedin") {
+      activeColorClass = "text-blue-600 dark:text-blue-400";
+    } else if (link.platform === "instagram") {
+      activeColorClass = "text-pink-600 dark:text-pink-400";
+    } else if (link.platform === "email") {
+      activeColorClass = "text-sky-500 dark:text-sky-400";
+    } else if (link.color) {
+      activeStyle = { color: link.color };
+    } else {
+      activeColorClass = "text-sky-500 dark:text-sky-400";
+    }
+  }
+  
+  let Icon: React.ComponentType<{ size?: number }> = Lucide.Globe;
+  if (link.platform === "github") Icon = Lucide.Github;
+  else if (link.platform === "linkedin") Icon = Lucide.Linkedin;
+  else if (link.platform === "instagram") Icon = Lucide.Instagram;
+  else if (link.platform === "email") Icon = Lucide.Mail;
+  else if (link.icon) {
+    const IconComp = (Lucide as unknown as Record<string, React.ComponentType<{ size?: number }>>)[link.icon];
+    if (IconComp) Icon = IconComp;
+  }
 
-const socials = [
-  { icon: Github, href: "https://github.com/enggipratama", label: "GitHub", color: "hover:text-neutral-900 dark:hover:text-white" },
-  { icon: Linkedin, href: "https://linkedin.com/in/enggipratama", label: "LinkedIn", color: "hover:text-blue-600 dark:hover:text-blue-400" },
-  { icon: Instagram, href: "https://instagram.com/enggiipratama", label: "Instagram", color: "hover:text-pink-600 dark:hover:text-pink-400" },
-  { icon: Mail, href: "mailto:work.enggipratama@gmail.com", label: "Email", color: "hover:text-sky-500 dark:hover:text-sky-400" },
-];
+  const finalHref = link.platform === "email" && link.href && !link.href.startsWith("mailto:")
+    ? `mailto:${link.href}`
+    : link.href;
+
+  return (
+    <motion.a
+      href={finalHref}
+      target="_blank"
+      rel="noopener noreferrer"
+      whileHover={{ y: -3, scale: 1.1 }}
+      whileTap={{ scale: 0.95 }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={cn(
+        "rounded-xl bg-neutral-100 dark:bg-neutral-800/80 p-3 transition-all hover:bg-neutral-200/60 dark:hover:bg-neutral-800/50 border border-neutral-200/40 dark:border-neutral-700/30 shadow-sm flex items-center justify-center size-10",
+        isHovered ? activeColorClass : baseColor
+      )}
+      style={activeStyle}
+      aria-label={link.label}
+    >
+      <Icon size={18} />
+    </motion.a>
+  );
+}
 
 export default function ContactForm() {
   const [buttonStatus, setButtonStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const lastFormData = useRef<ContactFormData | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+
+  const [socialLinks, setSocialLinks] = useState<SocialLinkData[]>([
+    { label: "Github", href: "https://github.com/enggipratama", platform: "github" },
+    { label: "LinkedIn", href: "https://linkedin.com/in/enggipratama", platform: "linkedin" },
+    { label: "Instagram", href: "https://instagram.com/enggiipratama", platform: "instagram" },
+    { label: "Email", href: "work.enggipratama@gmail.com", platform: "email" },
+  ]);
+  const [location, setLocation] = useState("Indonesia");
+  const [responseTime, setResponseTime] = useState("Usually within 24 hours");
+
+  const contactEmail =
+    socialLinks.find((l) => l.platform === "email")?.href || "work.enggipratama@gmail.com";
+
+  useEffect(() => {
+    async function fetchContactSettings() {
+      try {
+        const { data, error } = await supabase
+          .from("site_settings")
+          .select("key, value")
+          .in("key", ["social_links", "contact_location", "contact_response_time"]);
+        if (!error && data) {
+          const socialsRow = data.find((r) => r.key === "social_links");
+          if (socialsRow && Array.isArray(socialsRow.value)) {
+            setSocialLinks(socialsRow.value);
+          }
+
+          const locationRow = data.find((r) => r.key === "contact_location");
+          if (locationRow && locationRow.value) setLocation(locationRow.value);
+
+          const responseRow = data.find((r) => r.key === "contact_response_time");
+          if (responseRow && responseRow.value) setResponseTime(responseRow.value);
+        }
+      } catch {
+        // ignore
+      }
+    }
+    fetchContactSettings();
+  }, []);
 
 
 
@@ -71,7 +170,73 @@ export default function ContactForm() {
     setNotifications([]);
   };
 
+  useEffect(() => {
+    if (typeof window !== "undefined" && !document.getElementById("turnstile-script")) {
+      const script = document.createElement("script");
+      script.id = "turnstile-script";
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+    }
 
+    let widgetId: string | null = null;
+    const interval = setInterval(() => {
+      const win = typeof window !== "undefined" ? (window as unknown as {
+        turnstile?: {
+          render: (
+            el: string,
+            options: {
+              sitekey: string;
+              callback: (token: string) => void;
+              "error-callback"?: () => void;
+              "expired-callback"?: () => void;
+            }
+          ) => string;
+          remove: (id: string) => void;
+        };
+      }) : null;
+
+      if (win && win.turnstile) {
+        clearInterval(interval);
+        try {
+          const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "";
+          widgetId = win.turnstile.render("#turnstile-container", {
+            sitekey: siteKey,
+            callback: (token: string) => {
+              setTurnstileToken(token);
+            },
+            "error-callback": () => {
+              setTurnstileToken(null);
+              addNotification(
+                "Captcha gagal dimuat. Periksa koneksi internet atau izin domain di Cloudflare Turnstile.",
+                "error"
+              );
+            },
+            "expired-callback": () => {
+              setTurnstileToken(null);
+              addNotification("Captcha kedaluwarsa, silakan coba lagi.", "error");
+            },
+          });
+        } catch (e) {
+          console.error("Turnstile rendering failed", e);
+        }
+      }
+    }, 200);
+
+    return () => {
+      clearInterval(interval);
+      const win = typeof window !== "undefined" ? (window as unknown as {
+        turnstile?: {
+          remove: (id: string) => void;
+        };
+      }) : null;
+      if (widgetId && win && win.turnstile) {
+        win.turnstile.remove(widgetId);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const {
     register,
@@ -85,13 +250,18 @@ export default function ContactForm() {
 
   const onSubmit = async (data: ContactFormData) => {
     if (data.website) return;
+    if (!turnstileToken) {
+      setButtonStatus("idle");
+      addNotification("Please complete the Captcha check.", "error");
+      return;
+    }
     lastFormData.current = data;
     setButtonStatus("loading");
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, turnstileToken }),
       });
 
       const result = await res.json();
@@ -159,8 +329,8 @@ export default function ContactForm() {
                   </div>
                   <div>
                     <p className="text-xs text-neutral-500 dark:text-neutral-400">Email</p>
-                    <a href="mailto:work.enggipratama@gmail.com" className="text-sm font-medium text-neutral-900 dark:text-white hover:text-sky-500 transition-colors">
-                      work.enggipratama@gmail.com
+                    <a href={`mailto:${contactEmail}`} className="text-sm font-medium text-neutral-900 dark:text-white hover:text-sky-500 transition-colors">
+                      {contactEmail}
                     </a>
                   </div>
                 </div>
@@ -173,7 +343,7 @@ export default function ContactForm() {
                   <div>
                     <p className="text-xs text-neutral-500 dark:text-neutral-400">Location</p>
                     <p className="text-sm font-medium text-neutral-900 dark:text-white">
-                      Indonesia
+                      {location}
                     </p>
                   </div>
                 </div>
@@ -186,32 +356,18 @@ export default function ContactForm() {
                   <div>
                     <p className="text-xs text-neutral-500 dark:text-neutral-400">Response Time</p>
                     <p className="text-sm font-medium text-neutral-900 dark:text-white">
-                      Usually within 24 hours
+                      {responseTime}
                     </p>
                   </div>
                 </div>
               </div>
 
               {/* Social Links */}
-              <div className="mt-8 pt-6 border-t border-neutral-200 dark:border-neutral-800">
+              <div className="mt-8 pt-6 border-t border-neutral-200 dark:border-neutral-800 text-center">
                 <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-3">Or connect via</p>
-                <div className="flex gap-3">
-                  {socials.map(({ icon: Icon, href, label, color }) => (
-                    <motion.a
-                      key={label}
-                      href={href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      whileHover={{ y: -3, scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      className={cn(
-                        "rounded-xl bg-neutral-200 p-2.5 text-neutral-700 transition-all dark:bg-neutral-800 dark:text-neutral-300 hover:bg-neutral-300/50 dark:hover:bg-neutral-700/50",
-                        color
-                      )}
-                      aria-label={label}
-                    >
-                      <Icon size={18} />
-                    </motion.a>
+                <div className="flex flex-wrap gap-3 justify-center">
+                  {socialLinks.map((link) => (
+                    <ContactSocialLink key={link.label} link={link} />
                   ))}
                 </div>
               </div>
@@ -341,6 +497,11 @@ export default function ContactForm() {
                   {errors.message && (
                     <p className="text-xs text-red-500">{errors.message.message}</p>
                   )}
+                </div>
+
+                {/* Cloudflare Turnstile Captcha */}
+                <div className="flex justify-center my-2 select-none">
+                  <div id="turnstile-container" className="mx-auto" />
                 </div>
 
                 {/* Submit Button */}

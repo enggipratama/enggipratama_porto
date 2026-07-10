@@ -5,15 +5,11 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "**.bing.net",
+        hostname: "**",
       },
       {
-        protocol: "https",
-        hostname: "**.bing.com",
-      },
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
+        protocol: "http",
+        hostname: "**",
       },
     ],
   },

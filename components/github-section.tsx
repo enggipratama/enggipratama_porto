@@ -11,6 +11,7 @@ const GithubHeatmap = dynamic(() => import("@/components/github-heatmap"), {
 import { SkeletonCard, SkeletonStatCard, SkeletonHeatmap } from "@/components/skeleton-card";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/lib/supabase";
 
 interface GitHubRepo {
   id: string;
@@ -58,7 +59,7 @@ const langColors: Record<string, string> = {
   Unknown: "bg-gray-400",
 };
 
-const username = "enggipratama";
+const DEFAULT_USERNAME = "enggipratama";
 
 const containerVariants = {
   hidden: {},
@@ -153,6 +154,15 @@ export default function GithubSection() {
   const [data, setData] = useState<GitHubData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [username, setUsername] = useState(DEFAULT_USERNAME);
+  const [sectionTitle, setSectionTitle] = useState("Code Contributions");
+  const [sectionSubtitle, setSectionSubtitle] = useState("My open-source journey and development metrics");
+  const [statRepos, setStatRepos] = useState("Repositories");
+  const [statContributions, setStatContributions] = useState("Contributions");
+  const [statStars, setStatStars] = useState("Stars Earned");
+  const [statForks, setStatForks] = useState("Forks");
+  const [pinnedTitle, setPinnedTitle] = useState("Highlighted Projects");
+  const [viewAllLabel, setViewAllLabel] = useState("View All Repos");
 
   async function fetchData() {
     setLoading(true);
@@ -171,6 +181,39 @@ export default function GithubSection() {
   }
 
   useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const { data: settings, error: settingsError } = await supabase
+          .from("site_settings")
+          .select("key, value")
+          .in("key", [
+            "github_username",
+            "github_section_title",
+            "github_section_subtitle",
+            "github_stat_repos",
+            "github_stat_contributions",
+            "github_stat_stars",
+            "github_stat_forks",
+            "github_pinned_title",
+            "github_view_all",
+          ]);
+        if (!settingsError && settings) {
+          const get = (key: string) => settings.find((s) => s.key === key)?.value as string | undefined;
+          if (get("github_username")) setUsername(get("github_username")!);
+          if (get("github_section_title")) setSectionTitle(get("github_section_title")!);
+          if (get("github_section_subtitle")) setSectionSubtitle(get("github_section_subtitle")!);
+          if (get("github_stat_repos")) setStatRepos(get("github_stat_repos")!);
+          if (get("github_stat_contributions")) setStatContributions(get("github_stat_contributions")!);
+          if (get("github_stat_stars")) setStatStars(get("github_stat_stars")!);
+          if (get("github_stat_forks")) setStatForks(get("github_stat_forks")!);
+          if (get("github_pinned_title")) setPinnedTitle(get("github_pinned_title")!);
+          if (get("github_view_all")) setViewAllLabel(get("github_view_all")!);
+        }
+      } catch {
+        // Fallback to defaults
+      }
+    };
+    fetchSettings();
     fetchData();
   }, []);
 
@@ -254,11 +297,11 @@ export default function GithubSection() {
           <div className="mb-2 inline-flex items-center gap-2">
             <Github className="h-5 w-5 text-neutral-700 dark:text-neutral-300" />
             <span className="font-mono text-sm text-neutral-500 dark:text-neutral-400">@{username}</span>
-          </div>
-          <SectionHeader
-            title="Code Contributions"
-            subtitle="My open-source journey and development metrics"
-          />
+           </div>
+           <SectionHeader
+             title={sectionTitle}
+             subtitle={sectionSubtitle}
+           />
         </div>
 
         {/* Main Content - Mobile: Stack, Desktop: Grid */}
@@ -276,27 +319,27 @@ export default function GithubSection() {
             viewport={{ once: false, amount: 0.2 }}
             className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-2 lg:grid-rows-2 lg:gap-4"
           >
-            <StatCard value={totalRepos} label="Repositories" icon={Code2} iconColor="bg-blue-500" />
-            <StatCard value={totalContributions.toLocaleString()} label="Contributions" icon={Activity} iconColor="bg-emerald-500" />
-            <StatCard value={totalStars} label="Stars Earned" icon={Star} iconColor="bg-yellow-500" />
-            <StatCard value={totalForks} label="Forks" icon={GitFork} iconColor="bg-sky-500" />
+            <StatCard value={totalRepos} label={statRepos} icon={Code2} iconColor="bg-blue-500" />
+            <StatCard value={totalContributions.toLocaleString()} label={statContributions} icon={Activity} iconColor="bg-emerald-500" />
+            <StatCard value={totalStars} label={statStars} icon={Star} iconColor="bg-yellow-500" />
+            <StatCard value={totalForks} label={statForks} icon={GitFork} iconColor="bg-sky-500" />
           </motion.div>
         </div>
 
         {/* Pinned Repositories */}
         <div className="mt-8 sm:mt-10">
           <div className="mb-4 flex items-center justify-between sm:mb-5">
-            <h3 className="font-mono text-sm font-semibold text-neutral-900 dark:text-white sm:text-base">
-              Highlighted Projects
-            </h3>
-            <a
-              href={`https://github.com/${username}?tab=repositories`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 font-mono text-xs text-sky-600 hover:underline dark:text-sky-400"
-            >
-              View All Repos
-              <ExternalLink className="h-3 w-3" />
+              <h3 className="font-mono text-sm font-semibold text-neutral-900 dark:text-white sm:text-base">
+                {pinnedTitle}
+              </h3>
+              <a
+                href={`https://github.com/${username}?tab=repositories`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 font-mono text-xs text-sky-600 hover:underline dark:text-sky-400"
+              >
+                {viewAllLabel}
+                <ExternalLink className="h-3 w-3" />
             </a>
           </div>
 

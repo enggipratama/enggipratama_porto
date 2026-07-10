@@ -40,7 +40,7 @@ export async function GET() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ query }),
-      next: { revalidate: 3600 },
+      next: { revalidate: 600 },
     });
 
     if (!res.ok) {

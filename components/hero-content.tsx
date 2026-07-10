@@ -29,7 +29,20 @@ const itemVariants = {
   }
 };
 
-export function HeroContent() {
+import { SiteSettings } from "@/lib/data";
+
+interface HeroContentProps {
+  settings?: SiteSettings;
+}
+
+export function HeroContent({ settings }: HeroContentProps) {
+  const name = settings?.hero_name || "Enggi Pratama";
+  const tagline = settings?.hero_tagline || "Transforming complex problems into elegant solutions, one line of code at a time.";
+  const badgeText = settings?.hero_badge_text || "Available for Opportunities";
+  const flipWords = Array.isArray(settings?.text_flip_words) 
+    ? (settings.text_flip_words as string[]) 
+    : undefined;
+
   return (
     <motion.div
       variants={containerVariants}
@@ -38,16 +51,16 @@ export function HeroContent() {
       className="flex flex-col items-center justify-center text-center px-4"
     >
       <motion.div variants={itemVariants} className="w-full flex justify-center">
-        <OpenToWorkBadge />
+        <OpenToWorkBadge text={badgeText} />
       </motion.div>
       
       <motion.h2 
         variants={itemVariants}
         className="relative z-20 px-4 py-4 text-center font-mono font-bold tracking-tight"
       >
-        <TextFlip />
+        <TextFlip words={flipWords} />
         <span className="mt-3 block bg-gradient-to-b from-neutral-900 to-neutral-700 bg-clip-text text-lg tracking-[0.2em] text-transparent uppercase dark:from-neutral-600 dark:to-white">
-          Enggi Pratama.
+          {name}.
         </span>
       </motion.h2>
       
@@ -55,7 +68,7 @@ export function HeroContent() {
         variants={itemVariants}
         className="max-w-2xl text-center text-sm italic text-neutral-600 dark:text-neutral-300 sm:text-lg"
       >
-        &ldquo;Transforming complex problems into elegant solutions, one line of code at a time.&rdquo;
+        &ldquo;{tagline}&rdquo;
       </motion.p>
       
       <motion.div variants={itemVariants} className="w-full flex justify-center">

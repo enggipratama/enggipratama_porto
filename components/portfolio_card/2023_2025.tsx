@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ExternalLink, Github } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { renderMarkdown } from "@/lib/markdown";
 
 const techStackData: Record<string, "default" | "success" | "sky" | "purple" | "emerald" | "neutral" | "yellow" | "red" | "blue" | "cyan" | "indigo" | "pink"> = {
   laravel: "red",
@@ -97,8 +98,37 @@ function StatusBadge({ status }: { status: "checking" | "up" | "down" | "mainten
   );
 }
 
+const badgeColors: ("success" | "sky" | "purple" | "emerald" | "yellow" | "red" | "blue" | "cyan" | "indigo" | "pink")[] = [
+  "sky",
+  "purple",
+  "emerald",
+  "yellow",
+  "red",
+  "blue",
+  "cyan",
+  "indigo",
+  "pink",
+  "success",
+];
+
+function getTechColorVariant(tech: string): "default" | "success" | "sky" | "purple" | "emerald" | "neutral" | "yellow" | "red" | "blue" | "cyan" | "indigo" | "pink" {
+  const key = tech.toLowerCase().trim();
+  if (techStackData[key]) {
+    return techStackData[key];
+  }
+  
+  // Dynamic string hashing
+  let hash = 0;
+  for (let i = 0; i < key.length; i++) {
+    hash = key.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  
+  const index = Math.abs(hash) % badgeColors.length;
+  return badgeColors[index];
+}
+
 function TechBadge({ name, tech }: { name: string; tech: string }) {
-  const variant = techStackData[tech] || "default";
+  const variant = getTechColorVariant(tech);
   
   return (
     <Badge variant={variant}>
@@ -107,27 +137,42 @@ function TechBadge({ name, tech }: { name: string; tech: string }) {
   );
 }
 
+function getYearColorVariant(year: string): "default" | "success" | "sky" | "purple" | "emerald" | "neutral" | "yellow" | "red" | "blue" | "cyan" | "indigo" | "pink" {
+  const clean = year.trim();
+  if (clean === "TBA" || clean === "Coming Soon") return "neutral";
+  const yearNum = parseInt(clean);
+  if (isNaN(yearNum)) {
+    // Dynamic string hashing fallback
+    let hash = 0;
+    for (let i = 0; i < clean.length; i++) {
+      hash = clean.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash) % badgeColors.length;
+    return badgeColors[index];
+  }
+  
+  // Array mapping for years (using the same badgeColors array)
+  const index = yearNum % badgeColors.length;
+  return badgeColors[index];
+}
+
 function CardWrapper({ 
   children, 
   year 
-}: { 
+ }: { 
   children: React.ReactNode; 
   year: string; 
-}) {
+ }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 35, scale: 0.98 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: false, amount: 0.2 }}
+      viewport={{ once: true, amount: 0.05 }}
       transition={{ type: "tween", ease: [0.16, 1, 0.3, 1], duration: 1.0 }}
       className="group relative overflow-hidden rounded-xl border border-neutral-300/50 bg-neutral-50/80 p-4 shadow-lg shadow-neutral-200/40 backdrop-blur-md transition-all hover:border-sky-500/30 hover:shadow-lg hover:shadow-sky-500/10 dark:border-white/[0.08] dark:bg-white/[0.04] dark:hover:border-sky-500/30 dark:shadow-2xl dark:shadow-black/50 dark:hover:shadow-sky-500/10 sm:rounded-2xl sm:p-5"
     >
       <div className="absolute right-3 top-3 z-10">
-        <Badge variant={
-          year === "2023" ? "blue" :
-          year === "2024" ? "purple" :
-          year === "2025" ? "success" : "neutral"
-        } size="sm">
+        <Badge variant={getYearColorVariant(year)} size="sm">
           {year}
         </Badge>
       </div>
@@ -148,7 +193,7 @@ function ActionButtons({ demoUrl, githubUrl }: { demoUrl?: string; githubUrl?: s
               href={demoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative inline-flex shrink-0 items-center gap-1.5 overflow-hidden rounded-lg bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-900 px-3 py-2 text-xs font-mono font-medium text-white shadow-md transition-all hover:shadow-lg hover:shadow-sky-500/25 dark:from-white dark:via-neutral-200 dark:to-white dark:text-neutral-900 dark:hover:shadow-sky-400/25 sm:gap-2 sm:px-4 sm:text-sm"
+              className="group relative inline-flex shrink-0 items-center gap-1.5 overflow-hidden rounded-lg bg-gradient-to-r from-sky-500 via-sky-600 to-purple-600 px-3 py-2 text-xs font-mono font-bold text-white shadow-md shadow-sky-500/15 hover:shadow-lg hover:shadow-sky-500/25 hover:brightness-110 transition-all dark:from-sky-500 dark:via-sky-600 dark:to-purple-650 dark:text-white sm:gap-2 sm:px-4 sm:text-sm"
             >
               <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
               
@@ -389,6 +434,123 @@ export function PortfolioCard() {
               Stay Tuned
             </span>
           </div>
+        </div>
+      </div>
+    </CardWrapper>
+  );
+}
+
+interface ProjectType {
+  id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  year: string;
+  image_url: string;
+  demo_url: string;
+  github_url: string;
+  tech_stack: { name: string; key: string }[];
+  is_coming_soon: boolean;
+}
+
+export function PortfolioCardComponent({ project }: { project: ProjectType }) {
+  if (project.is_coming_soon) {
+    return (
+      <CardWrapper year={project.year}>
+        <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
+          <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-lg sm:aspect-[16/10] lg:aspect-[4/3] lg:w-[45%]">
+            <Image
+              src={project.image_url || "/Images/staytuned.png"}
+              alt={project.title}
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              sizes="(max-width: 1024px) 100vw, 45vw"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+            <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="inline-flex shrink-0 items-center rounded-md px-3 py-1.5 text-[10px] font-bold sm:rounded-full sm:px-4 sm:text-xs bg-amber-100 text-amber-700 border border-amber-300 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-600 shadow-lg">
+                🚧 In Development
+              </span>
+            </div>
+          </div>
+
+          <div className="flex min-w-0 flex-1 flex-col justify-center">
+            <h3 className="pr-16 font-mono text-lg font-bold leading-tight text-neutral-900 dark:text-white sm:text-xl lg:pr-0">
+              {project.title}
+            </h3>
+            <p className="mt-1 font-mono text-xs text-neutral-500 dark:text-neutral-400 sm:text-sm">
+              {project.subtitle}
+            </p>
+
+            <div className="mt-3 space-y-1.5">
+              {renderMarkdown(project.description)}
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              {project.tech_stack.map((t) => (
+                <TechBadge key={t.key} name={t.name} tech={t.key} />
+              ))}
+              {project.tech_stack.length === 0 && (
+                <>
+                  <span className="inline-flex shrink-0 items-center rounded-md px-2 py-1 text-[10px] font-medium sm:rounded-full sm:px-2.5 sm:text-xs border border-dashed border-neutral-300 bg-transparent text-neutral-400 dark:border-neutral-700 dark:text-neutral-500">
+                    TBD
+                  </span>
+                  <span className="inline-flex shrink-0 items-center rounded-md px-2 py-1 text-[10px] font-medium sm:rounded-full sm:px-2.5 sm:text-xs border border-dashed border-neutral-300 bg-transparent text-neutral-400 dark:border-neutral-700 dark:text-neutral-500">
+                    Coming Soon
+                  </span>
+                </>
+              )}
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center gap-2 sm:mt-5 sm:gap-3">
+              <span className="inline-flex shrink-0 items-center rounded-md px-2 py-1 text-[10px] font-medium sm:rounded-full sm:px-2.5 sm:text-xs bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
+                Stay Tuned
+              </span>
+            </div>
+          </div>
+        </div>
+      </CardWrapper>
+    );
+  }
+
+  return (
+    <CardWrapper year={project.year}>
+      <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
+        <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-lg sm:aspect-[16/10] lg:aspect-[4/3] lg:w-[45%]">
+          <Image
+            src={project.image_url || "/Images/staytuned.png"}
+            alt={project.title}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes="(max-width: 1024px) 100vw, 45vw"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
+          <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+        </div>
+
+        <div className="flex min-w-0 flex-1 flex-col justify-center">
+          <h3 className="pr-16 font-mono text-lg font-bold leading-tight text-neutral-900 dark:text-white sm:text-xl lg:pr-0">
+            {project.title}
+          </h3>
+          <p className="mt-1 font-mono text-xs text-neutral-500 dark:text-neutral-400 sm:text-sm">
+            {project.subtitle}
+          </p>
+
+          <div className="mt-3 space-y-1.5">
+            {renderMarkdown(project.description)}
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            {project.tech_stack.map((t) => (
+              <TechBadge key={t.key} name={t.name} tech={t.key} />
+            ))}
+          </div>
+
+          <ActionButtons
+            demoUrl={project.demo_url || undefined}
+            githubUrl={project.github_url || undefined}
+          />
         </div>
       </div>
     </CardWrapper>
