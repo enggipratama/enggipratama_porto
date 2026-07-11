@@ -1,5 +1,26 @@
 # MEGP Portfolio - Release Notes
 
+## Version 0.1.2.0 (Beta) - 2026-07-11
+
+### 📝 Completed Work
+
+#### 1. Keamanan & Kestabilan (Security & System)
+* **Middleware & Auth Security Patch:** Menutup celah bypass pengecekan email admin di level Next.js middleware dan helper otentikasi server saat variabel `ADMIN_EMAIL` tidak terkonfigurasi.
+* **Orphaned File Storage Clean-up:** Menghapus gambar/dokumen lama di Supabase Storage secara otomatis saat pengguna mengunggah berkas baru atau menghapus proyek portofolio.
+* **Manual Clean Storage Tool:** Menambahkan tombol "Clean Storage" di Dashboard Admin untuk memindai dan menghapus seluruh file yatim piatu di storage sekali klik.
+* **30-Day Logs Auto-Pruning:** Menambahkan database trigger PostgreSQL untuk menghapus log kunjungan yang berusia lebih dari 30 hari secara berkala.
+
+#### 2. Visitor Analytics & Realtime Presence
+* **Refreshes Deduplication (Session Lock):** Menerapkan sessionStorage lock di browser untuk mencegah penambahan log kunjungan ganda saat pengunjung melakukan refresh halaman dalam satu sesi.
+* **Presence Count Deduplication:** Menggunakan localStorage device ID unik untuk memastikan jumlah pengguna online di widget statistik footer tidak tergelembung saat user membuka banyak tab.
+
+#### 3. Visual & Viewport Optimizations (Mobile UX)
+* **Instant Mobile Viewport Theming:** Mengamankan pewarnaan status bar dan address bar di browser mobile (Safari/Chrome) agar tetap berwarna gelap pekat (#0a0a0a) di seluruh halaman admin.
+* **Zero-Flash SSR Reloads:** Menyuntikkan style CSS dinamis di dalam head blocking script untuk mencegah kedipan baris putih saat halaman login atau admin di-refresh.
+* **Instant Admin Loading Screen:** Menampilkan loading screen astronot secara instan di tengah layar pada rute admin tanpa terpengaruh jeda kompilasi Next.js.
+
+---
+
 ## Version 0.1.1.0 (Beta) - 2026-07-10
 
 ### 📝 Completed Work
