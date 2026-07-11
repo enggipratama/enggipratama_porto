@@ -36,8 +36,8 @@ export async function middleware(request: NextRequest) {
   if (pathname === "/admin/login") {
     // If already logged in, redirect to admin dashboard
     if (user) {
-      const adminEmail = process.env.ADMIN_EMAIL;
-      if (!adminEmail || user.email === adminEmail) {
+      const adminEmail = process.env.ADMIN_EMAIL || "work.enggipratama@gmail.com";
+      if (user.email === adminEmail) {
         const url = request.nextUrl.clone();
         url.pathname = "/admin";
         return NextResponse.redirect(url);
@@ -55,8 +55,8 @@ export async function middleware(request: NextRequest) {
     }
 
     // Check admin email if configured
-    const adminEmail = process.env.ADMIN_EMAIL;
-    if (adminEmail && user.email !== adminEmail) {
+    const adminEmail = process.env.ADMIN_EMAIL || "work.enggipratama@gmail.com";
+    if (user.email !== adminEmail) {
       const url = request.nextUrl.clone();
       url.pathname = "/403";
       return NextResponse.redirect(url);

@@ -76,7 +76,7 @@ export default function RootLayout({
         {/* Blocking script — runs synchronously before any render to prevent dark mode flash */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('theme'),s=window.matchMedia('(prefers-color-scheme: dark)').matches;if(t==='dark'||(t==='system'&&s)||(!t&&s)){document.documentElement.classList.add('dark')}else{document.documentElement.classList.remove('dark')}}catch(e){}document.addEventListener('DOMContentLoaded',function(){requestAnimationFrame(function(){document.documentElement.classList.add('theme-ready')})})})();`,
+            __html: `(function(){try{var t=localStorage.getItem('theme'),s=window.matchMedia('(prefers-color-scheme: dark)').matches,isAdmin=window.location.pathname.startsWith('/admin');if(t==='dark'||(t==='system'&&s)||(!t&&s)||isAdmin){document.documentElement.classList.add('dark');if(isAdmin){document.documentElement.style.backgroundColor='#0a0a0a';var css='html,body{background-color:#0a0a0a !important;}',style=document.createElement('style');style.type='text/css';style.appendChild(document.createTextNode(css));document.head.appendChild(style);var m=document.querySelectorAll('meta[name="theme-color"]');for(var i=0;i<m.length;i++){m[i].setAttribute('content','#0a0a0a');m[i].removeAttribute('media');}}}}catch(e){}document.addEventListener('DOMContentLoaded',function(){requestAnimationFrame(function(){document.documentElement.classList.add('theme-ready')})})})();`,
           }}
         />
       </head>

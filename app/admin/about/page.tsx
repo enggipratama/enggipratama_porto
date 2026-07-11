@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import { Badge, BadgeVariant } from "@/components/ui/badge";
 
 // ---------------------------------------------------------------------------
 // Schema
@@ -32,6 +33,21 @@ const aboutSchema = z.object({
 
 type AboutFormValues = z.infer<typeof aboutSchema>;
 
+const PRESET_SKILLS: { name: string; variant: BadgeVariant }[] = [
+  { name: "Next.js", variant: "neutral" },
+  { name: "React", variant: "sky" },
+  { name: "TypeScript", variant: "blue" },
+  { name: "Tailwind", variant: "cyan" },
+  { name: "Laravel", variant: "red" },
+  { name: "PHP", variant: "indigo" },
+  { name: "MySQL", variant: "blue" },
+  { name: "Framer", variant: "pink" },
+  { name: "Git", variant: "purple" },
+  { name: "Node.js", variant: "success" },
+  { name: "Vue", variant: "emerald" },
+  { name: "Python", variant: "yellow" },
+];
+
 // ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
@@ -45,6 +61,8 @@ export default function AboutEditorPage() {
   const [uploading, setUploading] = useState(false);
   const [uploadingCv, setUploadingCv] = useState(false);
   const [socialLinks, setSocialLinks] = useState<{ label: string; href: string; platform: string; icon?: string; color?: string }[]>([]);
+  const [skills, setSkills] = useState<{ name: string; variant: BadgeVariant }[]>([]);
+  const [customSkillName, setCustomSkillName] = useState("");
 
   const {
     register,
@@ -79,6 +97,7 @@ export default function AboutEditorPage() {
           "about_profile_image",
           "about_cv_url",
           "social_links",
+          "skills",
           "seo_title",
           "seo_description",
           "seo_keywords",
@@ -110,6 +129,9 @@ export default function AboutEditorPage() {
         }
         if (Array.isArray(data.social_links)) {
           setSocialLinks(data.social_links);
+        }
+        if (Array.isArray(data.skills)) {
+          setSkills(data.skills);
         }
       } catch {
         toast.error("Failed to load about settings");
@@ -148,6 +170,9 @@ export default function AboutEditorPage() {
     try {
       const formData = new FormData();
       formData.append("file", file);
+      if (profileImage) {
+        formData.append("oldUrl", profileImage);
+      }
 
       const res = await fetch("/api/admin/upload", {
         method: "POST",
@@ -174,6 +199,9 @@ export default function AboutEditorPage() {
     try {
       const formData = new FormData();
       formData.append("file", file);
+      if (cvUrl) {
+        formData.append("oldUrl", cvUrl);
+      }
 
       const res = await fetch("/api/admin/upload", {
         method: "POST",
@@ -225,6 +253,30 @@ export default function AboutEditorPage() {
     setSocialLinks((prev) => prev.filter((_, i) => i !== index));
   }
 
+  // Skills management
+  function addSkillTag(name: string, variant: BadgeVariant) {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    if (skills.some((s) => s.name.toLowerCase() === trimmed.toLowerCase())) {
+      toast.error("Skill already added");
+      return;
+    }
+    setSkills((prev) => [...prev, { name: trimmed, variant }]);
+  }
+
+  function handleAddCustomSkill() {
+    const trimmed = customSkillName.trim();
+    if (!trimmed) return;
+    const colorVariants: BadgeVariant[] = ["sky", "purple", "emerald", "blue", "cyan", "indigo", "pink", "yellow", "red", "success"];
+    const variant = colorVariants[skills.length % colorVariants.length];
+    addSkillTag(trimmed, variant);
+    setCustomSkillName("");
+  }
+
+  function removeSkill(index: number) {
+    setSkills((prev) => prev.filter((_, i) => i !== index));
+  }
+
   // Save
   async function onSave(values: AboutFormValues) {
     setSaving(true);
@@ -249,6 +301,7 @@ export default function AboutEditorPage() {
         { key: "about_profile_image", value: profileImage },
         { key: "about_cv_url", value: cvUrl },
         { key: "social_links", value: socialLinks },
+        { key: "skills", value: skills },
       ];
 
       for (const entry of entries) {
@@ -620,6 +673,80 @@ export default function AboutEditorPage() {
               <Lucide.Plus className="mr-1 size-4" />
               Add Social Link
             </Button>
+          </CardContent>
+        </Card>
+        {/* Skill Badges Card */}
+        <Card className="border-neutral-800 bg-neutral-900/50 shadow-lg transition-all hover:border-neutral-800/80">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-white text-sm font-mono">Skill Badges</CardTitle>
+            <CardDescription className="text-[10px] font-mono">Select or add skill badges displayed in your about section.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4 flex-1 flex flex-col justify-between">
+            {/* List tags */}
+            <div className="flex flex-wrap gap-1.5 min-h-[40px] p-2.5 rounded-xl bg-neutral-955/40 border border-neutral-850 flex-1">
+              {skills.map((skill, idx) => (
+                <Badge key={idx} variant={skill.variant} className="gap-1.5 text-[10px] font-mono px-2.5 py-1 rounded-lg">
+                  {skill.name}
+                  <button type="button" onClick={() => removeSkill(idx)} className="hover:text-red-450 transition-colors ml-1 cursor-pointer">
+                    <Lucide.X className="size-3 text-neutral-400" />
+                  </button>
+                </Badge>
+              ))}
+              {skills.length === 0 && (
+                <span className="text-[10px] text-neutral-600 font-mono italic py-1 self-center w-full text-center">No skills added yet.</span>
+              )}
+            </div>
+
+            {/* Preset tags */}
+            <div className="space-y-2 shrink-0">
+              <p className="text-[10px] text-neutral-550 uppercase tracking-wider font-mono">Quick Add Presets:</p>
+              <div className="flex flex-wrap gap-1">
+                {PRESET_SKILLS.map((preset) => {
+                  const isAdded = skills.some((s) => s.name.toLowerCase() === preset.name.toLowerCase());
+                  return (
+                    <button
+                      key={preset.name}
+                      type="button"
+                      disabled={isAdded}
+                      onClick={() => addSkillTag(preset.name, preset.variant)}
+                      className={`px-2.5 py-1 rounded-lg text-[10px] font-mono border transition-all ${
+                        isAdded
+                          ? "border-neutral-850 bg-neutral-900/40 text-neutral-650 cursor-not-allowed"
+                          : "border-neutral-750 bg-neutral-800/60 text-neutral-300 hover:bg-neutral-700 hover:text-white cursor-pointer"
+                      }`}
+                    >
+                      {preset.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Add Custom Skill Tag */}
+            <div className="flex flex-col sm:flex-row gap-2 pt-1 shrink-0">
+              <Input
+                placeholder="Custom skill tag (e.g. Docker)"
+                value={customSkillName}
+                onChange={(e) => setCustomSkillName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddCustomSkill();
+                  }
+                }}
+                className="text-xs bg-neutral-955 border-neutral-850 text-neutral-200 focus-visible:ring-sky-500 h-10 w-full rounded-lg"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleAddCustomSkill}
+                className="w-full sm:w-auto shrink-0 h-10 px-4 rounded-lg border-neutral-800"
+              >
+                <Lucide.Plus className="size-4 mr-1.5" />
+                Add Skill
+              </Button>
+            </div>
           </CardContent>
         </Card>
 

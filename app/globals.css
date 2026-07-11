@@ -53,6 +53,14 @@ html:not(.theme-ready) *::after {
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+
+  /* Custom intermediate neutrals */
+  --color-neutral-350: #bcbcbc;
+  --color-neutral-450: #8c8c8c;
+  --color-neutral-550: #636363;
+  --color-neutral-750: #333333;
+  --color-neutral-850: #202020;
+  --color-neutral-955: #070707;
 }
 
 :root {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -61,6 +61,26 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const supabase = createSupabaseBrowserClient();
+  
+  useEffect(() => {
+    // Force body background to match neutral-950 to prevent white bar glitches on mobile status/address bars
+    const originalBg = document.body.style.backgroundColor;
+    document.body.style.backgroundColor = "#0a0a0a";
+    
+    // Ensure HTML element has dark class for dark mode background consistency
+    const html = document.documentElement;
+    const hadDark = html.classList.contains("dark");
+    if (!hadDark) {
+      html.classList.add("dark");
+    }
+
+    return () => {
+      document.body.style.backgroundColor = originalBg;
+      if (!hadDark) {
+        html.classList.remove("dark");
+      }
+    };
+  }, []);
 
   const {
     register,
@@ -128,7 +148,7 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="dark flex min-h-screen items-center justify-center bg-neutral-955 px-4 relative overflow-hidden font-mono">
+    <div className="dark flex min-h-screen items-center justify-center bg-neutral-950 px-4 relative overflow-hidden font-mono">
       {/* Dynamic Background ambient glow effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-[15%] left-[5%] size-[280px] sm:size-[400px] rounded-full bg-sky-500/5 blur-[120px] animate-pulse" style={{ animationDuration: "12s" }} />

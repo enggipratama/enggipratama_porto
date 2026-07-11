@@ -54,6 +54,43 @@ export async function GET() {
       referrers[r] = (referrers[r] || 0) + 1;
     });
 
+    // 5. Fetch 7-day trend
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+
+    const { data: trendData, error: trendError } = await supabase
+      .from("visitor_logs")
+      .select("created_at")
+      .gte("created_at", sevenDaysAgo.toISOString())
+      .order("created_at", { ascending: true });
+
+    if (trendError) throw trendError;
+
+    const trendMap: Record<string, number> = {};
+    // Initialize the last 7 days with 0 views
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const key = d.toLocaleDateString("en-US", { weekday: "short" });
+      trendMap[key] = 0;
+    }
+
+    trendData?.forEach((row) => {
+      if (row.created_at) {
+        const d = new Date(row.created_at);
+        const key = d.toLocaleDateString("en-US", { weekday: "short" });
+        if (key in trendMap) {
+          trendMap[key]++;
+        }
+      }
+    });
+
+    const dailyTrend = Object.entries(trendMap).map(([day, views]) => ({
+      day,
+      views,
+    }));
+
     // Format distributions as arrays of objects
     const formatDist = (dist: Record<string, number>) =>
       Object.entries(dist)
@@ -66,6 +103,7 @@ export async function GET() {
       browsers: formatDist(browsers),
       devices: formatDist(devices),
       referrers: formatDist(referrers),
+      dailyTrend,
     });
   } catch (err) {
     if (err instanceof Error && err.message === "Unauthorized") {
