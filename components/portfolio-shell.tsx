@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import LoadingScreen from "@/components/LoadingScreen";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import { DynamicThemeColor } from "@/components/dynamic-theme-color";
 
 /**
  * Conditionally wraps children with the portfolio shell (Navbar, Footer, LoadingScreen).
@@ -15,11 +16,18 @@ export function PortfolioShell({ children }: { children: React.ReactNode }) {
 
   // Admin routes render without portfolio navbar/footer
   if (isAdmin) {
-    return <>{children}</>;
+    return (
+      <>
+        <DynamicThemeColor />
+        <LoadingScreen />
+        {children}
+      </>
+    );
   }
 
   return (
     <>
+      <DynamicThemeColor />
       <LoadingScreen />
       <div className="relative z-10 flex min-h-screen flex-col">
         <Navbar />

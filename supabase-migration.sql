@@ -280,3 +280,17 @@ CREATE POLICY "Authenticated users can insert admin_activity_log"
 
 -- Realtime for live activity feed
 ALTER PUBLICATION supabase_realtime ADD TABLE admin_activity_log;
+
+-- 11. Auto-Pruning for Visitor Logs (Deletes logs older than 30 days)
+CREATE OR REPLACE FUNCTION prune_old_visitor_logs()
+RETURNS TRIGGER AS $$
+BEGIN
+  DELETE FROM visitor_logs WHERE created_at < NOW() - INTERVAL '30 days';
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE TRIGGER prune_visitor_logs_trigger
+  AFTER INSERT ON visitor_logs
+  FOR EACH STATEMENT
+  EXECUTE FUNCTION prune_old_visitor_logs();

@@ -128,6 +128,9 @@ export function ProjectForm({ initialData, isEdit = false }: ProjectFormProps) {
     try {
       const formData = new FormData();
       formData.append("file", file);
+      if (imageUrl) {
+        formData.append("oldUrl", imageUrl);
+      }
 
       const res = await fetch("/api/admin/upload", {
         method: "POST",

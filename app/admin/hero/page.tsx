@@ -239,7 +239,7 @@ export default function HeroEditorPage() {
         </Card>
 
         {/* Live Preview */}
-        <Card className="border-neutral-800 bg-neutral-900/50 shadow-lg transition-all hover:border-neutral-800/80">
+        <Card className="border-neutral-800 bg-neutral-900/50 shadow-lg transition-all hover:border-neutral-800/80 w-full max-w-full overflow-hidden">
           <CardHeader className="pb-4">
             <CardTitle className="text-white text-sm font-mono flex items-center gap-2">
               <Lucide.Eye className="size-4" />
@@ -247,8 +247,8 @@ export default function HeroEditorPage() {
             </CardTitle>
             <CardDescription className="text-[10px] font-mono">Visual mock-up of how the hero content is presented.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="relative overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950 p-8 text-center shadow-inner">
+          <CardContent className="w-full max-w-full overflow-hidden">
+            <div className="relative overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950 p-8 text-center shadow-inner w-full max-w-full">
               {/* Background Grid Pattern Overlay */}
               <div className="pointer-events-none absolute inset-0 select-none opacity-[0.04] [background-size:20px_20px] [background-image:linear-gradient(to_right,#e5e5e5_1px,transparent_1px),linear-gradient(to_bottom,#e5e5e5_1px,transparent_1px)]" />
 
@@ -264,11 +264,11 @@ export default function HeroEditorPage() {
               )}
 
               {/* Flip Word Animation Preview */}
-              <div className="relative z-10 mb-2 flex flex-col items-center justify-center gap-1 font-mono text-xl font-bold tracking-tight">
+              <div className="relative z-10 mb-2 flex flex-col items-center justify-center gap-1 font-mono text-xl font-bold tracking-tight w-full max-w-full overflow-hidden [&_span]:text-lg [&_span]:sm:text-2xl [&_span]:tracking-normal [&_.relative.w-fit]:px-2.5 [&_.relative.w-fit]:py-1 [&_.relative.w-fit]:sm:px-3.5 [&_.relative.w-fit]:sm:py-1.5 [&_.relative.w-fit]:rounded-lg [&_.relative.w-fit]:sm:rounded-xl">
                 <TextFlip words={flipWords.length > 0 ? flipWords : undefined} />
                 
                 {/* Name */}
-                <span className="mt-3 block bg-gradient-to-b from-neutral-600 to-white bg-clip-text text-lg tracking-[0.2em] text-transparent uppercase">
+                <span className="mt-3 block bg-gradient-to-b from-neutral-600 to-white bg-clip-text text-xs sm:text-sm tracking-[0.2em] text-transparent uppercase !text-xs !sm:text-sm">
                   {watchedValues.hero_name || "Your Name"}.
                 </span>
               </div>

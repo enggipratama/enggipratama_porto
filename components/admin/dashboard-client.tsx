@@ -60,6 +60,7 @@ export function DashboardClient({
   const [activeBar, setActiveBar] = useState<number | null>(null);
   const [exporting, setExporting] = useState(false);
   const [restoring, setRestoring] = useState(false);
+  const [cleaning, setCleaning] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   interface AnalyticsData {
@@ -67,6 +68,7 @@ export function DashboardClient({
     browsers: { name: string; value: number }[];
     devices: { name: string; value: number }[];
     referrers: { name: string; value: number }[];
+    dailyTrend?: { day: string; views: number }[];
   }
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loadingAnalytics, setLoadingAnalytics] = useState(true);
@@ -139,7 +141,10 @@ export function DashboardClient({
         { event: "INSERT", schema: "public", table: "admin_activity_log" },
         (payload) => {
           const row = payload.new as ActivityItem;
-          setActivities((prev) => [row, ...prev].slice(0, 25));
+          setActivities((prev) => {
+            if (prev.some((item) => item.id === row.id)) return prev;
+            return [row, ...prev].slice(0, 25);
+          });
         }
       )
       .subscribe();
@@ -343,14 +348,38 @@ export function DashboardClient({
     }
   }
 
+  // Scan and clean up orphaned files in Supabase Storage
+  async function handleCleanup() {
+    setCleaning(true);
+    const toastId = toast.loading("Scanning and cleaning up storage...");
+    try {
+      const res = await fetch("/api/admin/cleanup", { method: "POST" });
+      if (!res.ok) throw new Error("Cleanup failed");
+      const data = await res.json();
+      if (data.success) {
+        toast.success(data.message, { id: toastId });
+      } else {
+        throw new Error(data.error || "Cleanup failed");
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to clean storage", { id: toastId });
+    } finally {
+      setCleaning(false);
+    }
+  }
+
   // Analytics helper calculations
-  const totalViewsSafe = totalViews || 750; // Fallback to 750 for visual grid scaling if 0
-  const dailyDistribution = [0.12, 0.15, 0.18, 0.14, 0.22, 0.11, 0.08]; // 7 days percentages
-  const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  const chartData = daysOfWeek.map((day, idx) => ({
-    day,
-    views: Math.round(totalViewsSafe * dailyDistribution[idx]),
-  }));
+  const chartData = analytics?.dailyTrend && analytics.dailyTrend.length > 0
+    ? analytics.dailyTrend
+    : (() => {
+        const totalViewsSafe = totalViews || 750;
+        const dailyDistribution = [0.12, 0.15, 0.18, 0.14, 0.22, 0.11, 0.08];
+        const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+        return daysOfWeek.map((day, idx) => ({
+          day,
+          views: Math.round(totalViewsSafe * dailyDistribution[idx]),
+        }));
+      })();
   const maxViews = Math.max(...chartData.map((d) => d.views));
 
   // Map raw activity action to display label/icon/color
@@ -404,6 +433,10 @@ export function DashboardClient({
               accept=".json"
               className="hidden"
             />
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleCleanup} disabled={cleaning} className="w-full sm:w-auto h-9 font-mono border-red-900/50 hover:bg-red-950/20 hover:text-red-400">
+            {cleaning ? <Loader2 className="mr-1.5 size-4 animate-spin" /> : <Trash2 className="mr-1.5 size-4 text-red-500" />}
+            Clean Storage
           </Button>
         </div>
       </div>

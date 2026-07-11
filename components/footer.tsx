@@ -97,18 +97,24 @@ export function Footer() {
   useEffect(() => {
     const initStats = async () => {
       try {
+        const isTracked = typeof window !== "undefined" && sessionStorage.getItem("megp_tracked_session") === "true";
+
         const res = await fetch("/api/analytics/track", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             path: window.location.pathname,
             referrer: document.referrer,
+            skipLog: isTracked,
           }),
         });
         const data = await res.json();
         if (data.success) {
           setTotalViews(Number(data.totalViews || 0));
           setOnlineUsers(Number(data.onlineUsers || 0));
+          if (!isTracked && typeof window !== "undefined") {
+            sessionStorage.setItem("megp_tracked_session", "true");
+          }
         }
       } catch (err) {
         console.error("Failed to track visits & load statistics:", err);
@@ -144,6 +150,52 @@ export function Footer() {
 
     initStats();
     fetchFooterSettings();
+
+    // Subscribe to live "online users" presence
+    let deviceId = typeof window !== "undefined" ? localStorage.getItem("megp_device_id") : null;
+    if (!deviceId) {
+      deviceId = "visitor_" + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("megp_device_id", deviceId);
+      }
+    }
+    const presenceChannel = supabase.channel("online-users", {
+      config: { presence: { key: deviceId } },
+    });
+
+    presenceChannel
+      .on("presence", { event: "sync" }, () => {
+        setOnlineUsers(Object.keys(presenceChannel.presenceState()).length);
+      })
+      .subscribe(async (status) => {
+        if (status === "SUBSCRIBED") {
+          await presenceChannel.track({ online_at: new Date().toISOString() });
+        }
+      });
+
+    // Subscribe to real-time views updates
+    const viewsChannel = supabase
+      .channel("footer-realtime-views")
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "statistics",
+          filter: "key=eq.total_views",
+        },
+        (payload) => {
+          if (payload.new.value !== undefined && payload.new.value !== null) {
+            setTotalViews(Number(payload.new.value));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      presenceChannel.unsubscribe();
+      viewsChannel.unsubscribe();
+    };
   }, [supabase]);
 
   return (

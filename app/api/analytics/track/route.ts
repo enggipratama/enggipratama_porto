@@ -4,7 +4,7 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { path, referrer } = body;
+    const { path, referrer, skipLog } = body;
 
     const userAgent = req.headers.get("user-agent") || "";
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0] || req.headers.get("x-real-ip") || "127.0.0.1";
@@ -51,25 +51,28 @@ export async function POST(req: NextRequest) {
     }
 
     const supabase = await createSupabaseServerClient();
-    const { error: insertError } = await supabase.from("visitor_logs").insert({
-      ip,
-      browser,
-      device,
-      os,
-      country,
-      referrer: cleanReferrer,
-      path: path || "/",
-    });
+    
+    if (!skipLog) {
+      const { error: insertError } = await supabase.from("visitor_logs").insert({
+        ip,
+        browser,
+        device,
+        os,
+        country,
+        referrer: cleanReferrer,
+        path: path || "/",
+      });
 
-    if (insertError) {
-      return NextResponse.json({ success: false, error: insertError.message }, { status: 500 });
-    }
+      if (insertError) {
+        return NextResponse.json({ success: false, error: insertError.message }, { status: 500 });
+      }
 
-    // Increment total_views in the database
-    try {
-      await supabase.rpc("increment_views", { row_key: "total_views" });
-    } catch (err) {
-      console.error("Increment views error:", err);
+      // Increment total_views in the database
+      try {
+        await supabase.rpc("increment_views", { row_key: "total_views" });
+      } catch (err) {
+        console.error("Increment views error:", err);
+      }
     }
 
     // Fetch updated total views

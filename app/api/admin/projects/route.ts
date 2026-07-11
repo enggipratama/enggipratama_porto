@@ -145,7 +145,7 @@ export async function DELETE(request: NextRequest) {
 
     const { data: existing, error: fetchError } = await supabase
       .from("projects")
-      .select("title")
+      .select("title, image_url")
       .eq("id", id)
       .maybeSingle();
 
@@ -166,6 +166,22 @@ export async function DELETE(request: NextRequest) {
         { success: false, error: error.message },
         { status: 500 }
       );
+    }
+
+    // Clean up file in storage if it exists
+    if (existing && existing.image_url) {
+      try {
+        const marker = "/portfolio-images/";
+        const index = existing.image_url.indexOf(marker);
+        if (index !== -1) {
+          const oldPath = existing.image_url.substring(index + marker.length);
+          if (oldPath && !oldPath.startsWith("http")) {
+            await supabase.storage.from("portfolio-images").remove([oldPath]);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to delete project image from storage:", err);
+      }
     }
 
     await logActivity("project_delete", existing?.title ?? id);

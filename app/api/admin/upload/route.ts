@@ -60,6 +60,23 @@ export async function POST(request: NextRequest) {
 
     const supabase = await createSupabaseServerClient();
 
+    // Delete old file if provided to prevent orphaned files in storage
+    const oldUrl = formData.get("oldUrl") as string | null;
+    if (oldUrl) {
+      try {
+        const marker = "/portfolio-images/";
+        const index = oldUrl.indexOf(marker);
+        if (index !== -1) {
+          const oldPath = oldUrl.substring(index + marker.length);
+          if (oldPath && !oldPath.startsWith("http")) {
+            await supabase.storage.from("portfolio-images").remove([oldPath]);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to delete old file from storage:", err);
+      }
+    }
+
     // Upload to Supabase Storage
     const arrayBuffer = await file.arrayBuffer();
     const { error: uploadError } = await supabase.storage

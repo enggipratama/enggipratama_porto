@@ -4,25 +4,31 @@ import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { TypingText } from "./TypingText";
 
+import { usePathname } from "next/navigation";
+
 const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const animationData = require("@/public/Loading/astronaut.json") as object;
 
 export default function LoadingScreen() {
   const [loading, setLoading] = useState(true);
-  const [animateOut, setAnimateOut] = useState(false);
+  const [animateState, setAnimateState] = useState<"top" | "center" | "out">("center");
+  const pathname = usePathname();
+  const isAdmin = pathname.startsWith("/admin");
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setAnimateOut(true);
-    }, 2000);
+    // 1. Slide up to exit after 5 seconds (5000ms)
+    const exitTimer = setTimeout(() => {
+      setAnimateState("out");
+    }, 5000);
 
+    // 2. Unmount after transition completes (5000ms + 700ms transition duration = 5700ms)
     const cleanup = setTimeout(() => {
       setLoading(false);
-    }, 2500);
+    }, 5700);
 
     return () => {
-      clearTimeout(timer);
+      clearTimeout(exitTimer);
       clearTimeout(cleanup);
     };
   }, []);
@@ -34,9 +40,15 @@ export default function LoadingScreen() {
       className={`
         fixed inset-0 z-50
         flex items-center justify-center
-        bg-white dark:bg-black
+        ${isAdmin ? "bg-black text-white dark" : "bg-white dark:bg-black"}
         transform transition-transform duration-700 ease-in-out
-        ${animateOut ? "-translate-y-full" : "translate-y-0"}
+        ${
+          animateState === "top"
+            ? "-translate-y-full"
+            : animateState === "center"
+            ? "translate-y-0"
+            : "-translate-y-full"
+        }
       `}
     >
       <div className="flex flex-col items-center gap-4">

@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-type BadgeVariant = "default" | "success" | "sky" | "purple" | "emerald" | "neutral" | "yellow" | "red" | "blue" | "cyan" | "indigo" | "pink";
+export type BadgeVariant = "default" | "success" | "sky" | "purple" | "emerald" | "neutral" | "yellow" | "red" | "blue" | "cyan" | "indigo" | "pink";
 
 interface BadgeProps {
   children: React.ReactNode;
