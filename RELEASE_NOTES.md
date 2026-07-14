@@ -1,3 +1,24 @@
+## Version 0.1.3.0 (Beta) - 2026-07-14
+
+### 📝 Completed Work
+
+#### 1. Health Check & Link Demo Access
+* **Open Public Demo Health Checks:** Mengubah `/api/health` agar menerima semua URL publik `http/https` untuk link demo proyek, sambil tetap menolak `localhost` dan private IP.
+* **Offline Detection Fix:** Menghilangkan 403 palsu saat cek status domain demo subdomain.
+
+#### 2. Build & Type Safety Fixes
+* **Admin Login Build Fix:** Menghapus destructuring `data` yang tidak dipakai pada `signInWithPassword()` supaya TypeScript build lolos.
+* **Route/Component Audit:** Menyelaraskan route dan komponen yang terdampak perubahan admin dan data layer.
+
+#### 3. E2E Stabilization
+* **Contact Form Test Hardening:** Memperbaiki selector dan trigger blur di Playwright contact test agar validasi form stabil.
+* **Render Checks:** Menyesuaikan assert halaman contact dengan struktur DOM aktual.
+
+#### 4. Admin & UI Maintenance
+* **Admin/Auth Cleanup:** Menyelaraskan helper autentikasi admin dan route terkait.
+* **UI Simplification:** Menambah `components/ui/social-link.tsx` dan menghapus komponen UI usang yang tidak lagi dipakai.
+
+---
 # MEGP Portfolio - Release Notes
 
 ## Version 0.1.2.0 (Beta) - 2026-07-11

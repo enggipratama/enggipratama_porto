@@ -7,6 +7,7 @@ import { logActivity } from "@/lib/admin-activity";
 // GET: Fetch all settings or specific keys via ?key=xxx
 export async function GET(request: NextRequest) {
   try {
+    await requireAdmin();
     const supabase = await createSupabaseServerClient();
     const { searchParams } = new URL(request.url);
     const keys = searchParams.getAll("key");

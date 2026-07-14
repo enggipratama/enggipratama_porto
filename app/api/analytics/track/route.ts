@@ -1,13 +1,72 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { rateLimit } from "@/lib/rate-limit";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
+
+const analyticsSchema = z.object({
+  path: z.string().min(1).max(200),
+  referrer: z.string().max(500).optional().default("Direct"),
+});
+
+const TRACKED_SESSION_COOKIE = "megp_tracked_session";
+
+function hasTrackedSession(req: NextRequest) {
+  return req.cookies.get(TRACKED_SESSION_COOKIE)?.value === "true";
+}
+
+function trackedSessionCookie() {
+  return `${TRACKED_SESSION_COOKIE}=true; Path=/; Max-Age=86400; SameSite=Lax`;
+}
+
+function successResponse(req: NextRequest, body: Record<string, unknown>) {
+  if (hasTrackedSession(req)) {
+    return NextResponse.json(body);
+  }
+
+  return NextResponse.json(body, {
+    headers: {
+      "Set-Cookie": trackedSessionCookie(),
+    },
+  });
+}
+
+function noopResponse(req: NextRequest) {
+  return successResponse(req, { success: true });
+}
+
+function errorResponse(req: NextRequest, error: string, status: number) {
+  if (hasTrackedSession(req)) {
+    return NextResponse.json({ success: false, error }, { status });
+  }
+
+  return NextResponse.json(
+    { success: false, error },
+    {
+      status,
+      headers: {
+        "Set-Cookie": trackedSessionCookie(),
+      },
+    }
+  );
+}
+
+// ponytail: cookie-based de-dupe is per-browser and 24h only. Add server-side
+// visitor fingerprint/storage when analytics accuracy matters more than simplicity.
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { path, referrer, skipLog } = body;
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0] || req.headers.get("x-real-ip") || "127.0.0.1";
+
+    const limitResult = rateLimit(`analytics:${ip}`, 10, 60 * 1000);
+    if (!limitResult.success) return noopResponse(req);
+
+    const body = await req.json().catch(() => ({}));
+    const parsed = analyticsSchema.safeParse(body);
+    if (!parsed.success) return noopResponse(req);
+    const { path, referrer } = parsed.data;
+    const skipLog = hasTrackedSession(req);
 
     const userAgent = req.headers.get("user-agent") || "";
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0] || req.headers.get("x-real-ip") || "127.0.0.1";
     const country = req.headers.get("x-vercel-ip-country") || "Unknown";
 
     // Simple User Agent Parsing
@@ -64,7 +123,8 @@ export async function POST(req: NextRequest) {
       });
 
       if (insertError) {
-        return NextResponse.json({ success: false, error: insertError.message }, { status: 500 });
+        console.error("Analytics insert error:", insertError.message);
+        return errorResponse(req, "Failed to record visit.", 500);
       }
 
       // Increment total_views in the database
@@ -105,11 +165,12 @@ export async function POST(req: NextRequest) {
       console.error("Fetch active users error:", err);
     }
 
-    return NextResponse.json({
+    return successResponse(req, {
       success: true,
       totalViews,
       onlineUsers,
     });
+
   } catch (err) {
     return NextResponse.json(
       { success: false, error: err instanceof Error ? err.message : "Internal Server Error" },

@@ -72,58 +72,6 @@ export type SiteSettings = typeof DEFAULTS;
 // Server-side data fetching (with fallback)
 // ============================================================
 
-/**
- * Fetch a single site setting by key, with fallback to hardcoded defaults.
- */
-export async function getSetting<K extends keyof typeof DEFAULTS>(
-  key: K
-): Promise<(typeof DEFAULTS)[K]> {
-  try {
-    const supabase = await createSupabaseServerClient();
-    const { data, error } = await supabase
-      .from("site_settings")
-      .select("value")
-      .eq("key", key)
-      .single();
-
-    if (error || !data) return DEFAULTS[key];
-    return data.value as (typeof DEFAULTS)[K];
-  } catch {
-    return DEFAULTS[key];
-  }
-}
-
-/**
- * Fetch multiple site settings at once.
- */
-export async function getSettings<K extends keyof typeof DEFAULTS>(
-  keys: K[]
-): Promise<Pick<typeof DEFAULTS, K>> {
-  try {
-    const supabase = await createSupabaseServerClient();
-    const { data, error } = await supabase
-      .from("site_settings")
-      .select("key, value")
-      .in("key", keys);
-
-    if (error || !data) {
-      return Object.fromEntries(
-        keys.map((k) => [k, DEFAULTS[k]])
-      ) as Pick<typeof DEFAULTS, K>;
-    }
-
-    const result = {} as Record<string, unknown>;
-    for (const key of keys) {
-      const found = data.find((d: { key: string }) => d.key === key);
-      result[key] = found ? found.value : DEFAULTS[key];
-    }
-    return result as Pick<typeof DEFAULTS, K>;
-  } catch {
-    return Object.fromEntries(
-      keys.map((k) => [k, DEFAULTS[k]])
-    ) as Pick<typeof DEFAULTS, K>;
-  }
-}
 
 /**
  * Fetch all settings at once.
@@ -274,23 +222,6 @@ export async function getProjects(): Promise<Project[]> {
   }
 }
 
-/**
- * Fetch ALL projects (including hidden) — for admin panel.
- */
-export async function getAllProjects(): Promise<Project[]> {
-  try {
-    const supabase = await createSupabaseServerClient();
-    const { data, error } = await supabase
-      .from("projects")
-      .select("*")
-      .order("sort_order", { ascending: true });
-
-    if (error || !data) return DEFAULT_PROJECTS;
-    return data as Project[];
-  } catch {
-    return DEFAULT_PROJECTS;
-  }
-}
 
 /**
  * Fetch a single project by ID — for admin edit page.
