@@ -572,7 +572,7 @@ export default function AboutEditorPage() {
                         else if (link.platform === "instagram") IconComp = Lucide.Instagram;
                         else if (link.platform === "email") IconComp = Lucide.Mail;
                         else if (link.icon) {
-                          const customIcon = (Lucide as unknown as Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>>)[link.icon];
+                          const customIcon = (Lucide.icons as Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>>)[link.icon];
                           if (customIcon) IconComp = customIcon;
                         }
                         

@@ -51,7 +51,7 @@ export function SocialLink({ link, variant = "footer" }: SocialLinkProps) {
   else if (link.platform === "instagram") Icon = Lucide.Instagram;
   else if (link.platform === "email") Icon = Lucide.Mail;
   else if (link.icon) {
-    const IconComp = (Lucide as unknown as Record<string, React.ComponentType<{ size?: number }>>)[link.icon];
+    const IconComp = (Lucide.icons as Record<string, React.ComponentType<{ size?: number }>>)[link.icon];
     if (IconComp) Icon = IconComp;
   }
 
