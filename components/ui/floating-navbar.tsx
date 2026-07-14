@@ -85,13 +85,13 @@ export const FloatingNav = ({
             href={navItem.link}
             onClick={(e) => handleNavClick(e, navItem.link)}
             className={cn(
-              "group relative dark:text-neutral-50 items-center flex space-x-1 text-neutral-600 dark:hover:text-sky-300 hover:text-sky-500 transition-colors duration-200"
+              "group relative dark:text-neutral-50 items-center flex space-x-1 text-neutral-600 dark:hover:text-sky-300 hover:text-sky-500 transition-all duration-200 active:scale-95 scale-100"
             )}
           >
-            <span className="block transition-transform duration-200 group-hover:scale-110">
+            <span className="block transition-transform duration-200 group-hover:scale-110 group-active:scale-90">
               {navItem.icon}
             </span>
-            <span className="hidden sm:block text-xs font-mono transition-transform duration-200 group-hover:scale-110">
+            <span className="hidden sm:block text-xs font-mono transition-transform duration-200 group-hover:scale-110 group-active:scale-90">
               {navItem.name}
             </span>
           </Link>

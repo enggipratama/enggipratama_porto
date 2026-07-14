@@ -58,11 +58,14 @@ export async function POST(req: Request) {
     const { turnstileToken } = body;
 
     // Verify Cloudflare Turnstile token
-    const turnstileSecret = process.env.TURNSTILE_SECRET_KEY || "1x00000000000000000000000000000000OP";
+    const turnstileSecret = process.env.TURNSTILE_SECRET_KEY;
+    if (!turnstileSecret || !turnstileToken) {
+      return NextResponse.json({ success: false, error: "Captcha verification failed. Please try again." }, { status: 400 });
+    }
     const verifyRes = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `secret=${encodeURIComponent(turnstileSecret)}&response=${encodeURIComponent(turnstileToken || "")}&remoteip=${encodeURIComponent(ip)}`,
+      body: `secret=${encodeURIComponent(turnstileSecret)}&response=${encodeURIComponent(turnstileToken)}&remoteip=${encodeURIComponent(ip)}`,
     });
     
     const verifyData = await verifyRes.json();
@@ -87,20 +90,14 @@ export async function POST(req: Request) {
       react: React.createElement(EmailTemplate, { name, email, subject, message }),
     });
 
-    if (error) return NextResponse.json({ error }, { status: 400 });
+    if (error) {
+      console.error("Contact email failed:", error);
+      return NextResponse.json({ success: false, error: "Unable to send message. Please try again later." }, { status: 502 });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: unknown) {
-    let errorMessage = "Something went wrong";
-    if (error instanceof z.ZodError) {
-      errorMessage = error.issues[0].message;
-    } else if (error instanceof Error) {
-      errorMessage = error.message;
-    }
-
-    return NextResponse.json(
-      { success: false, error: errorMessage },
-      { status: 400 }
-    );
+    console.error("Contact handler error:", error);
+    return NextResponse.json({ success: false, error: "Unable to send message. Please try again later." }, { status: 502 });
   }
 }

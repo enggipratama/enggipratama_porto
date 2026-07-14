@@ -95,7 +95,7 @@ export default function AdminLoginPage() {
     setLoading(true);
     try {
       // 1. Perform authentication
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
       });
@@ -105,15 +105,7 @@ export default function AdminLoginPage() {
         return;
       }
 
-      // Check admin email authorization
-      const adminEmail = process.env.ADMIN_EMAIL || "work.enggipratama@gmail.com";
-      if (data.user?.email !== adminEmail) {
-        await supabase.auth.signOut();
-        toast.error("You are not authorized to access this panel.");
-        return;
-      }
-
-      // 3. Generate a unique session token
+      // 2. Generate a unique session token
       const newToken = Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
       localStorage.setItem("admin_session_token", newToken);
 

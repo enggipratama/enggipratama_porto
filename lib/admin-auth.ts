@@ -12,8 +12,8 @@ export async function getAdminUser() {
 
   if (!user) return null;
 
-  const adminEmail = process.env.ADMIN_EMAIL || "work.enggipratama@gmail.com";
-  if (user.email !== adminEmail) return null;
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (!adminEmail || user.email !== adminEmail) return null;
 
   return user;
 }

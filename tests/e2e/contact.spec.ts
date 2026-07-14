@@ -4,19 +4,13 @@ test.describe("Contact Page E2E Tests", () => {
   test("should render the contact page with all fields", async ({ page }) => {
     await page.goto("/contact");
 
-    // Check header
-    await expect(page.locator("h1")).toContainText("Work Together");
-
-    // Check form fields
+    await expect(page.locator("h2:has-text('Send a Message')")).toBeVisible();
+    await expect(page.locator("label[for='name']")).toContainText("Full Name");
     await expect(page.locator("input[id='name']")).toBeVisible();
     await expect(page.locator("input[id='email']")).toBeVisible();
     await expect(page.locator("input[id='subject']")).toBeVisible();
     await expect(page.locator("textarea[id='message']")).toBeVisible();
-
-    // Check Turnstile container is rendered
     await expect(page.locator("#turnstile-container")).toBeVisible();
-
-    // Check submit button is present
     await expect(page.locator("button[type='submit']")).toBeVisible();
   });
 
@@ -25,9 +19,9 @@ test.describe("Contact Page E2E Tests", () => {
 
     const nameInput = page.locator("input[id='name']");
     await nameInput.focus();
-    await nameInput.blur();
+    await page.keyboard.press("Tab");
 
-    // Should show validation error
-    await expect(page.locator("text=Name is required")).toBeVisible();
+    await expect(page.getByText("Name is required")).toBeVisible();
+    await expect(nameInput).toHaveClass(/border-red-500/);
   });
 });

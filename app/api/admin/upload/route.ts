@@ -10,8 +10,9 @@ const ALLOWED_TYPES = [
   "image/png",
   "image/webp",
   "image/gif",
-  "image/svg+xml",
   "application/pdf",
+
+// ponytail: disable SVG uploads until server-side sanitization/allowlist is added.
 ];
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: `Invalid file type: ${file.type}. Allowed types: jpg, jpeg, png, webp, gif, svg`,
+          error: `Invalid file type: ${file.type}. Allowed types: jpg, jpeg, png, webp, gif`,
         },
         { status: 400 }
       );
@@ -87,11 +88,13 @@ export async function POST(request: NextRequest) {
       });
 
     if (uploadError) {
+      console.error("Upload error:", uploadError.message);
       return NextResponse.json(
-        { success: false, error: uploadError.message },
+        { success: false, error: "Upload failed. Please try again." },
         { status: 500 }
       );
     }
+
 
     // Get public URL
     const { data: urlData } = supabase.storage
